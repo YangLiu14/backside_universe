@@ -1,6 +1,6 @@
 # 背面宇宙 · 桌上的假期
 
-从一张书桌照片进入三维空间，绕到电脑、书本和杯子背后，发现微缩度假世界。当前同时保留主 demo 与五个独立重建实验，最近完成的是电脑与杯子的实体表面小样。
+从一张书桌照片进入三维空间，绕到电脑、书本和杯子背后，发现微缩度假世界。当前保留主 demo 与多个独立重建实验，最新对照将 Marble 房间与原照校准物件组合。
 
 本目录是外层 `backside_universe` 仓库的普通子目录，不再维护独立 `.git`。旧历史已离线备份，见 [迁移记录](docs/GIT_MIGRATION.md)。
 
@@ -22,9 +22,12 @@ npm run dev
 | `/infinisplat-lab/index.html` | RTX3090 上运行的单图 InfiniSplat；减少大块空洞，仍有拖影 |
 | `/infinisplat-portrait-lab/index.html` | 竖幅输入对照；没有证明明显更好 |
 | `/occlusion-lab/index.html` | 分割表面、隐藏桌面与百叶窗补全；保留作对照 |
-| `/solid-object-lab/index.html` | 最新电脑/杯子实体表面与 Gaussian 背景混合小样，支持同机位切换上一版 |
+| `/solid-object-lab/index.html` | 电脑/杯子实体表面与 InfiniSplat 衍生背景混合小样，保留作对照 |
+| `/marble-lab/index.html` | Marble 1.1 完整照片真实输出，192 万 Gaussian；±12° 空间基本连续，但杯子等物件明显变形，未达到原照还原目标 |
+| `/marble-hybrid-lab/index.html` | 保留 Marble 房间，用校准电脑、蓝杯、书本/Hi3D 纸页与原照纹理替换局部；支持同机位对照、大角度和自由观察，接缝与隐藏面仍待改善 |
+| `/marble-refined-lab/index.html` | 修正杯柄、书边和连续桌面补面；同机位切换上一版，近桌±120°路径与自由移动；隐藏面仍为近似 |
 
-最新小样针对 ±12°；杯柄和隐藏侧面仍为近似，书本、小物件及外围仍有重影。它不代表已经获得完整的照片级 180° 场景。原主 demo 尚未接入这些独立实验结果。
+用户已认可 `marble-refined-lab` 作为下一阶段基础。局部重点验收 ±12°，近桌路径开放至 ±120°，也可自由移动；桌后和外围仍有未补全区域。接下来从 Marble 实景绕行段连续交接到建模度假世界，保留同一空间和镜头，不以补全整个不可见背面为前置目标。交接尚未实现，原主 demo 与三个 Marble 对照页继续保留。
 
 ## 文档与资产
 
@@ -34,6 +37,10 @@ npm run dev
 - [主 demo 的实现与历次调整](docs/MAIN_DEMO.md)
 - [Gaussian 基线复现](experiments/gaussian/README.md)
 - [InfiniSplat CUDA 环境与复现](experiments/infinisplat/README.md)
+- [Marble 云端接入、任务续接与验收](docs/MARBLE.md)
+- [Marble 房间与原照物件混合对照](docs/MARBLE_HYBRID.md)
+- [Marble 局部融合修正、近桌绕行与自由移动](docs/MARBLE_REFINED.md)
+- [Marble 可复用流程、排错经验与后续 skill 参考](docs/MARBLE_WORKFLOW_REFERENCE.md)——处理机位注册、重影/接缝、实体替换或规划实景到建模交接时阅读
 
 完整截图、逐帧检查和原始输出位于本地 `evidence/`，不提交。关键结论已汇总到文档，源码和固定相机参数用于继续实验。
 
@@ -42,6 +49,12 @@ npm run dev
 ```sh
 # 检查暂存区：无图片/模型/本地环境，单文件不超过 2 MiB
 npm run check:repo
+
+# Marble 离线任务保护和镜头检查，不需要 API key 或生成资产
+npm run check:marble
+
+# Marble 本地资产及保全快照就绪后，使用具备 NumPy / Pillow 的 Python
+PATH="$PWD/experiments/gaussian/.venv/bin:$PATH" npm run check:marble-assets
 
 # 完整本地资产就绪后：语法、几何、时间线和资产检查
 npm run check
@@ -53,7 +66,7 @@ GS_LAB_URL=http://127.0.0.1:9988/solid-object-lab/index.html \
 GS_LAB_EVIDENCE=evidence/solid-object-lab/full-check node scripts/check-gaussian-lab.cjs
 ```
 
-浏览器检查脚本当前引用开发机的 Playwright/Chromium 路径，离线模型脚本也包含本机工具路径；换机器时须按本机环境调整。这些脚本不属于已配置好的跨平台 CI。
+Marble 的浏览器捕获和验收脚本共用可配置的 Playwright/Chromium 入口，运行方法见 [MARBLE.md](docs/MARBLE.md#浏览器检查配置)。较早的实验脚本仍包含开发机路径；这些工具还不是跨平台 CI。
 
 ## 目录
 

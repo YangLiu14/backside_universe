@@ -6,7 +6,7 @@ Git 保存源码、校准参数、小型来源元数据、许可证与文字结�
 
 ## 恢复演示
 
-新克隆只含源码。按 [local-assets.json](local-assets.json) 从可信的私有资产备份，将列出的文件恢复到各自相对于仓库根目录的路径，并核对 SHA256。清单只含路径、大小和哈希，不嵌入图片、模型或下载凭据。
+新克隆只含源码。按 [local-assets.json](local-assets.json) 从可信的私有资产备份，将列出的文件恢复到各自相对于 `photo-demo/` 的路径，并核对 SHA256。清单只含路径、大小和哈希，不嵌入图片、模型或下载凭据。下表中的路径也相对于 `photo-demo/`。
 
 | 本地路径 | 用途 / 来源 |
 | --- | --- |
@@ -33,10 +33,10 @@ a2f01f68dbcd5e060d55348f803e509fc789b97904e01b98763fcf0314351aaf
 恢复命令（在仓库根目录）：
 
 ```sh
-mkdir -p .cache/spark dist/gs-lab/vendor
+mkdir -p .cache/spark photo-demo/dist/gs-lab/vendor
 npm pack @sparkjsdev/spark@2.4.0 --pack-destination .cache/spark
-tar -xOf .cache/spark/sparkjsdev-spark-2.4.0.tgz package/dist/spark.module.min.js > dist/gs-lab/vendor/spark.module.js
-shasum -a 256 dist/gs-lab/vendor/spark.module.js
+tar -xOf .cache/spark/sparkjsdev-spark-2.4.0.tgz package/dist/spark.module.min.js > photo-demo/dist/gs-lab/vendor/spark.module.js
+shasum -a 256 photo-demo/dist/gs-lab/vendor/spark.module.js
 ```
 
 Spark 许可证已保留在 `dist/gs-lab/vendor/SPARK-LICENSE.txt`。Three.js 的现有源码模块及许可证继续被跟踪；新增的大型 Spark 发行包留在本地。
@@ -57,8 +57,16 @@ Spark 许可证已保留在 `dist/gs-lab/vendor/SPARK-LICENSE.txt`。Three.js �
 
 ```sh
 git add <需要提交的源码和文档>
-npm run check:repo
+npm --prefix photo-demo run check:repo
 git diff --cached --stat
 ```
 
 `check:repo` 无论从哪个目录启动，都检查整个外层仓库索引里的实际对象：拒绝图片/模型/权重/归档、Git 历史备份、本地环境、实验输出及嵌套仓库 gitlink，且每个文件限制为 2 MiB。不要用强制添加绕过忽略规则。媒体文件与大型依赖通过本地资产备份恢复。
+
+## Marble 试验资产
+
+`dist/marble-lab/assets/` 已保存 World Labs 返回的 full-res SPZ（29.8 MB，192 万 Gaussian）、500k SPZ、全景图与低精度碰撞网格；除小型 `scene.json` 外继续全部忽略。哈希及机位记录在 `scene.json`，资产清单同步记录 SHA256。原始响应与服务下载地址仅在忽略的 `evidence/marble-lab/`；API key 只存放应用根 `.env.local` 或进程环境，不进入静态目录。恢复应使用备份资产或已有 operation 续接下载，不应重新提交付费任务。详见 [MARBLE.md](MARBLE.md)。
+
+`dist/marble-hybrid-lab/assets/` 为本地衍生资产：清理前景的 SPZ、局部支撑面 PLY、复用模型的几何 JSON 和移除索引 BIN。全部继续忽略，仅保留小型 `scene.json`。重建依赖原 Marble 资产、原照、既有 SAM/模型和源机位渲染证据；详见 [MARBLE_HYBRID.md](MARBLE_HYBRID.md)。无需重新收费生成。
+
+`dist/marble-refined-lab/assets/` 是融合修正版独立衍生资产：进一步清理的SPZ、连续桌面网格JSON、支持纹理、杯釉/书封边界纹理、物件几何和移除索引。遵循相同忽略规则，仅小型 `scene.json` 可追踪。具体依赖和重建命令见 [MARBLE_REFINED.md](MARBLE_REFINED.md)。

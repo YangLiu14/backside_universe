@@ -1,0 +1,108 @@
+{
+  "status": "generated",
+  "model": "marble-1.1",
+  "source_sha256": "a5a2ad89c596347fb97f38b9741b2d5e831f657cefa33b4150d7709c8d9365a0",
+  "source_image": "../../assets/desk-original.jpg",
+  "width": 1320,
+  "height": 1739,
+  "seed": 20261104,
+  "input": "complete unedited photo",
+  "world_id": "4d124ba3-8a9a-4775-a3e1-08511dbc67a9",
+  "operation_id": "da3055de-ec6e-451c-a5c6-aebf492a651f",
+  "cost": {
+    "total_credits": 1580,
+    "line_items": [
+      {
+        "name": "Pano generation (image, non-pano)",
+        "credits": 80
+      },
+      {
+        "name": "World generation",
+        "credits": 1500
+      }
+    ]
+  },
+  "variants": {
+    "full_res": {
+      "file": "desk-full_res.spz",
+      "bytes": 29803616,
+      "sha256": "256202633e5863d5422f93e8b2826bc40444f0552d09f5cae5ad6a8ef9a906c6"
+    },
+    "500k": {
+      "file": "desk-500k.spz",
+      "bytes": 7778704,
+      "sha256": "483285bb76ae20ea954ebca1f71ba81e7e96a4249f5c1c94a0dade67b16b2376"
+    }
+  },
+  "extras": {
+    "panorama": {
+      "file": "world-pano.jpg",
+      "bytes": 10106854,
+      "sha256": "1f06ed071a4e37c2824a216667c68bd43d21414592215139580dbd4e2ac122ed"
+    },
+    "collider": {
+      "file": "world-collider.glb",
+      "bytes": 2036552,
+      "sha256": "24794469d28f988cb1bb8e58939c06384f32b737234e30ac4074c0fd41a7173a"
+    }
+  },
+  "semantics_metadata": {
+    "metric_scale_factor": 0.5796625,
+    "ground_plane_offset": 1.667494
+  },
+  "coordinate_system": "marble_raw_opencv",
+  "calibration": {
+    "parameters": {
+      "x": -0.004328630998486938,
+      "y": 1.7021564576704014,
+      "z": -0.026839471920004115,
+      "yaw": 0.0011042709207441095,
+      "pitch": -28.244398359988317,
+      "roll": 0.17334953457422783,
+      "fov": 76.74463783638474,
+      "distance": 2.326585244301106
+    },
+    "method": "Shared SIFT features + Gaussian raycast; rigid 6DOF pose and FOV",
+    "inliers": 128,
+    "median_residual_px": 4.901081571934134,
+    "p90_residual_px": 9.82347837285455,
+    "initial_median_residual_px": 5.665547525917618,
+    "render_size": [
+      630,
+      830
+    ],
+    "reference_size": [
+      630,
+      830
+    ],
+    "orbit_depth_samples": 19,
+    "verified": false,
+    "note": "Approximate rigid source-view registration, visually reviewed. The generated scene alters object shapes; this is not an exact reconstruction or ground-truth camera.",
+    "visually_reviewed": true
+  },
+  "limitations": [
+    "Generated unseen content is not observed ground truth.",
+    "Approximate rigid source-view registration does not correct generated object changes.",
+    "Blue cup, headphones, book-top object and chair differ from the source photograph."
+  ],
+  "renderer": {
+    "name": "Spark",
+    "version": "2.4.0",
+    "gaussian_count": 1920000,
+    "variant": "full_res",
+    "aperture_angle": 0,
+    "covariance_antialiasing": 0.3,
+    "photo_overlay_during_orbit": false
+  },
+  "review": {
+    "date": "2026-11-04",
+    "verdict": "Does not meet exact-photo-reconstruction target",
+    "summary": "±12° 房间与桌面基本连续；电脑边缘仍有细小拖影，杯子及书上小物件明显变形。0° 与原照也存在差异，尚未达到真实场景还原目标。",
+    "observations": [
+      "Approximate source composition aligned; source-view objects and textures visibly regenerated.",
+      "No large desktop/background holes observed at inspected ±12° stops.",
+      "Fine edge wisps remain near the laptop; cup, headphones, note and chair differ in shape."
+    ],
+    "ground_truth": "Only original photograph; no real novel-view images available."
+  }
+}

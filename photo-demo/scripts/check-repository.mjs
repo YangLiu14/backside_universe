@@ -16,6 +16,8 @@ for(let i=0;i<entries.length;i++){
   if(e.mode==='160000')problems.push(`${e.path}: nested repository/gitlink; source must be tracked as ordinary files`);
   if(!Number.isFinite(size)||size>2*1024*1024)problems.push(`${e.path}: exceeds the 2 MiB source-file limit`);
   if(media.test(e.path)||local.test(e.path))problems.push(`${e.path}: local-only asset or environment is tracked`);
+  if(/(?:^|\/)\.env(?:\.[^/]*)?$/.test(e.path)&&!e.path.endsWith('/.env.example')&&e.path!=='.env.example')problems.push(`${e.path}: local credentials are tracked`);
+  if(/\.(?:pem|key)$/i.test(e.path))problems.push(`${e.path}: private key file is tracked`);
   if(/(?:^|\/)dist\/[^/]+-lab\/assets\//.test(e.path)&&!e.path.endsWith('/scene.json'))problems.push(`${e.path}: generated lab asset is tracked`);
 }
 if(problems.length){console.error(problems.join('\n'));process.exit(1);}

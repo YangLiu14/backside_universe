@@ -1,0 +1,5 @@
+@import url('../marble-lab/lab.css');
+.toolbar{flex-wrap:wrap;gap:14px}.transport{flex-wrap:wrap;gap:12px}.diagnostics{display:flex;flex-wrap:wrap;gap:18px;padding:16px 0}
+.diagnostics label{display:flex;align-items:center;gap:7px}#world{touch-action:none;cursor:grab}#world:active{cursor:grabbing}
+#mode-hint{min-height:1.4em;margin:14px 0}.wide-stop{color:#d8dbb7}.edition{white-space:nowrap}
+@media(max-width:760px){.transport .segmented{width:100%}.transport button{font-size:11px}.toolbar .segmented{gap:2px}.diagnostics{font-size:12px}}

@@ -237,6 +237,26 @@
       "sha256": "3597bfe4f6d4878f8a306e31a2e21dbcfc9d76f562b125c469ac3c02558bd95e"
     },
     {
+      "path": "dist/marble-lab/assets/desk-500k.spz",
+      "bytes": 7778704,
+      "sha256": "483285bb76ae20ea954ebca1f71ba81e7e96a4249f5c1c94a0dade67b16b2376"
+    },
+    {
+      "path": "dist/marble-lab/assets/desk-full_res.spz",
+      "bytes": 29803616,
+      "sha256": "256202633e5863d5422f93e8b2826bc40444f0552d09f5cae5ad6a8ef9a906c6"
+    },
+    {
+      "path": "dist/marble-lab/assets/world-collider.glb",
+      "bytes": 2036552,
+      "sha256": "24794469d28f988cb1bb8e58939c06384f32b737234e30ac4074c0fd41a7173a"
+    },
+    {
+      "path": "dist/marble-lab/assets/world-pano.jpg",
+      "bytes": 10106854,
+      "sha256": "1f06ed071a4e37c2824a216667c68bd43d21414592215139580dbd4e2ac122ed"
+    },
+    {
       "path": "dist/occlusion-lab/assets/desk-clean-plate.png",
       "bytes": 2255468,
       "sha256": "1e6d9996413d147368438a5abd462706aacc2ad5684ae64009c58c7078303e17"
@@ -255,6 +275,61 @@
       "path": "dist/solid-object-lab/assets/objects.json",
       "bytes": 232342,
       "sha256": "4dbe4f152130a36f202b52b2b4ae8f7f16dfd4cdfa97fa8f101be48e8497eff9"
+    },
+    {
+      "path": "dist/marble-hybrid-lab/assets/room-without-objects.spz",
+      "bytes": 29960624,
+      "sha256": "371ca9a3567a0efaf3e591a023205a1366e0fcf9ac284967084907e4d1f97fe9"
+    },
+    {
+      "path": "dist/marble-hybrid-lab/assets/support.ply",
+      "bytes": 2505913,
+      "sha256": "7794d1eb9ed14928ab53700e491c9c93aed33d6b151f4bef9c7e12d43b3e66c8"
+    },
+    {
+      "path": "dist/marble-hybrid-lab/assets/objects.json",
+      "bytes": 2048868,
+      "sha256": "aad583f24f4632907abdbabd90fa0480d8170dedff929642b985c0e3c7b34a38"
+    },
+    {
+      "path": "dist/marble-hybrid-lab/assets/removed-indices.bin",
+      "bytes": 77452,
+      "sha256": "48f4dbb200aba66fb29ab93dca3ca2dea7959df3dbf571aeb8b7209d9708822b"
+    },
+    {
+      "path": "dist/marble-refined-lab/assets/book-photo.png",
+      "bytes": 45584,
+      "sha256": "90dc5c04c29fcc04665830eb24bc5322a61aba8ba11fed246033ae8d02577281"
+    },
+    {
+      "path": "dist/marble-refined-lab/assets/cup-glaze.png",
+      "bytes": 39552,
+      "sha256": "464e7f6a9d26c88e27b4ee2f88952602c5373e631a321e9e19be0a2be540f3f5"
+    },
+    {
+      "path": "dist/marble-refined-lab/assets/desktop-surface.png",
+      "bytes": 1861099,
+      "sha256": "fa200226af20d31a413db26a35b3d0e512b19f90e3587d36bab00d8543f2d140"
+    },
+    {
+      "path": "dist/marble-refined-lab/assets/desktop.json",
+      "bytes": 985323,
+      "sha256": "70d379bfdd4a02c9de3986984c2867672f288c8b8325dbd02b7e6a082a7faf1b"
+    },
+    {
+      "path": "dist/marble-refined-lab/assets/objects.json",
+      "bytes": 2048868,
+      "sha256": "44120cc4fe62815d82d5f7c727a8bcdb719ea61fd4f23cfa66613af5f65e6124"
+    },
+    {
+      "path": "dist/marble-refined-lab/assets/removed-indices.bin",
+      "bytes": 99616,
+      "sha256": "60f0f0b8434fa35034379fad0e36199c959de28758ebad4f39aaff3319985cb1"
+    },
+    {
+      "path": "dist/marble-refined-lab/assets/room-without-objects.spz",
+      "bytes": 29959704,
+      "sha256": "9b66161ca80b4e4e0b0f7d34df58bdf97ca9bf4bea9d5368d9b4d93928a02469"
     }
   ]
 }

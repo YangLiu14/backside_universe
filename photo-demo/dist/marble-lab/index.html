@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>书桌 · Marble 1.1 独立验证</title>
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="./lab.css">
+  <script type="importmap">{"imports":{"three":"../vendor/three.module.js","three/addons/":"../vendor/addons/","@sparkjsdev/spark":"../gs-lab/vendor/spark.module.js"}}</script>
+</head>
+<body><main>
+  <header><a href="../solid-object-lab/index.html">← 返回实体表面版本</a><span class="edition">MARBLE 1.1 · 完整照片</span></header>
+  <section class="intro"><div><p class="eyebrow">PHOTO → WORLD</p><h1>同一张书桌，另一种空间。</h1><p class="sub">先看原图对齐，再检查 ±12° 绕行中的轮廓、遮挡和变形。</p></div><span id="status" role="status">正在读取生成状态…</span></section>
+  <div class="toolbar"><div class="segmented" aria-label="观察范围"><button data-crop="full" aria-pressed="true">完整照片</button><button data-crop="desk" aria-pressed="false">桌面重点</button><button data-crop="laptop" aria-pressed="false">电脑边缘</button><button data-crop="cup" aria-pressed="false">杯子与书</button></div><label class="diagnostic"><input id="gaps" type="checkbox" disabled>标出未覆盖区域</label></div>
+  <section class="comparison" aria-label="原照片与 Marble 场景对照">
+    <article class="panel"><div class="panel-title"><span>01 / 完整原照片</span><small>固定拍摄视角</small></div><div class="frame-wrap"><div class="frame reference" id="reference-frame"><img id="reference" src="../assets/desk-original.jpg" alt="完整书桌原照片，包含电脑、蓝杯、书本和台灯。" draggable="false"></div></div></article>
+    <article class="panel"><div class="panel-title"><span>02 / Marble 1.1 场景</span><small id="angle-label">尚未生成</small></div><div class="frame-wrap"><div class="frame result" id="result-frame"><canvas id="world" tabindex="0" aria-label="Marble 场景，左右拖动或使用方向键绕行，Home 回到零度。"></canvas><img id="alignment-reference" src="../assets/desk-original.jpg" alt="零度校准用原图" hidden draggable="false"><span id="loading">准备独立验证场景</span></div></div></article>
+  </section>
+  <section class="controls" aria-label="绕行控制">
+    <div class="transport"><button id="play" disabled aria-pressed="false">播放往返</button><button id="reset" disabled>回到 0°</button><span class="hint">原图只在左侧显示；绕行画面无照片叠加、无后期模糊。</span></div>
+    <div class="scrub"><span>−12°</span><input id="angle" type="range" min="-12" max="12" step="0.05" value="0" disabled aria-label="水平绕行角度"><span>+12°</span><output id="angle-value" for="angle">0.00°</output></div>
+    <div class="stops" aria-label="检查停点"><span>检查停点</span><button data-angle="-12" disabled>−12°</button><button data-angle="-6" disabled>−6°</button><button data-angle="-3" disabled>−3°</button><button data-angle="0" disabled>0°</button><button data-angle="3" disabled>+3°</button><button data-angle="6" disabled>+6°</button><button data-angle="12" disabled>+12°</button></div>
+  </section>
+  <aside class="notes">
+    <p><strong>当前状态</strong>　<span id="result-note">尚未提交生成。这里不会用旧模型代替 Marble 的结果。</span></p>
+    <p><strong>检查重点</strong>　电脑屏幕是否出现第二条轮廓，杯柄与书本是否改变形状，物件之间是否连续。零度对齐与新视角完整性分别判断；没有其他角度的实拍真值。</p>
+    <details id="calibration-panel"><summary>原图机位校准 <span id="calibration-status">· 等待场景</span></summary>
+      <p>校准只调整相机，不修改生成物体。修改时回到 0°；绕行围绕固定空间点进行，保持连续、可逆。</p>
+      <fieldset id="calibration-fields" disabled><legend>观察机位</legend>
+        <label>X <input data-cal="x" type="number" step="0.02" value="0"></label>
+        <label>Y <input data-cal="y" type="number" step="0.02" value="0"></label>
+        <label>Z <input data-cal="z" type="number" step="0.02" value="0"></label>
+        <label>水平角 <input data-cal="yaw" type="number" step="0.5" value="0"></label>
+        <label>俯仰角 <input data-cal="pitch" type="number" step="0.5" value="0"></label>
+        <label>倾斜角 <input data-cal="roll" type="number" step="0.5" value="0"></label>
+        <label>垂直视角 <input data-cal="fov" type="number" step="0.5" min="15" max="110" value="58.46"></label>
+        <label>绕行半径 <input data-cal="distance" type="number" step="0.05" min="0.1" max="30" value="3"></label>
+      </fieldset>
+      <div class="cal-actions"><button id="toggle-reference" disabled aria-pressed="false">按原图检查 0°</button><button id="save-calibration" disabled>保存本机校准</button><button id="clear-calibration" disabled>恢复默认校准</button><button id="export-calibration" disabled>导出校准记录</button></div>
+      <p id="calibration-note">Marble 没有返回这张照片的精确拍摄机位。初始参数只是待检查的起点。</p>
+    </details>
+    <details><summary>生成记录</summary><p id="asset-details">完整原图 · 无物件拆分 · 无手工修补 · 生成尚未完成。</p><p><a href="https://docs.worldlabs.ai/api/models">World Labs Marble</a> · <a href="https://sparkjs.dev/">Spark</a> · <a href="./assets/scene.json">本地场景记录</a> · <a href="./NOTICE.txt">说明</a></p></details>
+  </aside>
+</main><script type="module" src="./lab.js"></script></body>
+</html>

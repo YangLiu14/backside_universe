@@ -1,0 +1,19 @@
+// Shared browser configuration for the Marble capture and acceptance scripts.
+// Resolve a local Playwright install (or NODE_PATH); never assume a user's home.
+const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+
+const baseURL = (process.env.MARBLE_BASE_URL || 'http://127.0.0.1:9988').replace(/\/$/, '');
+
+function launchBrowser() {
+  const options = {
+    headless: true,
+    args: ['--enable-webgl', '--ignore-gpu-blocklist'],
+  };
+  if (process.platform === 'darwin') options.args.push('--use-angle=metal');
+  if (process.env.CHROMIUM_EXECUTABLE_PATH) {
+    options.executablePath = process.env.CHROMIUM_EXECUTABLE_PATH;
+  }
+  return chromium.launch(options);
+}
+
+module.exports = {baseURL, launchBrowser};

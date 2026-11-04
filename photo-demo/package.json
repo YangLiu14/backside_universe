@@ -1,1 +1,14 @@
-{"name":"backside-photo-universe","version":"0.9.0","private":true,"type":"module","scripts":{"dev":"node scripts/serve.mjs","check":"node scripts/check.mjs && node scripts/check-transition.mjs","check:repo":"node scripts/check-repository.mjs"}}
+{
+  "name": "backside-photo-universe",
+  "version": "0.9.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "check": "node scripts/check.mjs && node scripts/check-transition.mjs",
+    "check:repo": "node scripts/check-repository.mjs",
+    "check:marble": "python3 scripts/test-marble-runner.py && node scripts/check-marble-camera.mjs && node scripts/check-marble-refined.mjs",
+    "check:marble-assets": "python3 scripts/check-marble-hybrid.py && python3 scripts/check-marble-refined.py",
+    "check:marble-browser": "node scripts/check-marble-lab.cjs"
+  }
+}

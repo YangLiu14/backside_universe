@@ -1,0 +1,15 @@
+Marble 1.1 independent desk-photo applicability trial.
+Source: the complete original user-provided photograph, unchanged.
+Cloud generation is subject to World Labs service terms; this code does not
+redistribute World Labs model weights or claim an open model license.
+https://www.worldlabs.ai/terms-of-service
+
+Marble results are generated interpretations. Hidden geometry is not observed
+ground truth. Camera registration must be checked before judging alignment.
+No photograph overlay or postprocessing blur is used during orbiting. The
+explicit reference button is for the zero-degree registration check only.
+The original photograph remains separate in the left reference panel.
+
+Renderer: existing Three.js and Spark, with original notices retained under
+../vendor/ and ../gs-lab/vendor/. Generated images and SPZ files are local-only.
+No existing demonstration or experiment is replaced by this page.

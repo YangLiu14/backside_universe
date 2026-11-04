@@ -1,0 +1,11 @@
+@import url('../infinisplat-lab/lab.css');
+[hidden]{display:none!important}
+#alignment-reference{position:absolute;max-width:none;pointer-events:none;user-select:none}
+#loading{line-height:1.8;white-space:pre-line}
+#world:focus-visible{outline-offset:-3px}
+#calibration-status{color:var(--muted)}
+#calibration-fields{margin:12px 0;padding:12px;border:1px solid var(--line);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#calibration-fields label{display:grid;grid-template-columns:1fr 90px;align-items:center;gap:8px}
+#calibration-fields input{width:100%;min-width:0;padding:7px;border:1px solid var(--line);border-radius:4px;background:#202627;color:inherit;font:inherit}
+.cal-actions{display:flex;flex-wrap:wrap;gap:8px}
+@media(max-width:760px){.edition{font-size:10px;letter-spacing:0}#calibration-fields{grid-template-columns:repeat(2,minmax(0,1fr))}#calibration-fields label{grid-template-columns:1fr;gap:3px}.cal-actions button{font-size:11px}}
