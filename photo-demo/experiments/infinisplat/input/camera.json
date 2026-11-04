@@ -1,0 +1,24 @@
+{
+  "intrinsics_px": [
+    [
+      1650.1210075827205,
+      0,
+      660.0
+    ],
+    [
+      0,
+      1553.6479425581674,
+      869.5
+    ],
+    [
+      0,
+      0,
+      1
+    ]
+  ],
+  "orbit_anchor_uv": [
+    0.53,
+    0.455
+  ],
+  "note": "Shared DA3 baseline estimate, not measured calibration. Same source intrinsics for method comparison."
+}

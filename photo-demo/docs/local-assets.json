@@ -1,0 +1,260 @@
+{
+  "description": "Local-only runtime assets; restore separately. This file contains hashes, not media or models.",
+  "files": [
+    {
+      "path": "dist/assets/chair-hi3d.glb",
+      "bytes": 7203840,
+      "sha256": "5ac14d103bf6868a9a8c4648ed273430ae0766f8800e68390e6bbc234eb977a3"
+    },
+    {
+      "path": "dist/assets/desk-depth-8bit.png",
+      "bytes": 251365,
+      "sha256": "44117f2ee343fc66bd5dd1c001a5579433e99c0a9426cb8dc8260bda8a23ce30"
+    },
+    {
+      "path": "dist/assets/desk-depth.png",
+      "bytes": 2039484,
+      "sha256": "d3ea3efd024b582fcf69dd45af3ab2b88dc33a053c6ed2f24a9eb113ac2489e5"
+    },
+    {
+      "path": "dist/assets/desk-original.jpg",
+      "bytes": 210776,
+      "sha256": "a5a2ad89c596347fb97f38b9741b2d5e831f657cefa33b4150d7709c8d9365a0"
+    },
+    {
+      "path": "dist/assets/holiday-house.glb",
+      "bytes": 7756348,
+      "sha256": "87f48a3406c8ed879cd7478a28969a4492c94a8cbdccff52caca4a2211483bcb"
+    },
+    {
+      "path": "dist/assets/holiday-island.glb",
+      "bytes": 6834088,
+      "sha256": "ce67915aa115913000abaa3eb0df919df3242305256dc7ba8d49af0b014bb38a"
+    },
+    {
+      "path": "dist/assets/island-reference.png",
+      "bytes": 4140989,
+      "sha256": "368eb71315c5ac91e32d3ebea4454a508301fa369028db91f2dc85cc1d821d9a"
+    },
+    {
+      "path": "dist/assets/lamp-hi3d.glb",
+      "bytes": 1689900,
+      "sha256": "fa18fd2fe746a94265c63b2038a4e4e17a3075e69f4d496dc93a32a233bf4cb1"
+    },
+    {
+      "path": "dist/assets/laptop-hi3d.glb",
+      "bytes": 3556900,
+      "sha256": "2b89b452e5607c3e3e499d4ca90dd15cbd23ce174b58965c6a23e02413e536e5"
+    },
+    {
+      "path": "dist/assets/note-hi3d.glb",
+      "bytes": 1620004,
+      "sha256": "62d4312b6619fade1af34b1db30aa55c9802da6e21578b0d68eb1c29a19e9824"
+    },
+    {
+      "path": "dist/assets/objects/arm-cutout.png",
+      "bytes": 52277,
+      "sha256": "2211a3f4e77b7401a028ec7f7db0846c53a561b700a7c050b779b9f28359f287"
+    },
+    {
+      "path": "dist/assets/objects/arm-mask.png",
+      "bytes": 3667,
+      "sha256": "808eab07407b756ea1713bdd0c9e7897bf547455bbf36b0e59aec41e0fbb9bff"
+    },
+    {
+      "path": "dist/assets/objects/book-cover.png",
+      "bytes": 187645,
+      "sha256": "dd0e279d3d95596d7d084aa0ddd4879f33da42dbf070d796db30885b875c9992"
+    },
+    {
+      "path": "dist/assets/objects/book-cutout.png",
+      "bytes": 19400,
+      "sha256": "6f7f1fab5419fdf89396f878370b056058be93fb8b7411f7b0a696cd69ee397a"
+    },
+    {
+      "path": "dist/assets/objects/book-mask.png",
+      "bytes": 2737,
+      "sha256": "4b7ec7122419368ba944ab666a04b88de3ccbab308b5c4f756eb3234f4b9b487"
+    },
+    {
+      "path": "dist/assets/objects/cabinet-wood.png",
+      "bytes": 24308,
+      "sha256": "bd3fb83e4873166d4067d99172dbc02cf9957e1fad236e0fe4c9f169102f1258"
+    },
+    {
+      "path": "dist/assets/objects/chair-cutout.png",
+      "bytes": 568556,
+      "sha256": "239ce82d569dbe9b40c3fcf049fb15edbc8e474d98c482b9c5cb26300d2c1ef8"
+    },
+    {
+      "path": "dist/assets/objects/chair-mask.png",
+      "bytes": 10675,
+      "sha256": "8a159d65028cb95524a12baa2e8681eb16c4aaac2fdb3bdae36edc345ab95045"
+    },
+    {
+      "path": "dist/assets/objects/chair-weave.png",
+      "bytes": 3195,
+      "sha256": "3168c83199c89636d0f6769ca04c2ab05576068eac4973bb296a4ef4b278e353"
+    },
+    {
+      "path": "dist/assets/objects/cup-cutout.png",
+      "bytes": 13048,
+      "sha256": "5fd8aeef3239d8a65a60b10e7d7c16b708878f79763cd926513f7972268cf19f"
+    },
+    {
+      "path": "dist/assets/objects/cup-mask.png",
+      "bytes": 2603,
+      "sha256": "91e1c67fed498a03d6f3b86b45b780da0c7d823932e161c1e8319cd3e2a7d25f"
+    },
+    {
+      "path": "dist/assets/objects/desk-surface.png",
+      "bytes": 79553,
+      "sha256": "72b6c621691c3c6c8f50a120e6a2b082be0a4fc22389bed5579756e43f5b7b5e"
+    },
+    {
+      "path": "dist/assets/objects/foreground-mask.png",
+      "bytes": 13053,
+      "sha256": "ca9a004cec2ee677992fa1e8fced16e486cea8270e805d4b6844a842d3f1a0ee"
+    },
+    {
+      "path": "dist/assets/objects/headphones-mask.png",
+      "bytes": 2942,
+      "sha256": "b4bca54be06ce0628dd79a27f2641d5541e79aa04f214b8a3c85616aaa1207f0"
+    },
+    {
+      "path": "dist/assets/objects/lamp-cutout.png",
+      "bytes": 37701,
+      "sha256": "eb3dc12652693fbe4df19f47ee50f35489a9705631ca19b37cf0e5e9a39eaa87"
+    },
+    {
+      "path": "dist/assets/objects/lamp-mask.png",
+      "bytes": 3247,
+      "sha256": "f4c02b08e81548ef35c4074d600e0230aa71994d913fc02a71a03204160b058a"
+    },
+    {
+      "path": "dist/assets/objects/laptop-cutout.png",
+      "bytes": 61511,
+      "sha256": "ff161a659290a659c34acdcdcd3af9ba109b9901de7a0261c0f2ee258040aaa1"
+    },
+    {
+      "path": "dist/assets/objects/laptop-deck.png",
+      "bytes": 226187,
+      "sha256": "259afce72379103401685db1ce91e41c60f6aa1cf5ac03390b46b7536467988f"
+    },
+    {
+      "path": "dist/assets/objects/laptop-mask.png",
+      "bytes": 3139,
+      "sha256": "897526af7052830b1b9f63363bbc36a72e9ee9d69be7e41aed9f2290104bb3de"
+    },
+    {
+      "path": "dist/assets/objects/laptop-screen.png",
+      "bytes": 232435,
+      "sha256": "4039150be201c43fa57a43a9f1b64f0cb6e00f64fe686359250bea8331c3c1e5"
+    },
+    {
+      "path": "dist/assets/objects/left-objects-cutout.png",
+      "bytes": 63514,
+      "sha256": "2e5be812f280a84f8d21ca33adc34459215eae7c4ebc2f8b7c9da223946a202c"
+    },
+    {
+      "path": "dist/assets/objects/left-objects-mask.png",
+      "bytes": 3681,
+      "sha256": "24f895141e1caed362c11a1042c0ebf228fb2040b0651edbbc2594aa952f92dd"
+    },
+    {
+      "path": "dist/assets/objects/memo-paper.png",
+      "bytes": 31794,
+      "sha256": "7ec87b892083f5530f8c49fee165691fd420642f4838693695fe5fc08ffcdad2"
+    },
+    {
+      "path": "dist/assets/objects/note-cutout.png",
+      "bytes": 8794,
+      "sha256": "b8b326e7f828482d39ccee4de3218481b50d14065986f201d78cc3ca33659753"
+    },
+    {
+      "path": "dist/assets/objects/note-mask.png",
+      "bytes": 2553,
+      "sha256": "247ecddd3873c1735a77d88bf634309e1fbc407038c84160fe445b045cd6ba97"
+    },
+    {
+      "path": "dist/assets/objects/orange-book.png",
+      "bytes": 226857,
+      "sha256": "e97890d2f03192666b009027d8f10ea7ef04ae3cea7c59915197f08f4cd7595f"
+    },
+    {
+      "path": "dist/assets/objects/phone-cutout.png",
+      "bytes": 4664,
+      "sha256": "01075ec733f97b6b0907ea168f330d3c11e72ff48e7381d65afd63f66dc19698"
+    },
+    {
+      "path": "dist/assets/objects/phone-mask.png",
+      "bytes": 2544,
+      "sha256": "076f277292fe39b9e3536c19492046b0f17346a6341cacf05549aa122008c679"
+    },
+    {
+      "path": "dist/assets/objects/tabletop-mask.png",
+      "bytes": 5216,
+      "sha256": "c0b86853d4cee86ad4b12d88e5859a31daa68d48adb080c0eeeb3d481d8e83d5"
+    },
+    {
+      "path": "dist/assets/objects/window-surface.png",
+      "bytes": 420097,
+      "sha256": "dd9356a21a965c521ab7f3ece3c260eed2d243acdcbe8c86b69ecb1232d23305"
+    },
+    {
+      "path": "dist/gs-lab/assets/desk-gaussian.ply",
+      "bytes": 52084404,
+      "sha256": "c36a8b8a7ab3dfe92be212e4c2a2c4ab2bab10abc5ee53bf03f85821abf2c60d"
+    },
+    {
+      "path": "dist/gs-lab/assets/inference-reference.jpg",
+      "bytes": 222725,
+      "sha256": "866fcfe9d20edb6b64981fde3ec6ba49cc423d8e7da6182b313cc93fed6bbdfb"
+    },
+    {
+      "path": "dist/gs-lab/vendor/spark.module.js",
+      "bytes": 2852378,
+      "sha256": "a2f01f68dbcd5e060d55348f803e509fc789b97904e01b98763fcf0314351aaf"
+    },
+    {
+      "path": "dist/infinisplat-lab/assets/desk-gaussian.ply",
+      "bytes": 82697510,
+      "sha256": "1d8d79d331c4f718a684e2bbac1bcabe7c40ed7668568363c95e58009c823930"
+    },
+    {
+      "path": "dist/infinisplat-lab/assets/environment.txt",
+      "bytes": 1803,
+      "sha256": "3597bfe4f6d4878f8a306e31a2e21dbcfc9d76f562b125c469ac3c02558bd95e"
+    },
+    {
+      "path": "dist/infinisplat-portrait-lab/assets/desk-gaussian.ply",
+      "bytes": 82628518,
+      "sha256": "1f0484fd42fd56aa2f593995106cd672852f9e810c4255470d721cfdb76dab65"
+    },
+    {
+      "path": "dist/infinisplat-portrait-lab/assets/environment.txt",
+      "bytes": 1803,
+      "sha256": "3597bfe4f6d4878f8a306e31a2e21dbcfc9d76f562b125c469ac3c02558bd95e"
+    },
+    {
+      "path": "dist/occlusion-lab/assets/desk-clean-plate.png",
+      "bytes": 2255468,
+      "sha256": "1e6d9996413d147368438a5abd462706aacc2ad5684ae64009c58c7078303e17"
+    },
+    {
+      "path": "dist/occlusion-lab/assets/desk-gaussian.ply",
+      "bytes": 88584635,
+      "sha256": "c32af5c3357a649570359b50cc1902931e31f6237cbab6091b70651f4a07f4cc"
+    },
+    {
+      "path": "dist/solid-object-lab/assets/desk-gaussian.ply",
+      "bytes": 87025035,
+      "sha256": "ee239346e732724691f661ebd9771f6c7bee0a3a8eff64580db0ee51d3d4d385"
+    },
+    {
+      "path": "dist/solid-object-lab/assets/objects.json",
+      "bytes": 232342,
+      "sha256": "4dbe4f152130a36f202b52b2b4ae8f7f16dfd4cdfa97fa8f101be48e8497eff9"
+    }
+  ]
+}

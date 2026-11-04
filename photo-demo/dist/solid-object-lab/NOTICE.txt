@@ -1,0 +1,24 @@
+InfiniSplat v1 background + opaque laptop/cup surfaces, personal technical evaluation.
+Source: zju3dv/InfiniSplat, commit be49948e92f828054d98103cd98578fada8ec728 (PRL).
+Weights: PLUS-WAVE/InfiniSplat, revision 455dc3f21f3b2ddba37df65443112882fc6016d2 (Apache 2.0).
+Upstream DINOv3 and Depth Pro terms remain applicable.
+Spark viewer is reused from ../gs-lab/vendor/, see its bundled license.
+The unchanged previous completion remains available at ../occlusion-lab/index.html.
+The original InfiniSplat result remains available at ../infinisplat-lab/index.html.
+This derivative uses existing SAM 2.1 instance masks to separate surface depths.
+A background plate generated with OpenAI's built-in image-generation tool supplies
+estimated, previously occluded desk and blind texels on fixed 3D surfaces.
+Visible texels in reconstructed surfaces come from the user's source photograph.
+This experiment replaces the laptop and cup with fixed opaque triangle surfaces.
+Their inferred thickness, cup wall, handle, and unseen materials are approximations.
+A fixed source-camera visibility buffer controls photograph projection.
+The background PLY excludes the replaced foreground, and the surface and splat
+renderers share the depth buffer. Only the cup's local support surface and
+background Gaussian colors are adjusted to improve contact and color continuity.
+The PLY download contains the background, not the complete hybrid scene.
+The complete experiment also requires objects.json and the viewer code/assets.
+There is no screen-space photo overlay, crossfade, or depth-of-field concealment.
+Generated hidden content is an estimate, not an observation or a measured reconstruction.
+This trial covers the main desk at +/-12 degrees, not a complete 180-degree scene.
+The original inference timing in scene.json excludes this offline completion stage.
+Personal evaluation is registration-exempt; future organizational project use requires PRL registration.

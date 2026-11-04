@@ -1,0 +1,13 @@
+.venv/
+source/
+source.tar.gz
+checkpoints/
+wheels/
+output/
+output-portrait/
+bundle/
+*.tar.gz
+model-info.json
+xformers-info.json
+__pycache__/
+get-pip.py

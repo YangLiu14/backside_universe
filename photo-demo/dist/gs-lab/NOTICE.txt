@@ -1,0 +1,26 @@
+Gaussian validation page — local experiment
+
+Pipeline: DA3-BASE depth prediction → BLUNT depth unprojection → Gaussian PLY → Spark.
+No SHARP model, no DA3 learned Gaussian head, no VGGT checkpoint, no inpainting.
+The output is a depth-derived 3D Gaussian representation of the visible surface,
+not a complete reconstruction of the room or occluded objects.
+
+BLUNT: Copyright (c) 2026 StorySplat. MIT.
+https://github.com/SonnyC56/blunt
+Full license: vendor/BLUNT-LICENSE.txt
+
+Depth Anything 3 code and DA3-BASE weights: Apache License 2.0.
+https://github.com/ByteDance-Seed/Depth-Anything-3
+https://huggingface.co/depth-anything/DA3-BASE
+Full license: vendor/DA3-LICENSE.txt
+Only the explicitly Apache-licensed BASE model is used.
+
+Spark 2.4.0: MIT, license in vendor/SPARK-LICENSE.txt
+https://github.com/sparkjsdev/spark
+Three.js: existing project runtime; MIT.
+https://github.com/mrdoob/three.js
+
+The reference photograph was supplied by the user for this private experiment.
+Model/code licenses do not confer copyright in the supplied photograph.
+
+Edge refinement uses existing SAM 2.1 segmentation masks from the earlier project stage (no new model inference). Mask hashes are recorded in scene.json. SAM attribution/license is retained at ../assets/objects/SAM2-LICENSE.txt. No hidden-background completion is performed.

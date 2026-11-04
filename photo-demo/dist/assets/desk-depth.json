@@ -1,0 +1,46 @@
+{
+  "model": "depth-anything/DA3-SMALL",
+  "model_revision": "e08cab65ca0ec38e7826075418411ab90cab4da3",
+  "model_license": "Apache-2.0",
+  "model_url": "https://huggingface.co/depth-anything/DA3-SMALL",
+  "code_repository": "https://github.com/ByteDance-Seed/Depth-Anything-3",
+  "code_commit": "3d835ec1a5802d64a8b8b15f817a1ab54809bfe4",
+  "source_image": "desk-original.jpg",
+  "source_sha256": "a5a2ad89c596347fb97f38b9741b2d5e831f657cefa33b4150d7709c8d9365a0",
+  "width": 1320,
+  "height": 1739,
+  "inference_width": 770,
+  "inference_height": 1008,
+  "device": "mps",
+  "inference_seconds": 2.98,
+  "primary_file": "desk-depth.png",
+  "primary_bits": 16,
+  "browser_file": "desk-depth-8bit.png",
+  "browser_bits": 8,
+  "encoding": "normalized inverse depth (disparity); white=near, black=far",
+  "orientation": "matches source pixels; top-left origin; no crop or flip",
+  "decode": "v=sample/65535 (16-bit) or sample/255 (8-bit); inverse_depth=low+v*(high-low); depth=1/inverse_depth",
+  "low": 0.7538201624155044,
+  "high": 2.1171625399589535,
+  "clipped_percentiles": [
+    1,
+    99
+  ],
+  "units": "relative model depth, not surveyed meters",
+  "samples_normalized": {
+    "background_blind": 0.1238020732998848,
+    "laptop_screen": 0.2889060378074646,
+    "blue_book": 0.1427086591720581,
+    "blue_cup": 0.3022192418575287,
+    "lamp_shade": 0.46328869462013245,
+    "chair": 0.6720865368843079,
+    "foreground_book": 0.8800040483474731
+  },
+  "limitations": [
+    "Single-view estimate, not measured geometry or full 3D reconstruction.",
+    "Occluded surfaces are not inpainted or recovered.",
+    "Fine lamp arms, chair mesh, glossy surfaces and depth boundaries may be inaccurate.",
+    "Use restrained camera motion; this asset cannot support faithful 180-degree rotation."
+  ],
+  "texture_color_space": "linear data / THREE.NoColorSpace; do not apply sRGB decoding"
+}

@@ -1,0 +1,2 @@
+# Preserve upstream vendored source bytes, including its mixed indentation.
+photo-demo/dist/vendor/** whitespace=-space-before-tab

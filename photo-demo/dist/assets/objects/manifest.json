@@ -1,0 +1,341 @@
+{
+  "model": "facebookresearch/sam2 / SAM 2.1 Hiera Tiny",
+  "model_license": "Apache-2.0",
+  "source": "https://github.com/facebookresearch/sam2",
+  "checkpoint_sha256": "7402e0d864fa82708a20fbd15bc84245c2f26dff0eb43a4b5b93452deb34be69",
+  "source_sha256": "a5a2ad89c596347fb97f38b9741b2d5e831f657cefa33b4150d7709c8d9365a0",
+  "device": "mps",
+  "objects": [
+    {
+      "name": "laptop",
+      "box": [
+        501,
+        631,
+        724,
+        822
+      ],
+      "positive_points": [
+        [
+          579,
+          698
+        ],
+        [
+          612,
+          790
+        ]
+      ],
+      "negative_points": [],
+      "score": 0.9726917147636414,
+      "crop": [
+        498,
+        632,
+        725,
+        827
+      ],
+      "pixels": 24276
+    },
+    {
+      "name": "cup",
+      "box": [
+        748,
+        706,
+        846,
+        772
+      ],
+      "positive_points": [
+        [
+          798,
+          737
+        ],
+        [
+          793,
+          757
+        ],
+        [
+          828,
+          731
+        ]
+      ],
+      "negative_points": [
+        [
+          785,
+          700
+        ]
+      ],
+      "score": 0.9067954421043396,
+      "crop": [
+        745,
+        706,
+        849,
+        777
+      ],
+      "pixels": 3721
+    },
+    {
+      "name": "book",
+      "box": [
+        709,
+        663,
+        860,
+        725
+      ],
+      "positive_points": [
+        [
+          742,
+          691
+        ],
+        [
+          832,
+          698
+        ]
+      ],
+      "negative_points": [
+        [
+          786,
+          668
+        ],
+        [
+          798,
+          738
+        ]
+      ],
+      "score": 0.8704527616500854,
+      "crop": [
+        703,
+        660,
+        866,
+        728
+      ],
+      "pixels": 3952
+    },
+    {
+      "name": "note",
+      "box": [
+        754,
+        636,
+        823,
+        697
+      ],
+      "positive_points": [
+        [
+          789,
+          669
+        ]
+      ],
+      "negative_points": [],
+      "score": 0.9242485165596008,
+      "crop": [
+        749,
+        632,
+        824,
+        702
+      ],
+      "pixels": 2528
+    },
+    {
+      "name": "lamp",
+      "box": [
+        1027,
+        567,
+        1180,
+        775
+      ],
+      "positive_points": [
+        [
+          1117,
+          623
+        ],
+        [
+          1103,
+          744
+        ],
+        [
+          1103,
+          696
+        ]
+      ],
+      "negative_points": [],
+      "score": 0.9118139147758484,
+      "crop": [
+        1055,
+        565,
+        1190,
+        775
+      ],
+      "pixels": 11404
+    },
+    {
+      "name": "chair",
+      "box": [
+        628,
+        730,
+        1263,
+        1560
+      ],
+      "positive_points": [
+        [
+          984,
+          1174
+        ],
+        [
+          1153,
+          876
+        ],
+        [
+          837,
+          1388
+        ]
+      ],
+      "negative_points": [
+        [
+          789,
+          931
+        ],
+        [
+          658,
+          1345
+        ]
+      ],
+      "score": 0.857308030128479,
+      "crop": [
+        648,
+        726,
+        1263,
+        1574
+      ],
+      "pixels": 158309
+    },
+    {
+      "name": "left-objects",
+      "box": [
+        230,
+        597,
+        413,
+        872
+      ],
+      "positive_points": [
+        [
+          275,
+          677
+        ],
+        [
+          323,
+          837
+        ]
+      ],
+      "negative_points": [],
+      "score": 0.8767057061195374,
+      "crop": [
+        226,
+        597,
+        417,
+        881
+      ],
+      "pixels": 18840
+    },
+    {
+      "name": "phone",
+      "box": [
+        408,
+        781,
+        475,
+        820
+      ],
+      "positive_points": [
+        [
+          444,
+          802
+        ]
+      ],
+      "negative_points": [],
+      "score": 0.860977828502655,
+      "crop": [
+        401,
+        778,
+        481,
+        828
+      ],
+      "pixels": 1160
+    },
+    {
+      "name": "arm",
+      "box": [
+        727,
+        380,
+        933,
+        701
+      ],
+      "positive_points": [
+        [
+          764,
+          430
+        ],
+        [
+          917,
+          548
+        ]
+      ],
+      "negative_points": [],
+      "score": 0.861473560333252,
+      "crop": [
+        722,
+        374,
+        941,
+        705
+      ],
+      "pixels": 12201
+    }
+  ],
+  "note": "Masks inferred locally using point and box prompts; not SAM 3. Crop resolution is limited by the original photo. Book note occlusion inpainted only in rectified texture.",
+  "postprocessing": "Largest connected component retained for laptop/book/cup. Wall holes filled with OpenCV Telea. Desktop now uses a quadratic illumination fit to clean SAM tabletop interior, excluding foreground and underside. Book hidden covers use local Telea inpainting.",
+  "tabletop_score": 0.8666483163833618,
+  "headphones": {
+    "crop": [
+      229,
+      762,
+      389,
+      851
+    ],
+    "boxes": [
+      [
+        295,
+        800,
+        370,
+        842
+      ],
+      [
+        311,
+        773,
+        379,
+        809
+      ],
+      [
+        239,
+        768,
+        307,
+        824
+      ]
+    ],
+    "positive_points": [
+      [
+        332,
+        820
+      ],
+      [
+        345,
+        790
+      ],
+      [
+        263,
+        789
+      ]
+    ],
+    "scores": [
+      0.9756360054016113,
+      0.9105207920074463,
+      0.7142432928085327
+    ],
+    "mask": "headphones-mask.png",
+    "purpose": "Remove headphone occlusion from rectified orange book, not a paid model submission"
+  }
+}

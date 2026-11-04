@@ -1,0 +1,20 @@
+# 背面宇宙
+<!-- impeccable:product-schema 1 -->
+
+## Platform
+web
+
+## Product Purpose
+将用户随手拍摄的工作照片和度假愿望变成可以缩放旋转的空间，在日常物件背面发现精美微缩世界。
+
+## Users
+希望将自己的生活片段变成个人化创作并分享的人。本轮是单场景演示。
+
+## Capabilities and Constraints
+用户选定白桌、蓝杯的照片，明确要求照片与场景一致、照片进入三维的过程连续、背面景观精美。Hi3D 用于真实景观资产。照片未记录部分需补建。
+
+## Brand Commitments
+背面宇宙；桌面上的一个小动作，另一个世界发生一件很大的事。保留原图的白色、钴蓝和暖灯质感。
+
+## Evidence on Hand
+用户提供的 JPEG，旧 demo 的 Three.js 代码与 Hi3D 小屋模型，创意讨论 Page。

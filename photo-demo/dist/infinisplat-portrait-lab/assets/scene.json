@@ -1,0 +1,79 @@
+{
+  "model": "PLUS-WAVE/InfiniSplat · RGB v1",
+  "model_revision": "455dc3f21f3b2ddba37df65443112882fc6016d2",
+  "model_sha256": "d68a8c99109f06a264567766bd52d8d9ba81e51d044d0a966c3336160ea7007d",
+  "code_commit": "be49948e92f828054d98103cd98578fada8ec728",
+  "model_license": "Apache-2.0; upstream notices retained",
+  "code_license": "PRL; this run is personal evaluation",
+  "source_sha256": "a5a2ad89c596347fb97f38b9741b2d5e831f657cefa33b4150d7709c8d9365a0",
+  "source_image": "../../assets/desk-original.jpg",
+  "generator": "InfiniSplat v1 RGB official encoder",
+  "representation": "learned surface-aligned 3D Gaussians",
+  "gaussian_head": true,
+  "width": 1320,
+  "height": 1739,
+  "original_width": 1320,
+  "original_height": 1739,
+  "inference_width": 1168,
+  "inference_height": 1536,
+  "inference_shape_policy": "explicit aspect-ratio experiment",
+  "intrinsics": [
+    1650.1209716796875,
+    1553.64794921875,
+    660.0,
+    869.5
+  ],
+  "intrinsics_source": "DA3 baseline estimate, shared for controlled comparison; not calibrated ground truth",
+  "inference_intrinsics": [
+    [
+      1460.1070556640625,
+      0.0,
+      584.0
+    ],
+    [
+      0.0,
+      1372.2847900390625,
+      768.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "pivot_opencv": [
+    0.07308811870824534,
+    -0.15340053026513453,
+    3.0455615520477295
+  ],
+  "orbit_anchor_uv": [
+    0.53,
+    0.455
+  ],
+  "coordinate_system": "OpenCV: x right, y down, z forward; source camera at origin",
+  "units": "Depth Pro predicted metric scale; not surveyed ground truth",
+  "depth_range": [
+    1.5429492235183715,
+    4.601398963928225
+  ],
+  "gaussian_count": 1475495,
+  "raw_gaussian_count": 1500000,
+  "gaussian_bytes": 82628518,
+  "ply_sha256": "1f0484fd42fd56aa2f593995106cd672852f9e810c4255470d721cfdb76dab65",
+  "inference_seconds": 1.7278382120000515,
+  "device": "NVIDIA GeForce RTX 3090",
+  "cuda_version": "12.8",
+  "torch_version": "2.9.0+cu128",
+  "peak_allocated_gpu_bytes": 5545842688,
+  "seed": 20261103,
+  "query_batch_size": 80000,
+  "floater_filter": "official default",
+  "inpainting": false,
+  "photo_overlay": false,
+  "normalization": false,
+  "limitations": [
+    "Single photograph; unseen geometry has no ground-truth validation.",
+    "Learned Gaussian parameters do not guarantee occluded-surface completion.",
+    "No 180-degree reconstruction claim."
+  ]
+}

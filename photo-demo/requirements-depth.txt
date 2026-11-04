@@ -1,0 +1,15 @@
+# Offline asset generation only; not browser/runtime dependencies.
+# Python 3.12; official DA3 source revision is documented in generate-depth.py.
+torch==2.15.0
+torchvision==0.29.2
+numpy==1.26.4
+pillow==13.0.0
+opencv-python==4.11.0.86
+einops==0.8.2
+huggingface_hub==2.4.0
+safetensors==0.8.0
+omegaconf==2.4.0
+addict==2.4.0
+matplotlib==3.11.2
+imageio==2.38.1
+socksio==1.0.0

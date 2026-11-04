@@ -1,0 +1,74 @@
+{
+  "chair": {
+    "name": "chair",
+    "file": "chair-hi3d.glb",
+    "position": [
+      0.3947656364425326,
+      -1.6,
+      3.0694163082620562
+    ],
+    "yaw": 0.6168339843535924,
+    "scale": 3.256577940047439,
+    "sourceOrigin": [
+      4.191696643829346e-05,
+      -0.5003029108047485,
+      -0.00038860738277435303
+    ],
+    "loss": 19.565871354042493,
+    "method": "SAM silhouette fit, uniform scale + yaw, fixed support height",
+    "sourceSize": [
+      0.6160578429698944,
+      1.0001096427440643,
+      0.7733881175518036
+    ],
+    "limits": "Single-view alignment only; unknown back surfaces are generated."
+  },
+  "lamp": {
+    "name": "lamp",
+    "file": "lamp-hi3d.glb",
+    "position": [
+      2.8707004344394678,
+      0.025,
+      0.6183916567726051
+    ],
+    "yaw": 1.0322004553403805,
+    "scale": 0.9834949925813601,
+    "sourceOrigin": [
+      -5.742907524108887e-05,
+      -0.5000714063644409,
+      1.3068318367004395e-05
+    ],
+    "loss": 0.20751119582225813,
+    "method": "SAM silhouette fit, uniform scale + yaw, fixed support height",
+    "sourceSize": [
+      0.61958247423172,
+      0.9998226761817932,
+      0.6080280244350433
+    ],
+    "limits": "Single-view alignment only; unknown back surfaces are generated."
+  },
+  "note": {
+    "name": "note",
+    "file": "note-hi3d.glb",
+    "position": [
+      1.5569290786176107,
+      0.058,
+      -0.75824967149721
+    ],
+    "yaw": -0.7615154719466669,
+    "scale": 0.2734735176970747,
+    "sourceOrigin": [
+      -2.3305416107177734e-05,
+      -0.3729894161224365,
+      2.0429491996765137e-05
+    ],
+    "loss": 0.06886893861030963,
+    "method": "SAM silhouette fit, uniform scale + yaw, fixed support height",
+    "sourceSize": [
+      1.0004808902740479,
+      0.7451444864273071,
+      0.8515802323818207
+    ],
+    "limits": "Single-view alignment only; unknown back surfaces are generated."
+  }
+}

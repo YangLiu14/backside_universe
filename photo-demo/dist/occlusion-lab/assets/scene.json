@@ -1,0 +1,159 @@
+{
+  "model": "PLUS-WAVE/InfiniSplat · RGB v1",
+  "model_revision": "455dc3f21f3b2ddba37df65443112882fc6016d2",
+  "model_sha256": "d68a8c99109f06a264567766bd52d8d9ba81e51d044d0a966c3336160ea7007d",
+  "code_commit": "be49948e92f828054d98103cd98578fada8ec728",
+  "model_license": "Apache-2.0; upstream notices retained",
+  "code_license": "PRL; this run is personal evaluation",
+  "source_sha256": "a5a2ad89c596347fb97f38b9741b2d5e831f657cefa33b4150d7709c8d9365a0",
+  "source_image": "../../assets/desk-original.jpg",
+  "generator": "InfiniSplat + segmented surfaces + explicit hidden desk/blind layers",
+  "representation": "hybrid learned and reconstructed surface Gaussians",
+  "gaussian_head": true,
+  "width": 1320,
+  "height": 1739,
+  "original_width": 1320,
+  "original_height": 1739,
+  "inference_width": 1536,
+  "inference_height": 1152,
+  "intrinsics": [
+    1650.1209716796875,
+    1553.64794921875,
+    660.0,
+    869.5
+  ],
+  "intrinsics_source": "DA3 baseline estimate, shared for controlled comparison; not calibrated ground truth",
+  "inference_intrinsics": [
+    [
+      1920.1407470703125,
+      0.0,
+      768.0
+    ],
+    [
+      0.0,
+      1029.2135009765625,
+      576.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "pivot_opencv": [
+    0.07365728893870312,
+    -0.15459512956125107,
+    3.0692787170410156
+  ],
+  "orbit_anchor_uv": [
+    0.53,
+    0.455
+  ],
+  "coordinate_system": "OpenCV: x right, y down, z forward; source camera at origin",
+  "units": "Depth Pro predicted metric scale; not surveyed ground truth",
+  "depth_range": [
+    1.5529001188278198,
+    4.662111978530883
+  ],
+  "gaussian_count": 1581862,
+  "raw_gaussian_count": 1500000,
+  "gaussian_bytes": 88584635,
+  "ply_sha256": "c32af5c3357a649570359b50cc1902931e31f6237cbab6091b70651f4a07f4cc",
+  "inference_seconds": 1.7386599000001297,
+  "device": "NVIDIA GeForce RTX 3090",
+  "cuda_version": "12.8",
+  "torch_version": "2.9.0+cu128",
+  "peak_allocated_gpu_bytes": 5543090176,
+  "seed": 20261103,
+  "query_batch_size": 80000,
+  "floater_filter": "official default",
+  "inpainting": true,
+  "photo_overlay": false,
+  "normalization": false,
+  "limitations": [
+    "Hidden texels are generated estimates, not observed reality.",
+    "Only the main desk and nearby blind are completed; room perimeter and chair remain imperfect.",
+    "Evaluation restricted to ±12 degrees; not a complete 180-degree scene."
+  ],
+  "parent_ply_sha256": "1d8d79d331c4f718a684e2bbac1bcabe7c40ed7668568363c95e58009c823930",
+  "occlusion_completion": true,
+  "completion_texture_sha256": "1e6d9996413d147368438a5abd462706aacc2ad5684ae64009c58c7078303e17",
+  "source_scene_unchanged": false,
+  "completion_method": "imagegen hidden texels on fitted 3D planes; per-instance depth edges",
+  "removed_gaussians": 113562,
+  "added_gaussians": 218697,
+  "surface_fit": {
+    "blind": {
+      "samples": 34073,
+      "inliers": 6785,
+      "sampled": 7000,
+      "median_inverse_depth_error": 0.0003848839256508363,
+      "plane": [
+        -0.19188984527762123,
+        -0.15062693420390755,
+        0.2219632376632087
+      ],
+      "hidden_pixels": 43854,
+      "color_offset": [
+        2.0,
+        2.0,
+        0.0
+      ]
+    },
+    "table": {
+      "samples": 29053,
+      "inliers": 4444,
+      "sampled": 7000,
+      "median_inverse_depth_error": 0.0008113226827337894,
+      "plane": [
+        0.02200929420306318,
+        0.923464612882769,
+        0.3703873690881232
+      ],
+      "hidden_pixels": 35730,
+      "color_offset": [
+        -12.0,
+        -10.0,
+        -12.0
+      ]
+    },
+    "screen": {
+      "samples": 9525,
+      "inliers": 6651,
+      "sampled": 7000,
+      "median_inverse_depth_error": 0.00030622060152446506,
+      "plane": [
+        -0.16888494211726962,
+        0.03177614965861453,
+        0.3054500551733317
+      ]
+    },
+    "base": {
+      "samples": 4853,
+      "inliers": 4750,
+      "sampled": 4853,
+      "median_inverse_depth_error": 0.00043396078886159817,
+      "plane": [
+        -0.013799852335012757,
+        0.8692906277379152,
+        0.37184106338163664
+      ]
+    },
+    "note": {
+      "pixels": 2528,
+      "depth_median": 3.7153604742112822
+    },
+    "cup": {
+      "pixels": 3721,
+      "depth_median": 3.216115633817694
+    },
+    "phone": {
+      "pixels": 1160,
+      "depth_median": 3.01188364140299
+    },
+    "book": {
+      "pixels": 3915,
+      "depth_median": 3.6543989647920085
+    }
+  }
+}

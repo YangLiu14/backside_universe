@@ -1,0 +1,24 @@
+# PyTorch/xformers are installed separately using the official CUDA 12.8 build.
+# No Gradio, Node, or gsplat is needed for encoder inference + PLY export.
+numpy<2.0
+scipy
+hydra-core
+omegaconf
+dacite
+termcolor
+rich
+tqdm
+pandas<3
+h5py
+einops>=0.4.1
+jaxtyping
+opencv-python-headless<4.12
+scikit-learn
+Pillow
+imageio[ffmpeg]
+matplotlib
+plyfile<1.1.4
+torchmetrics
+huggingface-hub
+timm
+regex

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>书桌 · InfiniSplat 对照试验</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./lab.css">
+  <script type="importmap">{"imports":{"three":"../vendor/three.module.js","three/addons/":"../vendor/addons/","@sparkjsdev/spark":"../gs-lab/vendor/spark.module.js"}}</script>
+</head>
+<body>
+<main>
+  <header><a href="../gs-lab/index.html">← 对照：上一版</a><span class="edition">InfiniSplat v1 · 官方输入 · 1536 × 1152</span></header>
+  <section class="intro"><div><p class="eyebrow">PHOTO → GAUSSIANS</p><h1>换一种方法，再看同一张书桌。</h1><p class="sub">直接预测 Gaussian 场景，检查绕行时的边缘与遮挡。</p></div><span id="status" role="status">正在准备 Gaussian 场景…</span></section>
+  <div class="toolbar"><div class="segmented" aria-label="观察范围"><button data-crop="full" aria-pressed="true">完整照片</button><button data-crop="desk" aria-pressed="false">桌面重点</button><button data-crop="laptop" aria-pressed="false">电脑边缘</button><button data-crop="cup" aria-pressed="false">杯子与书</button></div><label class="diagnostic"><input id="gaps" type="checkbox">标出未覆盖区域</label></div>
+  <section class="comparison" aria-label="原照片与 Gaussian 对照">
+    <article class="panel"><div class="panel-title"><span>01 / 原照片</span><small>固定原始视角</small></div><div class="frame-wrap"><div class="frame reference" id="reference-frame"><img id="reference" src="../assets/desk-original.jpg" alt="原始书桌照片：笔记本电脑、蓝杯和书本。" draggable="false"></div></div></article>
+    <article class="panel"><div class="panel-title"><span>02 / InfiniSplat v1 场景</span><small id="angle-label">原始视角 · 0°</small></div><div class="frame-wrap"><div class="frame result" id="result-frame"><canvas id="world" tabindex="0" aria-label="Gaussian 场景，左右拖动或使用方向键小幅绕行。Home 返回原视角。"></canvas><span id="loading">正在加载真实 Gaussian 资产</span></div></div></article>
+  </section>
+  <section class="controls" aria-label="绕行控制">
+    <div class="transport"><button id="play" disabled aria-pressed="false">播放往返</button><button id="reset" disabled>回到 0°</button><span class="hint">拖动画面或滑杆，随时停下来检查边缘。</span></div>
+    <div class="scrub"><span>−12°</span><input id="angle" type="range" min="-12" max="12" step="0.05" value="0" disabled aria-label="水平绕行角度"><span>+12°</span><output id="angle-value" for="angle">0.00°</output></div>
+    <div class="stops" aria-label="检查停点"><span>检查停点</span><button data-angle="-12" disabled>−12°</button><button data-angle="-6" disabled>−6°</button><button data-angle="-3" disabled>−3°</button><button data-angle="0" disabled>0°</button><button data-angle="3" disabled>+3°</button><button data-angle="6" disabled>+6°</button><button data-angle="12" disabled>+12°</button></div>
+  </section>
+  <aside class="notes"><p><strong>本轮结果</strong>　大块破洞有所减少，但 ±12° 仍有电脑边缘拖影、椅子失真和遮挡缺失，尚未达到真实绕行的目标。<a href="../infinisplat-portrait-lab/index.html">查看另一组输入比例</a>。</p><p><strong>这次看什么</strong>　电脑屏幕边缘有没有拖影，杯柄和书后有没有空洞，桌沿在往返时是否稳定。左图始终是原照片，不能作为新视角的真实答案。</p><p><strong>试验边界</strong>　InfiniSplat v1 · 学习型高斯预测。仅有一张照片，背面与被遮挡区域没有真实视角可供验证。关闭补画、照片叠加和后期模糊；洋红色标示未覆盖或半透明的区域，也包括原照片视野以外。</p><details><summary>资产与许可</summary><p id="asset-details">正在读取生成记录。</p><p><a href="https://github.com/zju3dv/InfiniSplat/tree/main/InfiniSplat_v1">InfiniSplat v1 · PRL</a> / <a href="https://huggingface.co/PLUS-WAVE/InfiniSplat">官方权重 · Apache 2.0</a> / <a href="https://sparkjs.dev/">Spark · MIT</a>。<a href="./assets/desk-gaussian.ply" download>下载 Gaussian PLY</a> · <a href="./assets/scene.json">生成记录</a> · <a href="./NOTICE.txt">许可说明</a></p></details></aside>
+</main>
+<script type="module" src="./lab.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+{
+  "photo": {
+    "file": "desk-original.jpg",
+    "source": "user-provided reference photograph",
+    "width": 1320,
+    "height": 1739
+  },
+  "house": {
+    "file": "holiday-house.glb",
+    "provider": "Hi3D V3.0",
+    "status": "fallback asset"
+  },
+  "island": {
+    "file": "holiday-island.glb",
+    "reference": "island-reference.png",
+    "referenceTask": "9bc591c8c6f94df89da7f101e3b17dd9",
+    "provider": "Hi3D V3.0",
+    "quality": "high_quality",
+    "pbr": true,
+    "license": "private",
+    "generationPoints": 45
+  },
+  "object_segmentation": {
+    "provider": "SAM 2.1 Hiera Tiny",
+    "device": "local Apple MPS",
+    "manifest": "objects/manifest.json",
+    "not_sam3": true
+  },
+  "laptop_generation": {
+    "provider": "Hi3D V3.0",
+    "taskId": "18ce0611df1a4972b48d0389b88ae32e",
+    "reference": "objects/laptop-cutout.png",
+    "quality": "high_quality",
+    "pbr": true,
+    "license": "private",
+    "generationPoints": 45,
+    "status": "succeeded",
+    "file": "laptop-hi3d.glb",
+    "modelPage": "https://www.hi3d.cn/3d-model/18ce0611df1a4972b48d0389b88ae32e",
+    "webTriangles": 80000,
+    "originalBytes": 47186096,
+    "webBytes": 3556900,
+    "pose": "registered to laptop-fit.json"
+  },
+  "furniture": {
+    "geometry": "procedural geometry fitted to manually observed source-photo landmarks",
+    "fit": "furniture-fit.json",
+    "module": "../furniture.js",
+    "textures": {
+      "objects/memo-paper.png": {
+        "sourceQuad": [
+          [
+            769,
+            648
+          ],
+          [
+            810,
+            650
+          ],
+          [
+            808,
+            676
+          ],
+          [
+            767,
+            675
+          ]
+        ]
+      },
+      "objects/cabinet-wood.png": {
+        "sourceCrop": [
+          1240,
+          961,
+          1314,
+          1002
+        ]
+      }
+    },
+    "source": "desk-original.jpg",
+    "newGenerationPoints": 0,
+    "limits": "Hidden surfaces and chair contours remain authored approximations; this is not a full 3D scan."
+  },
+  "furniture_generation": {
+    "provider": "Hi3D V3.0",
+    "quality": "high_quality",
+    "pbr": true,
+    "license": "private",
+    "actualPoints": 135,
+    "registration": "generated-furniture-fit.json",
+    "objects": [
+      {
+        "name": "chair",
+        "taskId": "1ada5a4bc5c442e4a9c3c9a320d983c3",
+        "modelPage": "https://www.hi3d.cn/3d-model/1ada5a4bc5c442e4a9c3c9a320d983c3",
+        "file": "chair-hi3d.glb",
+        "webBytes": 7203840,
+        "webTriangles": 180000,
+        "generationPoints": 45
+      },
+      {
+        "name": "lamp",
+        "taskId": "022d44d4f26b4a28b727d46b3d452754",
+        "modelPage": "https://www.hi3d.cn/3d-model/022d44d4f26b4a28b727d46b3d452754",
+        "file": "lamp-hi3d.glb",
+        "webBytes": 1689900,
+        "webTriangles": 49999,
+        "generationPoints": 45
+      },
+      {
+        "name": "note",
+        "taskId": "e6c8e52ad8c24294811ad9e4130150c6",
+        "modelPage": "https://www.hi3d.cn/3d-model/e6c8e52ad8c24294811ad9e4130150c6",
+        "file": "note-hi3d.glb",
+        "webBytes": 1620004,
+        "webTriangles": 40000,
+        "generationPoints": 45
+      }
+    ],
+    "materialCorrections": "Paper nonmetallic/rough; chair specularity reduced; lamp dome/base use neutral steel albedo/metalness/roughness while amber stem is retained. Original GLBs untouched."
+  },
+  "desk_details": {
+    "source": "desk-original.jpg",
+    "module": "../desk-details.js",
+    "fit": "desk-details-fit.json",
+    "preparation": "scripts/prepare-desk-details.py",
+    "geometry": "Source-aligned authored solids for articulated task lamp, rounded phone, folded headphones and orange book",
+    "visible_surfaces": "Fixed photograph UVs on phone and earcups; rectified orange book cover with SAM 2.1 headphone occlusion inpainting",
+    "desktop": "Quadratic lighting fit to visible SAM tabletop interior; excludes photographed underside",
+    "newGenerationPoints": 0,
+    "limits": "Hidden surfaces and depth of small objects remain authored approximations"
+  },
+  "transition": {
+    "durationMs": 4500,
+    "photoHandoff": [
+      0.23,
+      0.39
+    ],
+    "cameraTranslationStartsAt": 0.39,
+    "blendWidthCssPx": 12,
+    "softBandCssPx": 42,
+    "filter": "HDR mipmap prefilter, continuous LOD",
+    "discovery": "same-camera base/full 3D captures, progressive world-X reveal, real depth occlusion",
+    "shadows": "two prewarmed static caches",
+    "geometry": "existing accepted desk/models unchanged",
+    "newGenerationPoints": 0
+  }
+}

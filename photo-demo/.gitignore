@@ -1,0 +1,19 @@
+# photo-demo is a normal subdirectory of the outer repository.
+# Shared exclusions live in ../.gitignore; these paths are app-specific.
+
+# Lab assets are generated locally; retain only small provenance metadata.
+/dist/*-lab/assets/*
+!/dist/*-lab/assets/scene.json
+
+# Spark includes an embedded renderer/WASM payload; restore its pinned package
+# locally instead of committing the multi-megabyte distribution bundle.
+/dist/gs-lab/vendor/spark.module.js
+
+# Research clones, installation reports, and model output
+/experiments/**/source/
+/experiments/**/checkpoints/
+/experiments/**/wheels/
+/experiments/**/bundle/
+/experiments/**/output/
+/experiments/**/output-portrait/
+/experiments/**/dependency-install.json

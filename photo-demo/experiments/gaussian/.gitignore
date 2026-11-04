@@ -1,0 +1,9 @@
+.venv/
+AnySplat/
+blunt/
+Depth-Anything-3/
+da3-source/
+spark-package/
+*.tgz
+*.npz
+desk-da3-base.json

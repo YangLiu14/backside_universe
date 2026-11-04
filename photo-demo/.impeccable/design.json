@@ -1,0 +1,392 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-03T01:55:24.978487+00:00",
+  "title": "Design System: 背面宇宙",
+  "extensions": {
+    "colorMeta": {
+      "cup-cobalt": {
+        "role": "primary",
+        "displayName": "杯身钴蓝",
+        "tonalRamp": [
+          "oklch(15.0% 0.1959 263.97)",
+          "oklch(26.4% 0.1959 263.97)",
+          "oklch(37.9% 0.1959 263.97)",
+          "oklch(49.3% 0.1959 263.97)",
+          "oklch(60.7% 0.1959 263.97)",
+          "oklch(72.1% 0.1959 263.97)",
+          "oklch(83.6% 0.1959 263.97)",
+          "oklch(95.0% 0.1959 263.97)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "暖白文字与动作",
+        "tonalRamp": [
+          "oklch(15.0% 0.0156 86.43)",
+          "oklch(26.4% 0.0156 86.43)",
+          "oklch(37.9% 0.0156 86.43)",
+          "oklch(49.3% 0.0156 86.43)",
+          "oklch(60.7% 0.0156 86.43)",
+          "oklch(72.1% 0.0156 86.43)",
+          "oklch(83.6% 0.0156 86.43)",
+          "oklch(95.0% 0.0156 86.43)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "灰绿辅助文字",
+        "tonalRamp": [
+          "oklch(15.0% 0.0089 145.49)",
+          "oklch(26.4% 0.0089 145.49)",
+          "oklch(37.9% 0.0089 145.49)",
+          "oklch(49.3% 0.0089 145.49)",
+          "oklch(60.7% 0.0089 145.49)",
+          "oklch(72.1% 0.0089 145.49)",
+          "oklch(83.6% 0.0089 145.49)",
+          "oklch(95.0% 0.0089 145.49)"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "炭黑展陈底",
+        "tonalRamp": [
+          "oklch(15.0% 0.0064 214.43)",
+          "oklch(26.4% 0.0064 214.43)",
+          "oklch(37.9% 0.0064 214.43)",
+          "oklch(49.3% 0.0064 214.43)",
+          "oklch(60.7% 0.0064 214.43)",
+          "oklch(72.1% 0.0064 214.43)",
+          "oklch(83.6% 0.0064 214.43)",
+          "oklch(95.0% 0.0064 214.43)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "透明细线",
+        "tonalRamp": [
+          "oklch(15.0% 0.0156 86.43 / 0.24)",
+          "oklch(26.4% 0.0156 86.43 / 0.24)",
+          "oklch(37.9% 0.0156 86.43 / 0.24)",
+          "oklch(49.3% 0.0156 86.43 / 0.24)",
+          "oklch(60.7% 0.0156 86.43 / 0.24)",
+          "oklch(72.1% 0.0156 86.43 / 0.24)",
+          "oklch(83.6% 0.0156 86.43 / 0.24)",
+          "oklch(95.0% 0.0156 86.43 / 0.24)"
+        ]
+      },
+      "action-ink": {
+        "role": "neutral",
+        "displayName": "主操作深色字",
+        "tonalRamp": [
+          "oklch(15.0% 0.0146 211.20)",
+          "oklch(26.4% 0.0146 211.20)",
+          "oklch(37.9% 0.0146 211.20)",
+          "oklch(49.3% 0.0146 211.20)",
+          "oklch(60.7% 0.0146 211.20)",
+          "oklch(72.1% 0.0146 211.20)",
+          "oklch(83.6% 0.0146 211.20)",
+          "oklch(95.0% 0.0146 211.20)"
+        ]
+      },
+      "action-hover": {
+        "role": "neutral",
+        "displayName": "暖白悬停",
+        "tonalRamp": [
+          "oklch(15.0% 0.0220 89.79)",
+          "oklch(26.4% 0.0220 89.79)",
+          "oklch(37.9% 0.0220 89.79)",
+          "oklch(49.3% 0.0220 89.79)",
+          "oklch(60.7% 0.0220 89.79)",
+          "oklch(72.1% 0.0220 89.79)",
+          "oklch(83.6% 0.0220 89.79)",
+          "oklch(95.0% 0.0220 89.79)"
+        ]
+      },
+      "quiet-surface": {
+        "role": "neutral",
+        "displayName": "说明入口暗底",
+        "tonalRamp": [
+          "oklch(15.0% 0.0064 214.43 / 0.56)",
+          "oklch(26.4% 0.0064 214.43 / 0.56)",
+          "oklch(37.9% 0.0064 214.43 / 0.56)",
+          "oklch(49.3% 0.0064 214.43 / 0.56)",
+          "oklch(60.7% 0.0064 214.43 / 0.56)",
+          "oklch(72.1% 0.0064 214.43 / 0.56)",
+          "oklch(83.6% 0.0064 214.43 / 0.56)",
+          "oklch(95.0% 0.0064 214.43 / 0.56)"
+        ]
+      },
+      "quiet-hover": {
+        "role": "neutral",
+        "displayName": "说明入口悬停",
+        "tonalRamp": [
+          "oklch(15.0% 0.0108 196.64)",
+          "oklch(26.4% 0.0108 196.64)",
+          "oklch(37.9% 0.0108 196.64)",
+          "oklch(49.3% 0.0108 196.64)",
+          "oklch(60.7% 0.0108 196.64)",
+          "oklch(72.1% 0.0108 196.64)",
+          "oklch(83.6% 0.0108 196.64)",
+          "oklch(95.0% 0.0108 196.64)"
+        ]
+      },
+      "tool-surface": {
+        "role": "neutral",
+        "displayName": "工具暗底",
+        "tonalRamp": [
+          "oklch(15.0% 0.0064 214.43 / 0.65)",
+          "oklch(26.4% 0.0064 214.43 / 0.65)",
+          "oklch(37.9% 0.0064 214.43 / 0.65)",
+          "oklch(49.3% 0.0064 214.43 / 0.65)",
+          "oklch(60.7% 0.0064 214.43 / 0.65)",
+          "oklch(72.1% 0.0064 214.43 / 0.65)",
+          "oklch(83.6% 0.0064 214.43 / 0.65)",
+          "oklch(95.0% 0.0064 214.43 / 0.65)"
+        ]
+      },
+      "tool-hover": {
+        "role": "neutral",
+        "displayName": "工具悬停",
+        "tonalRamp": [
+          "oklch(15.0% 0.0153 177.14)",
+          "oklch(26.4% 0.0153 177.14)",
+          "oklch(37.9% 0.0153 177.14)",
+          "oklch(49.3% 0.0153 177.14)",
+          "oklch(60.7% 0.0153 177.14)",
+          "oklch(72.1% 0.0153 177.14)",
+          "oklch(83.6% 0.0153 177.14)",
+          "oklch(95.0% 0.0153 177.14)"
+        ]
+      },
+      "tool-active": {
+        "role": "neutral",
+        "displayName": "工具启用文字",
+        "tonalRamp": [
+          "oklch(15.0% 0.0435 94.10)",
+          "oklch(26.4% 0.0435 94.10)",
+          "oklch(37.9% 0.0435 94.10)",
+          "oklch(49.3% 0.0435 94.10)",
+          "oklch(60.7% 0.0435 94.10)",
+          "oklch(72.1% 0.0435 94.10)",
+          "oklch(83.6% 0.0435 94.10)",
+          "oklch(95.0% 0.0435 94.10)"
+        ]
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "键盘焦点",
+        "tonalRamp": [
+          "oklch(15.0% 0.0975 271.87)",
+          "oklch(26.4% 0.0975 271.87)",
+          "oklch(37.9% 0.0975 271.87)",
+          "oklch(49.3% 0.0975 271.87)",
+          "oklch(60.7% 0.0975 271.87)",
+          "oklch(72.1% 0.0975 271.87)",
+          "oklch(83.6% 0.0975 271.87)",
+          "oklch(95.0% 0.0975 271.87)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "暖纸面板",
+        "tonalRamp": [
+          "oklch(15.0% 0.0122 96.43)",
+          "oklch(26.4% 0.0122 96.43)",
+          "oklch(37.9% 0.0122 96.43)",
+          "oklch(49.3% 0.0122 96.43)",
+          "oklch(60.7% 0.0122 96.43)",
+          "oklch(72.1% 0.0122 96.43)",
+          "oklch(83.6% 0.0122 96.43)",
+          "oklch(95.0% 0.0122 96.43)"
+        ]
+      },
+      "paper-ink": {
+        "role": "neutral",
+        "displayName": "面板标题",
+        "tonalRamp": [
+          "oklch(15.0% 0.0194 212.24)",
+          "oklch(26.4% 0.0194 212.24)",
+          "oklch(37.9% 0.0194 212.24)",
+          "oklch(49.3% 0.0194 212.24)",
+          "oklch(60.7% 0.0194 212.24)",
+          "oklch(72.1% 0.0194 212.24)",
+          "oklch(83.6% 0.0194 212.24)",
+          "oklch(95.0% 0.0194 212.24)"
+        ]
+      },
+      "paper-body": {
+        "role": "neutral",
+        "displayName": "面板正文",
+        "tonalRamp": [
+          "oklch(15.0% 0.0165 190.87)",
+          "oklch(26.4% 0.0165 190.87)",
+          "oklch(37.9% 0.0165 190.87)",
+          "oklch(49.3% 0.0165 190.87)",
+          "oklch(60.7% 0.0165 190.87)",
+          "oklch(72.1% 0.0165 190.87)",
+          "oklch(83.6% 0.0165 190.87)",
+          "oklch(95.0% 0.0165 190.87)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "首屏标题",
+        "purpose": "生活，／还有另一面。保留显式换行。"
+      },
+      "headline": {
+        "displayName": "背面揭示",
+        "purpose": "随旋转状态出现的短句。"
+      },
+      "label": {
+        "displayName": "状态与控制",
+        "purpose": "边缘的小型信息与操作。"
+      }
+    },
+    "shadows": [
+      {
+        "name": "about-panel",
+        "value": "0 16px 45px #0005",
+        "purpose": "作品说明离开影像的唯一 UI 面板阴影。"
+      },
+      {
+        "name": "reveal-text",
+        "value": "0 2px 18px #111111",
+        "purpose": "背面标题的文字对比。"
+      },
+      {
+        "name": "footer-text",
+        "value": "0 1px 8px #12191d",
+        "purpose": "底部信息的文字对比。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "primary-hover",
+        "value": "background .2s, transform .2s; translateX(3px)",
+        "purpose": "主操作的轻微向右响应。"
+      },
+      {
+        "name": "loading-exit",
+        "value": "opacity .4s",
+        "purpose": "场景准备完成后淡出提示。"
+      },
+      {
+        "name": "camera-travel",
+        "value": "6500ms; 6t^5 - 15t^4 + 10t^3",
+        "purpose": "探索与返回，两端速度为零；手动输入从当前画面状态接管。"
+      },
+      {
+        "name": "manual-camera-follow",
+        "value": "1 - exp(-dt * 8)",
+        "purpose": "手动旋转、缩放和俯仰的指数跟随。"
+      },
+      {
+        "name": "reduced-motion",
+        "value": "travel: 1ms; manual rate: 1; CSS animation/transition: none",
+        "purpose": "环境动态默认暂停；仍可手动探索。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-layout",
+        "value": "(max-width:1100px)"
+      },
+      {
+        "name": "mobile-layout",
+        "value": "(max-width:600px)"
+      },
+      {
+        "name": "portrait-layout",
+        "value": "(max-aspect-ratio:6/5)"
+      },
+      {
+        "name": "mobile-camera",
+        "value": "stage.clientWidth < 600px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "看看背面",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "唯一的探索主操作；暖白底、向右箭头与轻微水平响应。",
+      "html": "<button class=\"ds-primary\"><span>看看背面</span><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 12h15m-6-6 6 6-6 6\"/></svg></button>",
+      "css": ".ds-primary{font-family:\"PingFang SC\",\"Microsoft YaHei\",sans-serif;display:flex;align-items:center;gap:35px;padding:14px 19px;background:var(--ink,#eee9de);color:#1a2426;border:0;border-radius:2px;font-size:13px;cursor:pointer;transition:background .2s,transform .2s}.ds-primary:hover{background:#fff9e9;transform:translateX(3px)}.ds-primary:focus-visible{outline:2px solid #a9bcff;outline-offset:6px;}.ds-primary svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;width:20px;height:20px}@media(max-width:600px){.ds-primary{padding:12px 16px;gap:23px;font-size:12px}}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}"
+    },
+    {
+      "name": "关于这张照片",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "画面右上角的低声量说明入口。",
+      "html": "<button class=\"ds-quiet\">关于这张照片</button>",
+      "css": ".ds-quiet{font-family:\"PingFang SC\",\"Microsoft YaHei\",sans-serif;border:0;background:rgba(23,27,28,.56);padding:10px 13px;border-radius:4px;color:var(--ink,#eee9de);font-size:12px;letter-spacing:.04em;cursor:pointer}.ds-quiet:hover{background:#303838}.ds-quiet:focus-visible{outline:2px solid #a9bcff;outline-offset:6px;}@media(max-width:600px){.ds-quiet{font-size:11px}}"
+    },
+    {
+      "name": "回到原照片",
+      "kind": "button",
+      "refersTo": "button-tool",
+      "description": "返回入口视角；手机隐藏可见标签，保留无障碍名称。",
+      "html": "<button class=\"ds-tool\" aria-label=\"回到原照片\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 9a8 8 0 1 1-.2 6M4 4v5h5\"/></svg><span>原照片</span></button>",
+      "css": ".ds-tool{font-family:\"PingFang SC\",\"Microsoft YaHei\",sans-serif;display:flex;align-items:center;gap:7px;border:0;background:rgba(23,27,28,.65);color:var(--ink,#eee9de);border-radius:4px;padding:10px 12px;font-size:11px;min-height:40px;cursor:pointer}.ds-tool:hover{background:#37423f}.ds-tool:focus-visible{outline:2px solid #a9bcff;outline-offset:6px;}.ds-tool svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}@media(max-width:600px){.ds-tool{padding:10px;min-height:44px;min-width:44px;justify-content:center}.ds-tool span{display:none}}"
+    },
+    {
+      "name": "环境动态开关",
+      "kind": "button",
+      "refersTo": "button-tool-active",
+      "description": "已开启环境动态的状态预览；网站实际以 aria-pressed 切换。",
+      "html": "<button class=\"ds-toggle\" aria-label=\"暂停环境动态\" aria-pressed=\"true\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 5v14M16 5v14\"/></svg></button>",
+      "css": ".ds-toggle{font-family:\"PingFang SC\",\"Microsoft YaHei\",sans-serif;display:flex;align-items:center;justify-content:center;border:0;background:rgba(23,27,28,.65);color:var(--ink,#eee9de);border-radius:4px;padding:11px;font-size:11px;min-height:40px;cursor:pointer}.ds-toggle[aria-pressed=\"true\"]{color:#e6ddbd}.ds-toggle:hover{background:#37423f}.ds-toggle:focus-visible{outline:2px solid #a9bcff;outline-offset:6px;}.ds-toggle svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}@media(max-width:600px){.ds-toggle{padding:10px;min-height:44px;min-width:44px}}"
+    },
+    {
+      "name": "作品说明",
+      "kind": "card",
+      "refersTo": "about-panel",
+      "description": "可关闭的暖纸说明层；来源、作品边界和键盘信息在这里阅读。",
+      "html": "<section class=\"ds-about\" aria-label=\"关于作品\"><button class=\"ds-close\" aria-label=\"关闭作品说明\">关闭</button><h2>一张照片的背面</h2><p>桌上的蓝杯，藏着一个还没出发的假期。转过去，给自己留一点休息的时间。</p><p>这是基于你提供的工位照片制作的交互样片。正面保留原照片细节，未拍到的空间由三维场景补建。</p></section>",
+      "css": ".ds-about{font-family:\"PingFang SC\",\"Microsoft YaHei\",sans-serif;width:min(380px,calc(100vw - 48px));padding:30px;background:#f0eee5;color:#263437;box-shadow:0 16px 45px #0005;border-radius:4px}.ds-about h2{font-family:\"Songti SC\",serif;font-size:27px;font-weight:400;margin:8px 0 24px}.ds-about p{font-size:13px;line-height:1.9;color:#455251}.ds-close{font-family:\"PingFang SC\",\"Microsoft YaHei\",sans-serif;display:block;margin-left:auto;border:0;background:none;color:#455251;font-size:11px;padding:5px;cursor:pointer}.ds-close:focus-visible{outline:2px solid #a9bcff;outline-offset:6px;}@media(max-width:600px){.ds-about{padding:24px}}"
+    },
+    {
+      "name": "视角状态",
+      "kind": "custom",
+      "description": "状态、细进度线和带符号角度；进度取旋转角度的绝对值。",
+      "html": "<div class=\"ds-status\"><span>蓝杯背面的假期</span><span class=\"ds-line\" aria-hidden=\"true\"><i></i></span><span>180°</span></div>",
+      "css": ".ds-status{font-family:\"PingFang SC\",\"Microsoft YaHei\",sans-serif;display:flex;align-items:center;gap:13px;min-width:200px;font-size:11px;font-variant-numeric:tabular-nums;color:var(--ink,#eee9de);text-shadow:0 1px 8px #12191d}.ds-line{height:1px;width:70px;background:var(--line,rgba(238,233,222,.24))}.ds-line i{display:block;height:1px;width:100%;background:var(--ink,#eee9de)}@media(max-width:600px){.ds-status{min-width:0;gap:9px}.ds-line{width:35px}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "照片的另一面",
+    "overview": "沿用用户选定的白桌、蓝杯照片和既有视觉方向：日常空间是画面的依据，微缩假期从同一个物件里显现。保留原图的白色、钴蓝和暖灯质感；说明文字安静、短促，界面只帮助人靠近、旋转和返回。\n\n这里记录 `photo-demo/dist` 已实现的视觉语言，合并原有方向，并非新的风格提案或另一次风格共识。照片构图、首屏位置、连续镜头及资产状态属于这个样片，详见 `photo-demo/.impeccable/surface.md`；它们不自动成为未来所有页面的模板。",
+    "keyCharacteristics": [
+      "原照片提供可信的材质和色彩依据。",
+      "炭黑底、暖白文字，让作品成为视觉主体。",
+      "宋体标题配无衬线控件，文字保持轻而清晰。",
+      "通过连续镜头和真实几何表达深度，UI 控件保持简洁。"
+    ],
+    "rules": [
+      {
+        "name": "The Photo Authority Rule",
+        "body": "原照片的颜色与构图具有优先权；补建材质围绕它衔接，不用统一滤镜改写照片本身。",
+        "section": "colors"
+      },
+      {
+        "name": "The Continuous Space Rule",
+        "body": "靠近、旋转和返回都由同一场景、同一渲染摄影机及连续状态计算，不能把入口和背面做成两张互不相干的画面切换。",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** 保留用户照片的完整构图、白桌、钴蓝杯与暖灯质感。",
+      "**Do** 让文字和控制围绕影像退到边缘，保留明确的焦点、返回和暂停操作。",
+      "**Do** 将旋转、缩放、文字揭示、投影淡出和景深关联到同一连续状态。",
+      "**Do** 按实际加载资产给出来源，并将补建空间与照片记录的事实区分。"
+    ],
+    "donts": [
+      "**Don't** 把当前暖白主按钮记成未实现的蓝色按钮。",
+      "**Don't** 用切换场景或裁切原图替代照片到蓝杯的连续路径。",
+      "**Don't** 把照片投影和人工补建描述成已经实现单张照片自动全视角重建。",
+      "**Don't** 把当前手工景观与 Hi3D 小屋组合描述成已经完成的新 Hi3D 整座景观。"
+    ]
+  }
+}

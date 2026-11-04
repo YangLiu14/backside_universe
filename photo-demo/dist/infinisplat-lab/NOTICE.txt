@@ -1,0 +1,7 @@
+InfiniSplat v1 RGB comparison, personal technical evaluation.
+Source: zju3dv/InfiniSplat, commit be49948e92f828054d98103cd98578fada8ec728 (PRL).
+Weights: PLUS-WAVE/InfiniSplat, revision 455dc3f21f3b2ddba37df65443112882fc6016d2 (Apache 2.0).
+Upstream DINOv3 and Depth Pro terms remain applicable.
+Spark viewer is reused from ../gs-lab/vendor/, see its bundled license.
+This page has no image overlay, generated background, or depth-of-field hiding holes.
+Personal evaluation is registration-exempt; future organizational project use requires PRL registration.

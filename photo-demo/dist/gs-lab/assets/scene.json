@@ -1,0 +1,69 @@
+{
+  "model": "depth-anything/DA3-BASE",
+  "model_revision": "f4a6c9b3c95e41c82048423d3493a81ec3fa810e",
+  "model_license": "Apache-2.0",
+  "source_sha256": "a5a2ad89c596347fb97f38b9741b2d5e831f657cefa33b4150d7709c8d9365a0",
+  "inference_seconds": 0.7149067089999335,
+  "device": "mps",
+  "inference_width": 574,
+  "inference_height": 756,
+  "generator": "BLUNT + complete-intrinsics adapter",
+  "representation": "depth-derived 3D Gaussian baseline; no learned Gaussian head",
+  "code_commit": "3d835ec1a5802d64a8b8b15f817a1ab54809bfe4",
+  "blunt_commit": "b0b8356103dce5871d7b1dad7cec9e68af372096",
+  "width": 765,
+  "height": 1008,
+  "intrinsics": [
+    956.3201293945312,
+    900.5618896484375,
+    382.5,
+    504.0
+  ],
+  "gaussian_count": 765941,
+  "gaussian_bytes": 52084404,
+  "ply_sha256": "c36a8b8a7ab3dfe92be212e4c2a2c4ab2bab10abc5ee53bf03f85821abf2c60d",
+  "original_width": 1320,
+  "original_height": 1739,
+  "source_image": "../../assets/desk-original.jpg",
+  "coordinate_system": "OpenCV: x right, y down, z forward; source camera at origin",
+  "units": "relative model units, not surveyed meters",
+  "pivot_opencv": [
+    0.022767855780565217,
+    -0.04778616965973659,
+    0.9487302303314209
+  ],
+  "depth_range": [
+    0.49455058574676514,
+    1.4542304277420044
+  ],
+  "inpainting": false,
+  "normalization": false,
+  "gaussian_head": false,
+  "overlap_factor": 0.8,
+  "edge_mode": "segmented",
+  "edge_refinement": {
+    "method": "SAM 2.1 silhouette-conditioned depth reassignment",
+    "radius_pixels": 5,
+    "corrected_pixels": 58395,
+    "mask_sha256": {
+      "laptop-mask.png": "897526af7052830b1b9f63363bbc36a72e9ee9d69be7e41aed9f2290104bb3de",
+      "lamp-mask.png": "f4c02b08e81548ef35c4074d600e0230aa71994d913fc02a71a03204160b058a",
+      "chair-mask.png": "8a159d65028cb95524a12baa2e8681eb16c4aaac2fdb3bdae36edc345ab95045",
+      "arm-mask.png": "808eab07407b756ea1713bdd0c9e7897bf547455bbf36b0e59aec41e0fbb9bff",
+      "cup-mask.png": "91e1c67fed498a03d6f3b86b45b780da0c7d823932e161c1e8319cd3e2a7d25f",
+      "book-mask.png": "4b7ec7122419368ba944ab666a04b88de3ccbab308b5c4f756eb3234f4b9b487",
+      "note-mask.png": "247ecddd3873c1735a77d88bf634309e1fbc407038c84160fe445b045cd6ba97",
+      "phone-mask.png": "076f277292fe39b9e3536c19492046b0f17346a6341cacf05549aa122008c679",
+      "headphones-mask.png": "b4bca54be06ce0628dd79a27f2641d5541e79aa04f214b8a3c85616aaa1207f0",
+      "left-objects-mask.png": "24f895141e1caed362c11a1042c0ebf228fb2040b0651edbbc2594aa952f92dd"
+    },
+    "rgb_modified": false,
+    "hidden_surfaces_added": false
+  },
+  "limitations": [
+    "Single visible surface; no occluded back surfaces recovered.",
+    "Small camera movement exposes missing data and estimated-depth errors.",
+    "Gaussian footprints and source resolution limit sharpness.",
+    "No real additional views exist to validate unseen geometry."
+  ]
+}
