@@ -1,0 +1,111 @@
+{
+  "source": "photo-demo/evidence/holiday-assets-v1/laptop/spatial-v2/model.glb",
+  "textures": [
+    {
+      "name": "display-texture",
+      "original": [
+        1200,
+        800
+      ],
+      "web": [
+        1200,
+        800
+      ]
+    },
+    {
+      "name": "Image_0",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_0.001",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_0.002",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_0.003",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_1",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_1.001",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_1.002",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_1.003",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    }
+  ],
+  "meshDecimated": false,
+  "viewerComputesNormals": true,
+  "draco": {
+    "positionQuantization": 16,
+    "texcoordQuantization": 14
+  },
+  "bytes": 66202628
+}

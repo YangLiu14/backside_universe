@@ -1,0 +1,56 @@
+{
+  "source": "photo-demo/evidence/holiday-assets-v1/headphones/model-assembled.glb",
+  "textures": [
+    {
+      "name": "Image_0",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_0.001",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_1",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_1.001",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    }
+  ],
+  "meshDecimated": false,
+  "viewerComputesNormals": true,
+  "draco": {
+    "positionQuantization": 16,
+    "texcoordQuantization": 14
+  },
+  "bytes": 54343828
+}

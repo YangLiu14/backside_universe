@@ -1,0 +1,42 @@
+{
+  "entry": "/holiday-assets/bookroom.html",
+  "coordinateSystem": "Three.js Y-up; Blender (x,y,z) maps to (x,z,-y)",
+  "shell": "assets/bookroom/shell.glb",
+  "furniture": [
+    "assets/bookroom/bookcase.glb",
+    "assets/bookroom/desk.glb",
+    "assets/bookroom/chair.glb"
+  ],
+  "interiorConstruction": "bookroom-interior.js",
+  "interaction": "bookroom.js",
+  "navigation": "bookroom-navigation.js",
+  "originalV3SHA256": "6631599271da160276ed793c01ea6d6bc9b224a57daf18c8e002821afb0241f1",
+  "creditsConsumed": 90,
+  "balanceAfter": 295,
+  "sourceModelsPreserved": true,
+  "generator": {
+    "provider": "Tripo",
+    "model": "H3.1",
+    "tasks": [
+      {
+        "task_id": "bd574f21-d91f-40f0-9c5d-12a9800ff63d",
+        "status": "success",
+        "credits_consumed": 30,
+        "asset": "bookcase"
+      },
+      {
+        "task_id": "4921db80-f346-47ad-80be-9182529997b9",
+        "status": "success",
+        "credits_consumed": 30,
+        "asset": "desk"
+      },
+      {
+        "task_id": "9f28684b-365c-4819-94a3-43b370e53174",
+        "status": "success",
+        "credits_consumed": 30,
+        "asset": "chair"
+      }
+    ]
+  },
+  "localAssetsRequired": true
+}

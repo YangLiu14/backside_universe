@@ -1,0 +1,181 @@
+{
+  "theme": "工位背后的年假",
+  "version": 1,
+  "source": "dist/assets/desk-original.jpg",
+  "status": "reference-preparation",
+  "assets": [
+    {
+      "id": "laptop",
+      "name": "笔记本电脑 · 背板山城",
+      "cutout": "laptop-cutout.png",
+      "bbox": [
+        498,
+        632,
+        725,
+        827
+      ],
+      "identity": "an open slim silver aluminum laptop, black keyboard, large silver trackpad and palm rest, thin black screen bezel, dark blue ocean wallpaper, preserve exact open angle, rectangular screen aspect ratio and wedge base",
+      "landscape": "The OUTER BACK of the upright screen lid, opposite the display, opens into a shallow recessed Mediterranean cliff town: seven individually detailed ivory limewash houses, terracotta and weathered zinc roofs, tiny shuttered windows, stone retaining walls, three interlinked switchback stairways, a small vaulted pedestrian tunnel and an intimate harbor terrace along the hinge. Everything stays behind and within the screen outline. Silver lid perimeter remains recognizable. No scenery on display, keyboard or palm rest.",
+      "moving": [
+        "lid-hinge"
+      ],
+      "oldTask": "18ce0611df1a4972b48d0389b88ae32e"
+    },
+    {
+      "id": "cup",
+      "name": "蓝杯与杯碟 · 温泉环礁",
+      "cutout": "cup-cutout.png",
+      "bbox": [
+        745,
+        706,
+        849,
+        777
+      ],
+      "identity": "the exact cobalt-blue glazed low cylindrical ceramic coffee cup with cream interior, dark coffee, a compact rounded loop handle on the right and a matching shallow cobalt-blue circular saucer",
+      "landscape": "Only the far REAR half of the cobalt ceramic cup wall opens into a carved miniature geothermal coastal grotto. Inside that rear cavity are three stepped pale travertine hot-spring pools, tiny cedar bathing pavilion, mineral stone terraces, narrow descending stairs and a small pier on the rear saucer crescent. The original cup handle stays an intact cobalt ceramic loop, becoming the arch beside the springs. Keep front half of cup unbroken blue glaze, keep coffee basin above. No steam or clouds modeled.",
+      "moving": [
+        "cup",
+        "saucer"
+      ]
+    },
+    {
+      "id": "blue-book",
+      "name": "蓝色书本 · 白崖海岸",
+      "cutout": "book-cutout.png",
+      "bbox": [
+        703,
+        660,
+        866,
+        728
+      ],
+      "identity": "a single thick closed blue hardcover book lying flat, cream page block, bright red graphic accents on the blue cover, exact rectangular proportions. Remove the curled paper object sitting on the book; it is a separate asset",
+      "landscape": "The REAR page edge becomes a densely layered miniature chalk sea cliff recessed between the intact blue top and bottom covers: stratified cream paper-limestone ledges, a carved sea arch, small stone lookout, narrow continuous serpentine stairs, two tiny white cliff dwellings tucked under the upper cover. The top cover remains completely flat and unbuilt; no tall structures above the cover. Original front spine and cover stay intact.",
+      "moving": []
+    },
+    {
+      "id": "paper",
+      "name": "叠页摆件 · 纸谷旅馆",
+      "cutout": "note-cutout.png",
+      "bbox": [
+        749,
+        632,
+        824,
+        702
+      ],
+      "identity": "the exact small cream-colored sculptural curled paper memo-pad object in the reference, many tightly stacked thin paper sheets forming a softly bowed upright back and rolled lower lip, retain its asymmetrical curved silhouette. No book underneath",
+      "landscape": "The concave REAR side of the curled paper stack encloses a tiny secluded valley inn. Layered paper folds become contour terraces with three small warm ivory guest rooms, recessed windows, a narrow stepped footpath, miniature timber balcony and a small courtyard with a single sculpted olive tree. Keep all scenery inside the outer curled-paper silhouette; original photographed front remains clean cream paper with fine stacked edges.",
+      "moving": [],
+      "oldTask": "e6c8e52ad8c24294811ad9e4130150c6"
+    },
+    {
+      "id": "arm-lamp",
+      "name": "长臂台灯 · 灯塔岬角",
+      "cutout": "arm-cutout.png",
+      "bbox": [
+        722,
+        374,
+        941,
+        705
+      ],
+      "identity": "the exact slender silver articulated desk task lamp: vertical narrow support, two black and silver parallel spring arms with visible joints, and one brushed-metal cylindrical lamp head with warm brown rim. Preserve the photographed bend angles, slim bar thickness, clamp mounting and cylinder head; not a mushroom lamp",
+      "landscape": "At the REAR side of the bottom mounting stem, a compact pale stone lighthouse keeper's island hugs the vertical support: narrow rock-cut steps winding around the lower stem, tiny keeper cottage with tiled roof and railings, a short tide landing. Behind the cylindrical lamp head, a miniature bronze observation gallery follows its circular rim. Keep original articulated arm and all joint clearances intact; no landscape on front of head, no bulky pedestal, no disconnected floating rocks.",
+      "moving": [
+        "base",
+        "lower-arm",
+        "upper-arm",
+        "head"
+      ]
+    },
+    {
+      "id": "mushroom-lamp",
+      "name": "蘑菇台灯 · 灯下夜市",
+      "cutout": "lamp-cutout.png",
+      "bbox": [
+        1055,
+        565,
+        1190,
+        775
+      ],
+      "identity": "the exact brushed silver mushroom dome table lamp, a straight translucent amber-orange cylindrical stem and a thin flat circular silver base, retain dome profile, warm amber stem and original overall proportions",
+      "landscape": "Only the REAR underside of the metal dome shelters a tiny coastal night market wrapped around the amber stem: four tiny timber stalls with individually modeled awnings, a narrow curved boardwalk, miniature stools and railings. At rear base, a short curved stone quay and two shallow stairs. Keep the front hemisphere of dome, front stem and front base clean and unchanged, detailed rear market fits under the dome footprint. No text, no floating fairy lights.",
+      "moving": [
+        "light"
+      ],
+      "oldTask": "022d44d4f26b4a28b727d46b3d452754"
+    },
+    {
+      "id": "headphones",
+      "name": "银白耳机 · 双湾拱桥",
+      "mask": "headphones-mask.png",
+      "bbox": [
+        229,
+        762,
+        389,
+        851
+      ],
+      "identity": "the exact folded over-ear headphones lying flat, two rounded rectangular brushed silver outer earcups, thick light taupe fabric ear cushions, pale cream flexible headband, same folded pose and spacing. Remove the orange book underneath",
+      "landscape": "On the REAR-facing backsides of the two folded earcups, carve two miniature sheltered coastal coves bordered by fine layered rock terraces. One cove has a tiny dock with beach cabanas, the other a compact stone bathing terrace and a pavilion. The original pale headband remains structurally unchanged and reads as a bridge connecting the coves, with a discreet miniature walkway only along its rear interior edge. Preserve all front silver earcup surfaces, pads and silhouette.",
+      "moving": [
+        "headband",
+        "earcup-left",
+        "earcup-right"
+      ]
+    },
+    {
+      "id": "phone",
+      "name": "白色手机 · 潮汐长湾",
+      "cutout": "phone-cutout.png",
+      "bbox": [
+        401,
+        778,
+        481,
+        828
+      ],
+      "identity": "the exact pearl-white slim smartphone lying flat, soft rounded corners, silver rim and three large dark rear camera lenses in one corner; preserve the photographed camera arrangement. The camera-bearing white face is the observed face and must remain unchanged",
+      "landscape": "Along only the FAR REAR LONG EDGE of the phone, opening horizontally toward the back of the desk, create an exquisitely detailed narrow recessed coastal tidal bay tucked beneath the intact white camera-bearing top plate. Fine sandstone terraces, a continuous staircase, a slender timber jetty and one tiny shaded seaside pavilion inhabit this rear-facing side recess. The top white camera face and lenses stay completely intact, no landscape on top. Do NOT put the landscape on the downward-facing screen underside. The bay opens sideways and is visible from a low rear three-quarter viewpoint while the phone still lies flat. Keep original slim proportions and rounded silver rim.",
+      "moving": []
+    },
+    {
+      "id": "orange-book",
+      "name": "橙色书本 · 赤岩峡湾",
+      "bbox": [
+        232,
+        776,
+        411,
+        874
+      ],
+      "identity": "the orange-red hardcover art magazine/book beneath the headphones in the original photo, lying flat, thin cream page block, vivid orange and red cover with dark typographic marks and a blue central illustration. Remove the headphones entirely while keeping the book proportions",
+      "landscape": "Along only the far REAR page edge, a miniature rust-red sandstone canyon is cut into the layered page block: delicate rock strata, a winding narrow trail, a tiny desert-coast lodge, a natural rock arch and a shaded lookout. All fit in the page block and behind the intact cover edge. The front and top orange printed cover stay flat and unchanged; no buildings standing on the cover.",
+      "moving": []
+    },
+    {
+      "id": "sculptural-lamp",
+      "name": "银红台灯 · 日落天文台",
+      "bbox": [
+        233,
+        598,
+        311,
+        791
+      ],
+      "identity": "the exact tall sculptural table object on the left: slender tapered satin-silver upright body, sweeping concave white upper neck and glossy dark burgundy-red hemispherical adjustable head nested at the top. Preserve its unusual thin curved silhouette and small base, no black horizontal desk cable slot, no headphones, no orange book",
+      "landscape": "The REAR of the satin-silver tapered body contains a narrow recessed coastal observatory: finely stepped pale stone terraces, a tiny brass telescope, one small white observatory room and a delicate curving stair. Under the burgundy half-dome, hide an intimate star-watching balcony. Original front silver surface and glossy burgundy head remain intact; all miniature features hug the rear silhouette and never turn the whole object into a conventional lighthouse.",
+      "moving": [
+        "head"
+      ]
+    },
+    {
+      "id": "small-blocks",
+      "name": "米白小物件 · 双屿驿站",
+      "bbox": [
+        653,
+        690,
+        710,
+        725
+      ],
+      "identity": "the two small pale beige elongated rectangular objects stacked behind the laptop in this crop, fine dark markings on the long side, slightly offset parallel arrangement, preserve exactly their photographed block proportions and pale paper-like material. Do not invent an identifiable product brand",
+      "landscape": "Only the far REAR narrow faces of the two pale rectangular objects contain a paired miniature island outpost: tiny recessed stone arcades, narrow stepped quay, one tiny timber shade pergola and a connecting rear footbridge. Keep the photographed top and near sides unchanged, all detailing stays within the stacked block silhouette.",
+      "moving": [],
+      "identityStatus": "unknown-to-user-reconstruct-visible-shape"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "source": "photo-demo/evidence/holiday-assets-v1/laptop/bookroom/shell.glb",
+  "textures": [
+    {
+      "name": "Color_91ffbe1f-33a4-4313-8bfb-029d28ca19b5",
+      "original": [
+        4096,
+        4096
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "display-texture",
+      "original": [
+        1200,
+        800
+      ],
+      "web": [
+        1200,
+        800
+      ]
+    },
+    {
+      "name": "Image_0",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_0.001",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_0.002",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_1",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_1.001",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_1.002",
+      "original": [
+        8192,
+        8192
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "NormalGL_91ffbe1f-33a4-4313-8bfb-029d28ca19b5",
+      "original": [
+        4096,
+        4096
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "ORM_91ffbe1f-33a4-4313-8bfb-029d28ca19b5",
+      "original": [
+        4096,
+        4096
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    }
+  ],
+  "meshDecimated": false,
+  "viewerComputesNormals": true,
+  "draco": {
+    "positionQuantization": 16,
+    "texcoordQuantization": 14
+  },
+  "bytes": 42816748
+}
