@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>背面宇宙 · 桌上的假期</title><link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
+  <script type="importmap">{"imports":{"three":"../vendor/three.module.js","three/addons/":"../vendor/addons/","@sparkjsdev/spark":"../gs-lab/vendor/spark.module.js"}}</script>
+</head>
+<body>
+<main>
+  <header><a href="../marble-refined-lab/index.html?mode=wide&angle=60">← 保留的 Marble 融合版</a><span>背面宇宙 <i> / </i> 转场试映</span></header>
+  <section class="intro"><div><h1>假期，就藏在书桌背面。</h1><p>沿着电脑、书本和咖啡杯绕过去，看看工作之外的小世界。</p></div><span class="duration">一段 4.8 秒的出走</span></section>
+  <section class="experience" aria-label="Marble 实景到度假世界的连续转场">
+    <div class="stage" id="stage">
+      <canvas id="world" tabindex="0" aria-label="左右拖动探索书桌背面；方向键微调，Home回到实景，End到度假世界，空格播放或暂停"></canvas>
+      <div class="scene-caption"><span id="phase">熟悉的书桌</span><small id="angle">0°</small></div>
+      <p class="gesture" id="gesture">向左拖动，绕到背面 <span>↔</span></p>
+      <div id="loading" role="status"><span class="loading-dot"></span><p id="status">正在准备房间与桌上的假期…</p></div>
+    </div>
+    <div class="transport">
+      <button id="play" disabled aria-label="播放转场" aria-pressed="false"><span id="play-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></svg></span><span id="play-label">播放转场</span></button>
+      <div class="timeline"><div class="ticks"><button data-progress="0" disabled>实景</button><button data-progress="0.32" disabled>交界</button><button data-progress="1" disabled>背面的假期</button></div><input id="progress" type="range" min="0" max="1000" step="1" value="0" disabled aria-label="转场进度"></div>
+      <output id="elapsed">0.0 / 4.8 s</output><button id="home" disabled aria-label="回到实景"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/></svg><span>回到实景</span></button>
+    </div>
+  </section>
+  <div class="footnote"><span>拖动、滚轮或方向键，都可以原路返回。</span><span>电脑后的海岸 · 书页上的露台 · 杯边的小码头</span></div>
+  <details class="inspection"><summary>同机位检查交界</summary><div class="inspection-inner"><div class="variants" aria-label="对照画面"><button data-variant="transition" aria-pressed="true" disabled>完整转场</button><button data-variant="real" aria-pressed="false" disabled>仅实景</button><button data-variant="dream" aria-pressed="false" disabled>仅建模世界</button></div><label><input id="softness" type="checkbox" checked disabled>背景景深</label><p>切换画面保持同一镜头。纯实景在大角度仍有未观测的空洞；度假世界的背面是创作内容。动态随转场进度变化，暂停时画面固定，方便往返比较。</p><p id="diagnostic-status"></p><p><a href="../index.html">原版度假场景</a> · <a href="../marble-transition-first-pass/index.html">保留的首版转场</a></p></div></details>
+</main>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
