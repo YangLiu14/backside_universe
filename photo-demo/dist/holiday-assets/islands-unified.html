@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>三段岛屿假期 · 工位背后的年假</title><link rel="stylesheet" href="style.css"><script type="importmap">{"imports":{"three":"../vendor/three.module.js","three/addons/":"../vendor/addons/"}}</script>
+<style>main{display:block;max-width:1320px;margin:auto}.island-tabs{display:flex;gap:8px;flex-wrap:wrap;border:0;padding:0;margin:0 0 24px}.island-tabs button[aria-current=true]{background:var(--ink);color:var(--paper)}.intro{max-width:76ch;line-height:1.8;font-size:14px}#model-view{height:60vh;min-height:320px}.reference{display:block;max-width:100%;margin-top:16px}details{margin:26px 0}summary{cursor:pointer}#model-note{min-height:2.5em}footer a{display:inline-block;margin:8px 18px 0 0}@media(max-width:600px){#model-view{height:48vh;min-height:300px}.island-tabs button{flex:1;padding:10px 8px}details{margin:20px 0}}</style></head>
+<body><header><div><h1>三段岛屿假期</h1><p>工位背后的年假 · 从完整构图长出的微缩世界</p></div><a id="catalog-link" href="index.html#blue-book">返回物件制作台</a></header>
+<main><article>
+<nav class="island-tabs" aria-label="选择岛屿"><button data-asset="blue-book" aria-current="true">蓝书 · 白崖海岸</button><button data-asset="orange-book" aria-current="false">橙书 · 赤岩峡湾</button><button data-asset="phone" aria-current="false">手机 · 潮汐长湾</button></nav>
+<h2 id="island-name">正在载入岛屿</h2><p id="island-description" class="intro"></p>
+<div class="toolbar" aria-label="观察角度"><button data-view="overview" aria-pressed="true">全景</button><button data-view="side" aria-pressed="false">侧面纵深</button><button data-view="top" aria-pressed="false">俯看路径</button><button data-view="back" aria-pressed="false">另一面</button></div>
+<div id="model-view" tabindex="0" role="region" aria-label="岛屿三维模型，可拖动旋转、滚轮缩放或使用方向键"></div><p id="model-note" role="status" aria-live="polite">正在载入模型…</p>
+<div class="toolbar" aria-label="模型版本"><button data-model="expanded" aria-pressed="true">新版背面展开态</button><button data-model="previous" aria-pressed="false">对比旧版薄边景观</button></div>
+<details><summary>查看整体概念图</summary><img id="concept" class="reference" alt="岛屿完整构图的建模参考" loading="lazy"><p class="intro">这张图用于指导整体建模。上方可旋转视图展示实际生成的 3D 模型。</p></details>
+<footer>新版为静态的背面展开态，保留完整建筑和地形纵深。与普通物件之间的收展、桌面位置及动态海水仍待接入。<br><a id="source-link" href="index.html#blue-book">查看原照与原物件</a><a id="download-link" download>下载当前 GLB</a><a href="bookroom.html">进入洞窟书屋 →</a></footer>
+</article></main><script type="module" src="islands-unified.js"></script></body></html>

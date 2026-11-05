@@ -25,11 +25,15 @@ export function cameraPose(parameters, progress) {
   return pose;
 }
 
+export function sourceCrop(aspect){
+ const height=Math.min(.80,1320/(1739*aspect)),width=Math.min(1,1739*height*aspect/1320);
+ return [(1-width)/2,Math.max(0,.46-height/2),width,height];
+}
+
 export function applyProjection(camera,parameters,progress,aspect) {
   // Begin in the registered photograph's tabletop crop. Gradually return to a
   // centred perspective as the camera approaches; no projection-mode switch.
-  const height=Math.min(.80,1320/(1739*aspect)),width=Math.min(1,1739*height*aspect/1320);
-  const crop=[(1-width)/2,Math.max(0,.46-height/2),width,height];
+  const crop=sourceCrop(aspect);
   const start=projectionBounds(parameters,crop,1320,1739,camera.near);
   const portraitFov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad(55)/2)/aspect));
   const fov=Math.max(portraitFov,THREE.MathUtils.lerp(56,39,smooth(85,150,progress*180)));

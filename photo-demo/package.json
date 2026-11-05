@@ -10,6 +10,7 @@
     "check:marble": "python3 scripts/test-marble-runner.py && node scripts/check-marble-camera.mjs && node scripts/check-marble-refined.mjs",
     "check:marble-assets": "python3 scripts/check-marble-hybrid.py && python3 scripts/check-marble-refined.py",
     "check:marble-browser": "node scripts/check-marble-lab.cjs",
-    "check:marble-transition": "node scripts/check-marble-transition.mjs"
+    "check:marble-transition": "node scripts/check-marble-transition.mjs",
+    "check:bookroom-loop": "node --test scripts/check-bookroom-loop.mjs"
   }
 }

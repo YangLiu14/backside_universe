@@ -1,0 +1,45 @@
+{
+  "source": "photo-demo/evidence/holiday-assets-v1/laptop/spatial-v6/environment.glb",
+  "textures": [
+    {
+      "name": "Color_90ff1d50-7391-4e46-93c6-0ce4a47bb97f",
+      "original": [
+        4096,
+        4096
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "NormalGL_90ff1d50-7391-4e46-93c6-0ce4a47bb97f",
+      "original": [
+        4096,
+        4096
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "ORM_90ff1d50-7391-4e46-93c6-0ce4a47bb97f",
+      "original": [
+        4096,
+        4096
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    }
+  ],
+  "meshDecimated": false,
+  "viewerComputesNormals": true,
+  "draco": {
+    "positionQuantization": 16,
+    "texcoordQuantization": 14
+  },
+  "bytes": 12680048
+}

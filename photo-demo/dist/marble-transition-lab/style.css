@@ -6,3 +6,14 @@
 h1{font-family:"Songti SC","Noto Serif CJK SC",serif;font-weight:400}.intro{margin-top:34px}svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}#play-icon svg{width:14px;height:14px}#home{display:flex;align-items:center;gap:8px}::selection{background:#d8d9b5;color:#18241d}.transport button:hover,.ticks button:hover{color:#fff9e9}.inspection a{text-decoration:underline;text-underline-offset:4px}.inspection a:hover{color:#fff9e9}
 
 .inspection p{font-size:12px}.transport button{min-height:32px}.ticks button{min-height:28px}.inspection-inner label{min-height:32px}@media(max-width:700px){.transport button,.ticks button,.variants button{min-height:44px}.scene-caption{max-width:calc(100% - 24px)}}
+
+[hidden]{display:none!important}
+.bookroom-entry{position:absolute;right:20px;bottom:20px;background:#233e32ec;color:#f9f2de;border:1px solid #f6edcf70;padding:13px 18px;border-radius:5px;font-size:12px}
+body.book-portal{height:100vh;overflow:hidden}
+.book-portal main{max-width:none;height:100%;padding:0}
+.book-portal header,.book-portal .intro,.book-portal .footnote,.book-portal .inspection{display:none}
+.book-portal .experience{height:100%;border:0;border-radius:0;position:relative}
+.book-portal .stage{height:100%;min-height:0}
+.book-portal .transport{position:absolute;bottom:12px;left:12px;right:12px;padding:8px 15px;gap:18px;background:#16271ee8;border:1px solid #d5dec338;border-radius:5px;backdrop-filter:blur(12px)}
+.book-portal .gesture,.book-portal .bookroom-entry{bottom:100px}
+@media(max-width:700px){.book-portal .transport{left:8px;right:8px;bottom:8px;padding:5px 10px;gap:12px}.book-portal .bookroom-entry{right:12px}.book-portal .ticks button{font-size:10px!important}}

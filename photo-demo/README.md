@@ -29,9 +29,11 @@ npm run dev
 | `/marble-transition-lab/index.html` | 4.8秒连续绕行至180°，共用校准物件，从Marble实景交接到联动度假世界；可逆拖动和同机位检查 |
 | `/holiday-assets/index.html` | 10组已生成小物件的模型审阅页；蓝杯暂停，部分形态仍需精修 |
 | `/holiday-assets/laptop-spatial.html` | 电脑背面立体小岛、独立Tripo书屋、约25°屏幕倾角；保留旧版对照 |
-| `/holiday-assets/bookroom.html` | 连续开门进入二层书屋，室内环顾/移动和返回；独立家具、门轴与碰撞 |
+| `/holiday-assets/islands-unified.html` | 蓝书、橙书、手机的整体背面展开态，三件实际GLB与旧版对照；可用`#blue-book`、`#orange-book`、`#phone`直达 |
+| `/holiday-assets/laptop-unified.html` | 整体洞窟外观，完整电脑/景观/旧版对照；已接入互动书屋入口 |
+| `/holiday-assets/bookroom.html` | 默认新版洞窟书屋；开门进入、书页原图放大回到3DGS、再次返回洞窟；`?island=v3`保留旧版 |
 
-新物件与书屋尚未整体接入Marble转场；它们通过独立页面审阅。
+书屋通过原图书页回到Marble实景，群岛提供再次进入洞窟的入口；新物件的展开态GLB尚未整体替换主桌面。
 
 用户已认可 `marble-refined-lab` 作为基础。独立 `marble-transition-lab` 使用原版房间与 Hi3D 资产，并以固定正面遮挡约束把景观藏在物件后方：电脑背板小镇、书后小村、杯内码头随绕行显露；桌面在68°–132°逐渐成为海水，把独立物件连成群岛。海面前版本保留在 `marble-islands-before-sea`。调整前版本保留在 `marble-transition-restored`，首版在 `marble-transition-first-pass`；原主 demo 和其他 Marble 对照页保留。外围配准和隐藏容积裁剪仍有局限，详见 `docs/MARBLE_TRANSITION.md`。
 
@@ -39,6 +41,7 @@ npm run dev
 
 - [逐物件资产与当前缺陷](docs/HOLIDAY_ASSETS.md)
 - [电脑背面空间迭代与可进入书屋](docs/LAPTOP_MINIATURE_REVISION.md)
+- [书页回到原空间的循环](docs/BOOKROOM_LOOP.md)
 - [FlashWorld实测与复现](experiments/flashworld/README.md)、[与Marble的同条件对照](experiments/flashworld/COMPARISON_MARBLE.md)
 - [最近工作与验证结果](docs/PROGRESS.md)
 - [本地资产恢复、依赖和 Git 规则](docs/ASSETS.md)
@@ -72,8 +75,13 @@ PATH="$PWD/experiments/gaussian/.venv/bin:$PATH" npm run check:marble-assets
 # 完整本地资产就绪后：语法、几何、时间线和资产检查
 npm run check
 
+# 书页取景、原图哈希、重复交接与载入失败恢复
+npm run check:bookroom-loop
+
 # 海风书屋完整进出、家具避让与窄屏检查（资产和本机Playwright就绪）
 node scripts/check-bookroom.mjs
+node scripts/check-unified-island.mjs
+node scripts/check-grotto-bookroom-picking.mjs
 
 # 最新实体小样（先启动 localhost；需配置本机 Playwright）
 SOLID_RUN=final node scripts/check-solid-objects.cjs

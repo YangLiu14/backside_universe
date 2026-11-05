@@ -1,0 +1,48 @@
+{
+  "terrainTaskId": "d2bd78f1-25d8-4201-b83e-f701e87b8f19",
+  "terrainScaleXYZ": [
+    0.48,
+    0.7,
+    0.94
+  ],
+  "terrainRotationZ": 1.5707963267948966,
+  "terrainTranslation": [
+    0.065,
+    0.605,
+    -0.172
+  ],
+  "harbourOffsetY": 0.1,
+  "terrainTriangleBudget": 600000,
+  "rearCut": {
+    "yIntercept": 0.405,
+    "zSlope": 0.465
+  },
+  "lighthousePath": [
+    [
+      -0.26,
+      0.52,
+      0.14
+    ],
+    [
+      -0.18,
+      0.69,
+      0.037
+    ],
+    [
+      -0.055,
+      0.74,
+      0.037
+    ]
+  ],
+  "pathWidth": 0.042,
+  "cavern": {
+    "width": 1.02,
+    "height": 0.72,
+    "bottom": -0.345,
+    "depth": 0.26,
+    "rearIntercept": 0.405,
+    "rearSlope": 0.465,
+    "rearClearance": 0.008,
+    "triangleBudget": 650000
+  }
+}

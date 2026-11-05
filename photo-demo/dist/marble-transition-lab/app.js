@@ -8,9 +8,13 @@ import {createCompositor} from './compositor.js';
 import {DURATION,clamp01,smooth,sampleJourney,cameraPose,applyProjection} from './journey.js';
 
 const $=id=>document.getElementById(id),canvas=$('world'),stage=$('stage');
+const embedded=new URLSearchParams(location.search).get('portal')==='book'&&parent!==window;
+document.body.classList.toggle('book-portal',embedded);
+let embedActive=!embedded,spark;
+const tellParent=(type,detail={})=>{if(embedded)parent.postMessage({type,...detail},location.origin);};
 let ready=false,progress=0,playing=null,variant='transition',meta,renderer,camera,compositor,objects,desktop,holiday,realScene,dreamScene;
 let width=1,height=1,frameTimes=[],lastFrame=0,settleUntil=0;
-const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function status(message){$('status').textContent=message;}
 function stop(){playing=null;$('play-icon').innerHTML='<svg viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></svg>';$('play-label').textContent=progress>=1?'返回实景':'播放转场';$('play').setAttribute('aria-pressed','false');$('play').setAttribute('aria-label',progress>=1?'返回实景':'播放转场');canvas.dataset.frameTimes=JSON.stringify(frameTimes);settleUntil=performance.now()+450;}
 function setProgress(value,manual=true){
@@ -22,6 +26,7 @@ function setProgress(value,manual=true){
   $('progress').value=Math.round(progress*1000);$('progress').style.setProperty('--progress',`${progress*100}%`);
   $('phase').textContent=state.label;$('angle').textContent=`${state.angle.toFixed(0)}°`;$('elapsed').textContent=`${(progress*DURATION/1000).toFixed(1)} / 4.8 s`;
   $('gesture').hidden=progress>.03;document.querySelectorAll('[data-progress]').forEach(b=>b.setAttribute('aria-current',String(Math.abs(progress-Number(b.dataset.progress))<.01)));
+  $('enter-bookroom').hidden=progress<.97;
   canvas.dataset.camera=JSON.stringify(camera.matrixWorld.toArray());canvas.dataset.projection=JSON.stringify(camera.projectionMatrix.toArray());canvas.dataset.progress=String(progress);canvas.dataset.seaAmount=String(state.sea);
   if(!playing)stop();
 }
@@ -29,7 +34,7 @@ function travel(to){stop();if(reduce){setProgress(to);return;}frameTimes=[];last
 function setVariant(value){if(!ready||!['transition','real','dream'].includes(value))return;stop();variant=value;document.querySelectorAll('[data-variant]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.variant===value)));}
 function resize(){const rect=stage.getBoundingClientRect();width=Math.max(1,rect.width);height=Math.max(1,rect.height);if(!renderer)return;renderer.setSize(width,height,false);compositor?.resize(width,height);if(ready)setProgress(progress,false);}
 function frame(now){
-  if(document.hidden)return;
+  if(document.hidden||!embedActive)return;
   const wasPlaying=!!playing;
   if(playing){const t=clamp01((now-playing.start)/playing.duration),{from,to}=playing;setProgress(THREE.MathUtils.lerp(from,to,smooth(0,1,t)),false);if(t===1)stop();}
   if(!ready||(!playing&&now>settleUntil))return;
@@ -47,7 +52,7 @@ async function boot(){
   realScene=new THREE.Scene();realScene.background=new THREE.Color('#bfc8c3');dreamScene=new THREE.Scene();
   camera=new THREE.PerspectiveCamera(50,1,.012,30);const p=meta.calibration.parameters;
   camera.position.set(p.x,p.y,p.z);camera.quaternion.setFromEuler(new THREE.Euler(...[p.pitch,p.yaw,p.roll].map(THREE.MathUtils.degToRad),'YXZ'));camera.updateMatrixWorld(true);
-  const spark=new SparkRenderer({renderer,apertureAngle:0,blurAmount:.3,enableLod:false,sortRadial:false});realScene.add(spark);
+  spark=new SparkRenderer({renderer,apertureAngle:0,blurAmount:.3,enableLod:false,sortRadial:false});realScene.add(spark);
   const room=new SplatMesh({url:'../marble-refined-lab/assets/room-without-objects.spz',lod:false});room.scale.setScalar(meta.semantics_metadata.metric_scale_factor);room.rotation.x=Math.PI;room.position.y=meta.semantics_metadata.ground_plane_offset;realScene.add(room);
   const sourceCamera=camera.clone();sourceCamera.projectionMatrix.makePerspective(...projectionBounds(p,[0,0,1,1],1320,1739,sourceCamera.near),sourceCamera.near,sourceCamera.far);sourceCamera.projectionMatrixInverse.copy(sourceCamera.projectionMatrix).invert();sourceCamera.updateMatrixWorld(true);
   status('正在对齐电脑、书本和杯子…');
@@ -71,7 +76,27 @@ async function boot(){
   canvas.dataset.island=holiday.islandSource;canvas.dataset.sceneRevision='desktop-archipelago';
   canvas.dataset.frontOcclusion=JSON.stringify(auditSourceOcclusion(renderer,dreamScene,objects.group,holiday.group,sourceCamera));
   const value=new URLSearchParams(location.search).get('progress');if(value!==null)setProgress(Number(value));
+  canvas.dataset.ready='true';tellParent('book-world:ready');
 }
+$('enter-bookroom').addEventListener('click',()=>{if(embedded){stop();tellParent('book-world:revisit');}else location.href='../holiday-assets/bookroom.html';});
+window.addEventListener('message',async event=>{
+ if(!embedded||event.origin!==location.origin||event.source!==parent||!ready)return;
+ const data=event.data;
+ if(data?.type==='book-world:active'){
+  embedActive=!!data.active;if(!embedActive)stop();else{settleUntil=performance.now()+1000;canvas.focus({preventScroll:true});}
+ }else if(data?.type==='book-world:motion'){
+  reduce=!!data.reduced;if(reduce)stop();
+ }else if(data?.type==='book-world:prepare'){
+  try{
+   reduce=!!data.reduced;stop();variant='transition';setProgress(0);resize();
+   await spark.update({scene:realScene,camera});
+   compositor.render(camera,sampleJourney(0),'transition',false);
+   tellParent('book-world:prepared',{id:data.id});
+  }catch(error){console.error(error);tellParent('book-world:error');}
+ }
+});
+canvas.addEventListener('webglcontextlost',()=>tellParent('book-world:error'));
+window.addEventListener('keydown',event=>{if(event.key==='Escape'&&embedded){event.preventDefault();tellParent('book-world:leave');}});
 $('progress').addEventListener('input',e=>setProgress(Number(e.target.value)/1000));
 $('play').addEventListener('click',()=>playing?stop():travel(progress>.995?0:1));$('home').addEventListener('click',()=>setProgress(0));
 document.querySelectorAll('[data-progress]').forEach(b=>b.addEventListener('click',()=>setProgress(Number(b.dataset.progress))));
@@ -86,4 +111,4 @@ canvas.addEventListener('wheel',e=>{if(!ready)return;e.preventDefault();setProgr
 canvas.addEventListener('keydown',e=>{if(!ready||!['ArrowLeft','ArrowRight','Home','End',' ','Enter'].includes(e.key))return;e.preventDefault();if(e.key==='Home')setProgress(0);else if(e.key==='End')setProgress(1);else if(e.key===' '||e.key==='Enter')playing?stop():travel(progress>.995?0:1);else setProgress(progress+(e.key==='ArrowRight'?.01:-.01));});
 new ResizeObserver(resize).observe(stage);document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
 window.__marbleTransition={setProgress,setVariant,stop,get state(){return{ready,progress,variant,playing:!!playing,...sampleJourney(progress),camera:camera?.matrixWorld.toArray(),projection:camera?.projectionMatrix.toArray(),compositor:compositor?.stats,houseReady:holiday?.houseReady,frames:frameTimes.slice()};},get renderer(){return renderer;},get scene(){return realScene;},get dreamScene(){return dreamScene;},get camera(){return camera;},get objects(){return objects;}};
-boot().catch(error=>{console.error(error);status(`加载未完成：${error.message}。请恢复本地资产后刷新。`);$('loading').dataset.error='true';});
+boot().catch(error=>{console.error(error);status(`加载未完成：${error.message}。请恢复本地资产后刷新。`);$('loading').dataset.error='true';tellParent('book-world:error');});

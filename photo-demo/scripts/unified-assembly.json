@@ -1,0 +1,8 @@
+{
+  "width": 1.05,
+  "bottom": -0.36,
+  "rearIntercept": 0.392,
+  "rearSlope": 0.465,
+  "rearClearance": 0.003,
+  "contactOffsetY": 0.18
+}

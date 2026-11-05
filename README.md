@@ -11,11 +11,13 @@ npm run dev
 
 主 demo：[http://127.0.0.1:9988/](http://127.0.0.1:9988/)。当前可体验：
 
-- [可进入的海风书屋](http://127.0.0.1:9988/holiday-assets/bookroom.html)：开门、进入、室内走动和退出。
+- [三件背面展开态](http://127.0.0.1:9988/holiday-assets/islands-unified.html)：蓝书白崖、橙书赤岩峡湾、手机潮汐港；Tripo整体网格与旧版对照。
+- [整体洞窟小岛](http://127.0.0.1:9988/holiday-assets/laptop-unified.html)：洞窟、建筑、岩岸与海湾统一生成的外观模型，可与旧版对照。
+- [可进入的海风书屋](http://127.0.0.1:9988/holiday-assets/bookroom.html)：已接入新版洞窟，可开门进入、阅读原图书页并回到最初的3DGS空间；支持再次进入的循环。
 - [逐物件 3D 资产](http://127.0.0.1:9988/holiday-assets/index.html)与[电脑背面小岛](http://127.0.0.1:9988/holiday-assets/laptop-spatial.html)：真实网格、独立微缩景观和约25°屏幕倾角。
 - [Marble 桌面海面转场](http://127.0.0.1:9988/marble-transition-lab/index.html)：从实景绕到物件背面，桌面逐步变为海水。
 
-原 demo 和历次重建实验保留。新物件资产与书屋是独立预览，尚未替换进 Marble 转场；完整物件联动仍待整合。FlashWorld 实测与 Marble 对照见[实验记录](photo-demo/experiments/flashworld/README.md)。
+原 demo 和历次重建实验保留。书屋已与 Marble 转场通过书页和洞窟入口连接；新物件资产尚未整体替换进主桌面，完整物件联动仍待整合。FlashWorld 实测与 Marble 对照见[实验记录](photo-demo/experiments/flashworld/README.md)。
 
 新克隆需要恢复本地资产才能运行完整演示。说明与入口见 [photo-demo/README.md](photo-demo/README.md)，资产恢复见 [ASSETS.md](photo-demo/docs/ASSETS.md)。
 

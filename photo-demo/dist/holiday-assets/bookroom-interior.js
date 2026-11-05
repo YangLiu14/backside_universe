@@ -1,8 +1,9 @@
 import * as THREE from 'three';
+import {printBook} from './bookroom-book.js';
 export const P=(x,y,z)=>new THREE.Vector3(x,z,-y);
 export const room={minX:-.061,maxX:.230,minY:.522,maxY:.674,floor:.008,eye:.100,doorX:.043,doorY:.682,doorMin:.010,doorMax:.076};
 export const eyeHeight=y=>room.eye+.0275*THREE.MathUtils.smoothstep(y,.645,.690);
-export async function buildInterior(scene,loader){
+export async function buildInterior(scene,loader,{furnitureWidthScale=1,grotto=false}={}){
  const root=new THREE.Group();root.name='crafted-bookroom-interior';scene.add(root);
  const material=(color,roughness=.75,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
  const plaster=material('#d8c7a6'),wood=material('#725039'),darkWood=material('#463327'),brass=material('#a88342',.32,.72),green=material('#306c58',.52),paper=material('#eee0b7');
@@ -19,6 +20,14 @@ export async function buildInterior(scene,loader){
  // behind the original stonework rather than a solid infill across it.
  const glass=new THREE.MeshPhysicalMaterial({color:'#d9e8df',transparent:true,opacity:.10,roughness:.12,metalness:0,depthWrite:false,side:THREE.DoubleSide});
  box('bay-low-wall',[.234,.597,.027],[.008,.164,.046],plaster);
+ if(grotto){
+  // Timber spandrel joins the new mezzanine to the existing wood balcony.
+  box('loggia-timber-apron',[.174,.680,.027],[.128,.003,.046],wood);
+  for(let i=0;i<7;i++)box('loggia-apron-stile',[.115+i*.0195,.682,.027],[.003,.002,.042],darkWood);
+  for(const z of [.005,.049])box('loggia-apron-rail',[.174,.682,z],[.128,.003,.003],darkWood);
+  for(const y of [.540,.652])box('grotto-bay-side-jamb',[.239,y,.0865],[.018,.004,.081],wood);
+  for(const z of [.048,.125])box('grotto-bay-side-rail',[.239,.596,z],[.018,.116,.004],wood);
+ }
  const sideGlass=box('bay-side-glazing',[.234,.597,.100],[.002,.150,.100],glass);sideGlass.castShadow=false;
  for(const y of [.523,.670])box('bay-side-frame',[.234,y,.100],[.006,.005,.100],wood);
  // Left window is a real opening aligned with the cut in the generated shell.
@@ -70,15 +79,15 @@ export async function buildInterior(scene,loader){
  }
  const fill=new THREE.PointLight('#ffe4bb',.010,.35,2);fill.position.copy(P(.08,.595,.137));root.add(fill);
  const tableLight=new THREE.PointLight('#ffd7a0',.002,.16,2);tableLight.position.copy(P(-.022,.583,.073));root.add(tableLight);
- const furniture=[];
+ const furniture=[];let book;
  async function asset(slug,axis,length,x,y,yaw){
-  const gltf=await loader.loadAsync(`assets/bookroom/${slug}.glb`);const group=new THREE.Group();group.name='tripo-'+slug;group.add(gltf.scene);
+  const gltf=await loader.loadAsync(`assets/bookroom/${slug}.glb`);if(slug==='desk')book=await printBook(gltf.scene);const group=new THREE.Group();group.name='tripo-'+slug;group.add(gltf.scene);
   const bounds=new THREE.Box3().setFromObject(gltf.scene),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
-  gltf.scene.position.sub(new THREE.Vector3(center.x,bounds.min.y,center.z));const scale=length/size[axis];group.scale.setScalar(scale);group.rotation.y=yaw;group.position.copy(P(x,y,.011));root.add(group);
+  gltf.scene.position.sub(new THREE.Vector3(center.x,bounds.min.y,center.z));const scale=length/size[axis];group.scale.setScalar(scale);group.rotation.y=yaw;const placement=new THREE.Group();placement.name='placement-'+slug;placement.position.copy(P(x,y,.011));placement.scale.x=furnitureWidthScale;placement.add(group);root.add(placement);
   let triangles=0;group.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;triangles+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3;}});
-  group.updateMatrixWorld(true);const bb=new THREE.Box3().setFromObject(group);furniture.push({slug,triangles,bounds:{min:bb.min.toArray(),max:bb.max.toArray()}});return group;
+  placement.updateMatrixWorld(true);const bb=new THREE.Box3().setFromObject(placement);furniture.push({slug,triangles,bounds:{min:bb.min.toArray(),max:bb.max.toArray()}});return group;
  }
  // Tripo's canonical front is +X; rotations orient each item into the room.
  await Promise.all([asset('bookcase','y',.117,.133,.542,Math.PI/2),asset('desk','z',.084,-.017,.585,Math.PI),asset('chair','y',.055,.183,.616,Math.PI*.65)]);
- return {root,pivot,door,furniture};
+ return {root,pivot,door,furniture,book};
 }

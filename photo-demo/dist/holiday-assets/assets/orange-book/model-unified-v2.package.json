@@ -1,0 +1,45 @@
+{
+  "source": "photo-demo/evidence/holiday-assets-v1/orange-book/unified-v2/source.glb",
+  "textures": [
+    {
+      "name": "orange-book-red-canyon-unified-v2_basecolor.jpg",
+      "original": [
+        4096,
+        4096
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "orange-book-red-canyon-unified-v2_normal.png",
+      "original": [
+        4096,
+        4096
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "orange-book-red-canyon-unified-v2_rm.jpg",
+      "original": [
+        4096,
+        4096
+      ],
+      "web": [
+        4096,
+        4096
+      ]
+    }
+  ],
+  "meshDecimated": false,
+  "viewerComputesNormals": true,
+  "draco": {
+    "positionQuantization": 16,
+    "texcoordQuantization": 14
+  },
+  "bytes": 10062340
+}
