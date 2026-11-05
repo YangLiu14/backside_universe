@@ -70,3 +70,11 @@ git diff --cached --stat
 `dist/marble-hybrid-lab/assets/` 为本地衍生资产：清理前景的 SPZ、局部支撑面 PLY、复用模型的几何 JSON 和移除索引 BIN。全部继续忽略，仅保留小型 `scene.json`。重建依赖原 Marble 资产、原照、既有 SAM/模型和源机位渲染证据；详见 [MARBLE_HYBRID.md](MARBLE_HYBRID.md)。无需重新收费生成。
 
 `dist/marble-refined-lab/assets/` 是融合修正版独立衍生资产：进一步清理的SPZ、连续桌面网格JSON、支持纹理、杯釉/书封边界纹理、物件几何和移除索引。遵循相同忽略规则，仅小型 `scene.json` 可追踪。具体依赖和重建命令见 [MARBLE_REFINED.md](MARBLE_REFINED.md)。
+
+## 逐物件资产与可进入书屋
+
+`dist/holiday-assets/assets/<物件>/` 的模型和参考图继续只存本地；最新清单已纳入`local-assets.json`。电脑空间各版分别保留，书屋另用`assets/bookroom/shell.glb`与`bookcase.glb`、`desk.glb`、`chair.glb`。`assets/bookroom/scene.json`只保存任务ID、源模型哈希与组件关系，可用于核对已有资产，不能替代模型文件。
+
+恢复这些模型时使用本地/私有备份或已有任务下载，不为恢复checkout重新发起收费生成。门轴、房间、台阶与光照由`bookroom-interior.js`装配，交互由`bookroom.js`和`bookroom-navigation.js`负责。原始高精度网格、开洞/导出记录和浏览器截图位于忽略的`evidence/holiday-assets-v1/`。
+
+Draco解码器是小型浏览器运行依赖，随源码保存；许可和精确文件哈希见`dist/vendor/draco/`。`.tripo/`是本地服务任务上下文，不随Git分发。FlashWorld模型、环境和输出继续留在本地；固定版本及复现方法见`experiments/flashworld/README.md`。

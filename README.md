@@ -9,9 +9,13 @@ cd photo-demo
 npm run dev
 ```
 
-主 demo：[http://127.0.0.1:9988/](http://127.0.0.1:9988/)。最新电脑/杯子小样：[实体表面实验](http://127.0.0.1:9988/solid-object-lab/index.html)。
+主 demo：[http://127.0.0.1:9988/](http://127.0.0.1:9988/)。当前可体验：
 
-原 demo 保留 4.5 秒照片到微缩度假世界的体验；各单图重建实验独立保留。最新小样只评估 ±12°，隐藏面、其他物件和外围仍存在近似及重影，尚未整合进完整转场。
+- [可进入的海风书屋](http://127.0.0.1:9988/holiday-assets/bookroom.html)：开门、进入、室内走动和退出。
+- [逐物件 3D 资产](http://127.0.0.1:9988/holiday-assets/index.html)与[电脑背面小岛](http://127.0.0.1:9988/holiday-assets/laptop-spatial.html)：真实网格、独立微缩景观和约25°屏幕倾角。
+- [Marble 桌面海面转场](http://127.0.0.1:9988/marble-transition-lab/index.html)：从实景绕到物件背面，桌面逐步变为海水。
+
+原 demo 和历次重建实验保留。新物件资产与书屋是独立预览，尚未替换进 Marble 转场；完整物件联动仍待整合。FlashWorld 实测与 Marble 对照见[实验记录](photo-demo/experiments/flashworld/README.md)。
 
 新克隆需要恢复本地资产才能运行完整演示。说明与入口见 [photo-demo/README.md](photo-demo/README.md)，资产恢复见 [ASSETS.md](photo-demo/docs/ASSETS.md)。
 

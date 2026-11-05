@@ -217,6 +217,256 @@
       "sha256": "a2f01f68dbcd5e060d55348f803e509fc789b97904e01b98763fcf0314351aaf"
     },
     {
+      "path": "dist/holiday-assets/assets/arm-lamp/back.jpg",
+      "bytes": 370318,
+      "sha256": "b5ecf7656f9d82fac08a526d5281d7e926181800453145065deafac38e405399"
+    },
+    {
+      "path": "dist/holiday-assets/assets/arm-lamp/front.jpg",
+      "bytes": 173089,
+      "sha256": "a21f1ebd3956a9509cadd7d04a3225903dea3f70fffd7b5ae30683f1c5721789"
+    },
+    {
+      "path": "dist/holiday-assets/assets/arm-lamp/model.glb",
+      "bytes": 37847416,
+      "sha256": "5cadd8e5287822a822ff36649c07d6e747dafd58af19ab52d31b88424c76e0f8"
+    },
+    {
+      "path": "dist/holiday-assets/assets/arm-lamp/source.jpg",
+      "bytes": 46363,
+      "sha256": "d624e9c9d3fe8ac7d90185327631c97abac5e48cd1bf929936123599fa3f263d"
+    },
+    {
+      "path": "dist/holiday-assets/assets/blue-book/back.jpg",
+      "bytes": 291055,
+      "sha256": "5bdbed25e3bb4bece47f5c33f7eb2c3bcb431174bf26e3bf1399c3e5c62db5ed"
+    },
+    {
+      "path": "dist/holiday-assets/assets/blue-book/front.jpg",
+      "bytes": 140815,
+      "sha256": "10b3e736203942394abfb5a9e87c8e7797af32e710b42c7393f86aa097c446ee"
+    },
+    {
+      "path": "dist/holiday-assets/assets/blue-book/model.glb",
+      "bytes": 26309756,
+      "sha256": "671ca8d4d76c1e879f09ae6d0a23daa32828368e015fe0d32c007072a22afec0"
+    },
+    {
+      "path": "dist/holiday-assets/assets/blue-book/source.jpg",
+      "bytes": 40917,
+      "sha256": "a138483ca234fb40997dbee89aa6db689aa49c8dc074a20bb289ff4bdff53e11"
+    },
+    {
+      "path": "dist/holiday-assets/assets/bookroom/bookcase.glb",
+      "bytes": 6558752,
+      "sha256": "18674f93577d76bed73d5cc91a82cfa80328e53637de22b7f8e3138d161566a6"
+    },
+    {
+      "path": "dist/holiday-assets/assets/bookroom/chair.glb",
+      "bytes": 7375048,
+      "sha256": "6f12e6438f5b71ddc7667c22c4e078f4d3974ddb03e95a59d6a6751b0b390a5b"
+    },
+    {
+      "path": "dist/holiday-assets/assets/bookroom/desk.glb",
+      "bytes": 4569760,
+      "sha256": "c9d8f42646681e4d1c0f366acd88f1de724d84f9d746e9f8bcd37866855cab8f"
+    },
+    {
+      "path": "dist/holiday-assets/assets/bookroom/shell.glb",
+      "bytes": 42816748,
+      "sha256": "5c1b8e7051fbc8a3ec59ea082512c30e2e9ea0f3fcd521a52c6e547663ddb8fb"
+    },
+    {
+      "path": "dist/holiday-assets/assets/cup/back.jpg",
+      "bytes": 440285,
+      "sha256": "0b951c0cc07eca95dc153a5642ae655903275e050267ae244bc181dd4202dd07"
+    },
+    {
+      "path": "dist/holiday-assets/assets/cup/front.jpg",
+      "bytes": 320246,
+      "sha256": "552feef88a44a804b9ad2919c50d7e89abd077d25c9869afd6e77ef53371a072"
+    },
+    {
+      "path": "dist/holiday-assets/assets/cup/source.jpg",
+      "bytes": 49025,
+      "sha256": "591ca8f168063fac50f44fe33a9a469ca52706aa85c957420534b8ef88e119d6"
+    },
+    {
+      "path": "dist/holiday-assets/assets/headphones/back.jpg",
+      "bytes": 381767,
+      "sha256": "5cd0cdcad661e529e8378a0f57cefbf4d161e048bbb0fd045e0d9a83bfbb2298"
+    },
+    {
+      "path": "dist/holiday-assets/assets/headphones/front.jpg",
+      "bytes": 328668,
+      "sha256": "7974618f94e0fbb4a01566041d45f763851d96c59eb7ba8dba855beb63bed2ab"
+    },
+    {
+      "path": "dist/holiday-assets/assets/headphones/model.glb",
+      "bytes": 54343828,
+      "sha256": "fc67360ebf476d02f707448d8a7660e00614b85100a6cfc7f4be9fe51322b5ec"
+    },
+    {
+      "path": "dist/holiday-assets/assets/headphones/source.jpg",
+      "bytes": 45554,
+      "sha256": "db51dfb3529101b12048bd13eac1e9235dc4132d597f35caec0b51cc3e26873b"
+    },
+    {
+      "path": "dist/holiday-assets/assets/laptop/back.jpg",
+      "bytes": 597972,
+      "sha256": "8661fb691f35d905155e2ce8ff4c41daf2b9ac364e73c0642861f617c73d5b5f"
+    },
+    {
+      "path": "dist/holiday-assets/assets/laptop/front.jpg",
+      "bytes": 207587,
+      "sha256": "256c742503009a5f15c697ac9ddf90af3c345ffc5a184568ab44081483ca7d31"
+    },
+    {
+      "path": "dist/holiday-assets/assets/laptop/model-spatial-study.glb",
+      "bytes": 56349636,
+      "sha256": "6f15116ea11aae3223d46f1fe22b028643fef55f9ed229003f84135e82b0efe9"
+    },
+    {
+      "path": "dist/holiday-assets/assets/laptop/model-spatial-v2.glb",
+      "bytes": 66202628,
+      "sha256": "c7935c19dabddc45b161e5e33059e7f5897afb69f357eb7acf08efee0a1b6888"
+    },
+    {
+      "path": "dist/holiday-assets/assets/laptop/model-spatial-v3.glb",
+      "bytes": 42903276,
+      "sha256": "f792308d92b2f7b53c1d4105b96e672395c8ed4924a1164202326d0571689d91"
+    },
+    {
+      "path": "dist/holiday-assets/assets/laptop/model.glb",
+      "bytes": 34140052,
+      "sha256": "f84b68056e455f428637f6ea50bcfbc614e13b6eff5c5d79f7541816434821d6"
+    },
+    {
+      "path": "dist/holiday-assets/assets/laptop/source.jpg",
+      "bytes": 90001,
+      "sha256": "3f98f6f999331b16e124de5e584b578cf650497bbe4e38754d3f07cab9e6db06"
+    },
+    {
+      "path": "dist/holiday-assets/assets/mushroom-lamp/back.jpg",
+      "bytes": 233194,
+      "sha256": "cd19808c61701bf7d05f08fa4b775e115777f903d6c2440b20ce724f9a37ac47"
+    },
+    {
+      "path": "dist/holiday-assets/assets/mushroom-lamp/front.jpg",
+      "bytes": 156397,
+      "sha256": "5f6accd7c207d861fff52c2cd25c9fb522cc0e704e4cb55852ba0feff17ee070"
+    },
+    {
+      "path": "dist/holiday-assets/assets/mushroom-lamp/model.glb",
+      "bytes": 12628912,
+      "sha256": "336b43678b0b4ae0ea46f217427ba90f5830b52983bb37cc9cb855c0f64ec46a"
+    },
+    {
+      "path": "dist/holiday-assets/assets/mushroom-lamp/source.jpg",
+      "bytes": 50647,
+      "sha256": "5e82f3387d1c7bb916a7226db8a0b9867f10e8969bad9282402b3900ff2f0a8c"
+    },
+    {
+      "path": "dist/holiday-assets/assets/orange-book/back.jpg",
+      "bytes": 432925,
+      "sha256": "7ee06ac6e46d7c39e7f3386f9da72c7bed692104440e5127254face3addd372a"
+    },
+    {
+      "path": "dist/holiday-assets/assets/orange-book/front.jpg",
+      "bytes": 582615,
+      "sha256": "640fbfa8e2e4e28384ebfbc91b3481355d3a58f310720d6d1bffe67b685bc7c9"
+    },
+    {
+      "path": "dist/holiday-assets/assets/orange-book/model.glb",
+      "bytes": 28922452,
+      "sha256": "3eaf9de15ac1fe019b0d4ed6b8abcf9a86c226ce33ea805493808a9df52836e8"
+    },
+    {
+      "path": "dist/holiday-assets/assets/orange-book/source.jpg",
+      "bytes": 73651,
+      "sha256": "20238e49b19d90f94ede26786833eddaab4a55cba6048273dd9e502b46629044"
+    },
+    {
+      "path": "dist/holiday-assets/assets/paper/back.jpg",
+      "bytes": 388261,
+      "sha256": "1219548027ca2257c9b5648e1b11a0957ae7833c9023b98ad0cb1ef4d9dfe4b2"
+    },
+    {
+      "path": "dist/holiday-assets/assets/paper/front.jpg",
+      "bytes": 321323,
+      "sha256": "1590e6e4b38d8e6ef1fac6e39c801bc4b69bf6bcbc7e49b8772bc0bfae94e0b1"
+    },
+    {
+      "path": "dist/holiday-assets/assets/paper/model.glb",
+      "bytes": 29104624,
+      "sha256": "7a4e830195b203ed72697aac9493ccc6a93042b7bbd9bec06c7ab5bad57a0c52"
+    },
+    {
+      "path": "dist/holiday-assets/assets/paper/source.jpg",
+      "bytes": 51208,
+      "sha256": "b728613f999dab99e356c262c2a186aa864062d31fa95e7970787b4c1b740799"
+    },
+    {
+      "path": "dist/holiday-assets/assets/phone/back.jpg",
+      "bytes": 384638,
+      "sha256": "b7edd638cf9d3ff212ef33ec35de677ab706020bab8bbe4ba9657dd794974813"
+    },
+    {
+      "path": "dist/holiday-assets/assets/phone/front.jpg",
+      "bytes": 146316,
+      "sha256": "6857eda2031787a2d5c00ec545bea834ac7f4534c873c3de883b71ff509ea3f8"
+    },
+    {
+      "path": "dist/holiday-assets/assets/phone/model.glb",
+      "bytes": 33110496,
+      "sha256": "4c914346e504d9b4904a8c909469106e1a2b4bba30fa37ace37655fadd2a626b"
+    },
+    {
+      "path": "dist/holiday-assets/assets/phone/source.jpg",
+      "bytes": 39458,
+      "sha256": "eac682d30c4c9db9e669feb4f3a379b44184f289c8ba13bfcd6c9ed5c7479bfe"
+    },
+    {
+      "path": "dist/holiday-assets/assets/sculptural-lamp/back.jpg",
+      "bytes": 212448,
+      "sha256": "ea4aae464bf785bf9d517dcc31401cc7cc7c2c9dad55e8223cec1c43d464c891"
+    },
+    {
+      "path": "dist/holiday-assets/assets/sculptural-lamp/front.jpg",
+      "bytes": 112289,
+      "sha256": "3b113204e0e00ce177017725960c3d38e1cfe970259e290b9738f3d84fcec461"
+    },
+    {
+      "path": "dist/holiday-assets/assets/sculptural-lamp/model.glb",
+      "bytes": 47684048,
+      "sha256": "4dd68b9ce064a516eed7dc538f81603fe84f993efdeae74436318c6a53e78d12"
+    },
+    {
+      "path": "dist/holiday-assets/assets/sculptural-lamp/source.jpg",
+      "bytes": 52140,
+      "sha256": "d9984ce3944e40576d2faa793853fe0fe3794116dd0ae88426200ee66b9c5e33"
+    },
+    {
+      "path": "dist/holiday-assets/assets/small-blocks/back.jpg",
+      "bytes": 298376,
+      "sha256": "e2eda54c32ed37ea7ee5e5969484f6fc790255cc5669457d1f9285b9b8766a51"
+    },
+    {
+      "path": "dist/holiday-assets/assets/small-blocks/front.jpg",
+      "bytes": 153005,
+      "sha256": "a490e444549c2e5a03b82a516f1becd99e0e764337480f7934997d39b7ebafac"
+    },
+    {
+      "path": "dist/holiday-assets/assets/small-blocks/model.glb",
+      "bytes": 23568472,
+      "sha256": "4e4538024a7e05f057254eeeb12c7205e195a938af952a1fd76463a1d9cea227"
+    },
+    {
+      "path": "dist/holiday-assets/assets/small-blocks/source.jpg",
+      "bytes": 52503,
+      "sha256": "aace7283951302a178abaf3643b63cad8142770f596852d49bad1973d8efef68"
+    },
+    {
       "path": "dist/infinisplat-lab/assets/desk-gaussian.ply",
       "bytes": 82697510,
       "sha256": "1d8d79d331c4f718a684e2bbac1bcabe7c40ed7668568363c95e58009c823930"
@@ -237,44 +487,14 @@
       "sha256": "3597bfe4f6d4878f8a306e31a2e21dbcfc9d76f562b125c469ac3c02558bd95e"
     },
     {
-      "path": "dist/marble-lab/assets/desk-500k.spz",
-      "bytes": 7778704,
-      "sha256": "483285bb76ae20ea954ebca1f71ba81e7e96a4249f5c1c94a0dade67b16b2376"
+      "path": "dist/marble-hybrid-lab/assets/objects.json",
+      "bytes": 2048868,
+      "sha256": "aad583f24f4632907abdbabd90fa0480d8170dedff929642b985c0e3c7b34a38"
     },
     {
-      "path": "dist/marble-lab/assets/desk-full_res.spz",
-      "bytes": 29803616,
-      "sha256": "256202633e5863d5422f93e8b2826bc40444f0552d09f5cae5ad6a8ef9a906c6"
-    },
-    {
-      "path": "dist/marble-lab/assets/world-collider.glb",
-      "bytes": 2036552,
-      "sha256": "24794469d28f988cb1bb8e58939c06384f32b737234e30ac4074c0fd41a7173a"
-    },
-    {
-      "path": "dist/marble-lab/assets/world-pano.jpg",
-      "bytes": 10106854,
-      "sha256": "1f06ed071a4e37c2824a216667c68bd43d21414592215139580dbd4e2ac122ed"
-    },
-    {
-      "path": "dist/occlusion-lab/assets/desk-clean-plate.png",
-      "bytes": 2255468,
-      "sha256": "1e6d9996413d147368438a5abd462706aacc2ad5684ae64009c58c7078303e17"
-    },
-    {
-      "path": "dist/occlusion-lab/assets/desk-gaussian.ply",
-      "bytes": 88584635,
-      "sha256": "c32af5c3357a649570359b50cc1902931e31f6237cbab6091b70651f4a07f4cc"
-    },
-    {
-      "path": "dist/solid-object-lab/assets/desk-gaussian.ply",
-      "bytes": 87025035,
-      "sha256": "ee239346e732724691f661ebd9771f6c7bee0a3a8eff64580db0ee51d3d4d385"
-    },
-    {
-      "path": "dist/solid-object-lab/assets/objects.json",
-      "bytes": 232342,
-      "sha256": "4dbe4f152130a36f202b52b2b4ae8f7f16dfd4cdfa97fa8f101be48e8497eff9"
+      "path": "dist/marble-hybrid-lab/assets/removed-indices.bin",
+      "bytes": 77452,
+      "sha256": "48f4dbb200aba66fb29ab93dca3ca2dea7959df3dbf571aeb8b7209d9708822b"
     },
     {
       "path": "dist/marble-hybrid-lab/assets/room-without-objects.spz",
@@ -287,14 +507,29 @@
       "sha256": "7794d1eb9ed14928ab53700e491c9c93aed33d6b151f4bef9c7e12d43b3e66c8"
     },
     {
-      "path": "dist/marble-hybrid-lab/assets/objects.json",
-      "bytes": 2048868,
-      "sha256": "aad583f24f4632907abdbabd90fa0480d8170dedff929642b985c0e3c7b34a38"
+      "path": "dist/marble-lab/assets/desk-500k.spz",
+      "bytes": 7778704,
+      "sha256": "483285bb76ae20ea954ebca1f71ba81e7e96a4249f5c1c94a0dade67b16b2376"
     },
     {
-      "path": "dist/marble-hybrid-lab/assets/removed-indices.bin",
-      "bytes": 77452,
-      "sha256": "48f4dbb200aba66fb29ab93dca3ca2dea7959df3dbf571aeb8b7209d9708822b"
+      "path": "dist/marble-lab/assets/desk-full_res.spz",
+      "bytes": 29803616,
+      "sha256": "256202633e5863d5422f93e8b2826bc40444f0552d09f5cae5ad6a8ef9a906c6"
+    },
+    {
+      "path": "dist/marble-lab/assets/status.json",
+      "bytes": 104,
+      "sha256": "df4d22c7d75e17011c2ff6b8a702a41e96e6fa0dd2f24239ec1304c11e6a212a"
+    },
+    {
+      "path": "dist/marble-lab/assets/world-collider.glb",
+      "bytes": 2036552,
+      "sha256": "24794469d28f988cb1bb8e58939c06384f32b737234e30ac4074c0fd41a7173a"
+    },
+    {
+      "path": "dist/marble-lab/assets/world-pano.jpg",
+      "bytes": 10106854,
+      "sha256": "1f06ed071a4e37c2824a216667c68bd43d21414592215139580dbd4e2ac122ed"
     },
     {
       "path": "dist/marble-refined-lab/assets/book-photo.png",
@@ -330,6 +565,26 @@
       "path": "dist/marble-refined-lab/assets/room-without-objects.spz",
       "bytes": 29959704,
       "sha256": "9b66161ca80b4e4e0b0f7d34df58bdf97ca9bf4bea9d5368d9b4d93928a02469"
+    },
+    {
+      "path": "dist/occlusion-lab/assets/desk-clean-plate.png",
+      "bytes": 2255468,
+      "sha256": "1e6d9996413d147368438a5abd462706aacc2ad5684ae64009c58c7078303e17"
+    },
+    {
+      "path": "dist/occlusion-lab/assets/desk-gaussian.ply",
+      "bytes": 88584635,
+      "sha256": "c32af5c3357a649570359b50cc1902931e31f6237cbab6091b70651f4a07f4cc"
+    },
+    {
+      "path": "dist/solid-object-lab/assets/desk-gaussian.ply",
+      "bytes": 87025035,
+      "sha256": "ee239346e732724691f661ebd9771f6c7bee0a3a8eff64580db0ee51d3d4d385"
+    },
+    {
+      "path": "dist/solid-object-lab/assets/objects.json",
+      "bytes": 232342,
+      "sha256": "4dbe4f152130a36f202b52b2b4ae8f7f16dfd4cdfa97fa8f101be48e8497eff9"
     }
   ]
 }
