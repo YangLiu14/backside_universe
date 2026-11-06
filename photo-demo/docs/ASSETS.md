@@ -22,6 +22,12 @@ Git 保存源码、校准参数、小型来源元数据、许可证与文字结�
 
 已有 Hi3D 模型应从资产备份恢复；不要为恢复 checkout 重复提交收费生成任务。几何校准 JSON、SAM 提示/来源记录和第三方许可证仍在仓库内。
 
+## 高清群岛与书屋
+
+从私有备份恢复高清 GLB 时，核对清单中的 `dist/assets/*-hd.glb`、三座岛各自的 `desktop-visit.glb`，以及 `bookroom/*-hd.glb` 和 `bookroom/shell-grotto-v6.glb`。另有 `desktop-near.glb` 和 `laptop/desktop-grotto.glb` 供加载失败时回退。
+
+从原模重建时，恢复 `evidence/` 下的 Hi3D 原件、三岛的 Tripo 原件和书屋家具原件，再从 `photo-demo/` 运行高清构建脚本。更换书桌模型后，在本地服务运行时重新采样弯曲书页，并用校验命令确认照片与新桌面吻合。[构建与验证命令](../README.md)
+
 ## Spark 运行依赖
 
 版本固定为 `@sparkjsdev/spark@2.4.0`。本地运行文件等同官方包的 `dist/spark.module.min.js`，重命名为 `spark.module.js`。其 SHA256 为：

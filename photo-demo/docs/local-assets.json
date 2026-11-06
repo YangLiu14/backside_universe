@@ -2,6 +2,11 @@
   "description": "Local-only runtime assets; restore separately. This file contains hashes, not media or models.",
   "files": [
     {
+      "path": "dist/assets/chair-hd.glb",
+      "bytes": 2793704,
+      "sha256": "b0d4d1ddb372b6ff51cbfbc4c78144b405c8699b0e49084140ec3fc6f47659c3"
+    },
+    {
       "path": "dist/assets/chair-hi3d.glb",
       "bytes": 7203840,
       "sha256": "5ac14d103bf6868a9a8c4648ed273430ae0766f8800e68390e6bbc234eb977a3"
@@ -27,6 +32,11 @@
       "sha256": "87f48a3406c8ed879cd7478a28969a4492c94a8cbdccff52caca4a2211483bcb"
     },
     {
+      "path": "dist/assets/holiday-island-hd.glb",
+      "bytes": 2873720,
+      "sha256": "dc1d94a3263f8f80e6191e36de86ed6b099fded801599b16ec690e41e1d7ce23"
+    },
+    {
       "path": "dist/assets/holiday-island.glb",
       "bytes": 6834088,
       "sha256": "ce67915aa115913000abaa3eb0df919df3242305256dc7ba8d49af0b014bb38a"
@@ -37,6 +47,11 @@
       "sha256": "368eb71315c5ac91e32d3ebea4454a508301fa369028db91f2dc85cc1d821d9a"
     },
     {
+      "path": "dist/assets/lamp-hd.glb",
+      "bytes": 1826672,
+      "sha256": "e450a777421ca1dd962e6f4e0c8e9f9044b51edd204dde15a40c7715ba7c9b93"
+    },
+    {
       "path": "dist/assets/lamp-hi3d.glb",
       "bytes": 1689900,
       "sha256": "fa18fd2fe746a94265c63b2038a4e4e17a3075e69f4d496dc93a32a233bf4cb1"
@@ -45,6 +60,11 @@
       "path": "dist/assets/laptop-hi3d.glb",
       "bytes": 3556900,
       "sha256": "2b89b452e5607c3e3e499d4ca90dd15cbd23ce174b58965c6a23e02413e536e5"
+    },
+    {
+      "path": "dist/assets/note-hd.glb",
+      "bytes": 1966160,
+      "sha256": "969e6546dbb2a55d5f02212536fe61da7f3f428b84fb536125f2be9ffd03720b"
     },
     {
       "path": "dist/assets/note-hi3d.glb",
@@ -242,6 +262,16 @@
       "sha256": "5bdbed25e3bb4bece47f5c33f7eb2c3bcb431174bf26e3bf1399c3e5c62db5ed"
     },
     {
+      "path": "dist/holiday-assets/assets/blue-book/desktop-near.glb",
+      "bytes": 599744,
+      "sha256": "8ceb7f7e86e2e508818d93b8116b2963a9b171b7bad1807cc69cbd6142444645"
+    },
+    {
+      "path": "dist/holiday-assets/assets/blue-book/desktop-visit.glb",
+      "bytes": 7125332,
+      "sha256": "08ab9b669bebdbde12201775dc786f600c9b71be5a2ed99dc957f507bdf1f33f"
+    },
+    {
       "path": "dist/holiday-assets/assets/blue-book/front.jpg",
       "bytes": 140815,
       "sha256": "10b3e736203942394abfb5a9e87c8e7797af32e710b42c7393f86aa097c446ee"
@@ -257,9 +287,19 @@
       "sha256": "a138483ca234fb40997dbee89aa6db689aa49c8dc074a20bb289ff4bdff53e11"
     },
     {
+      "path": "dist/holiday-assets/assets/bookroom/bookcase-hd.glb",
+      "bytes": 6893240,
+      "sha256": "2d2f7507604078f0a8d9bed6e9dd2aeb5016f5de5610715def3c72f678ab33d4"
+    },
+    {
       "path": "dist/holiday-assets/assets/bookroom/bookcase.glb",
       "bytes": 6558752,
       "sha256": "18674f93577d76bed73d5cc91a82cfa80328e53637de22b7f8e3138d161566a6"
+    },
+    {
+      "path": "dist/holiday-assets/assets/bookroom/chair-hd.glb",
+      "bytes": 7735556,
+      "sha256": "9b853535555b5ffe93665ca950bb81ff1694b1ea39c3786f4e24ee482009a5dd"
     },
     {
       "path": "dist/holiday-assets/assets/bookroom/chair.glb",
@@ -267,9 +307,19 @@
       "sha256": "6f12e6438f5b71ddc7667c22c4e078f4d3974ddb03e95a59d6a6751b0b390a5b"
     },
     {
+      "path": "dist/holiday-assets/assets/bookroom/desk-hd.glb",
+      "bytes": 4898628,
+      "sha256": "f58d99e474ba3fe3fc88a07ef5a976eac9de71043ed1c4eebe0bd197e54e520a"
+    },
+    {
       "path": "dist/holiday-assets/assets/bookroom/desk.glb",
       "bytes": 4569760,
       "sha256": "c9d8f42646681e4d1c0f366acd88f1de724d84f9d746e9f8bcd37866855cab8f"
+    },
+    {
+      "path": "dist/holiday-assets/assets/bookroom/shell-grotto-v6.glb",
+      "bytes": 21727732,
+      "sha256": "134e20f8a2c809bf39c70f506607c4ee26e7e1f9b38174cb7bb69f04f2d9feeb"
     },
     {
       "path": "dist/holiday-assets/assets/bookroom/shell.glb",
@@ -315,6 +365,11 @@
       "path": "dist/holiday-assets/assets/laptop/back.jpg",
       "bytes": 597972,
       "sha256": "8661fb691f35d905155e2ce8ff4c41daf2b9ac364e73c0642861f617c73d5b5f"
+    },
+    {
+      "path": "dist/holiday-assets/assets/laptop/desktop-grotto.glb",
+      "bytes": 1847716,
+      "sha256": "892c940f0fc40fc9c5d2ea0497497a55ac931142b33fb83495111409e1fea029"
     },
     {
       "path": "dist/holiday-assets/assets/laptop/front.jpg",
@@ -372,6 +427,16 @@
       "sha256": "7ee06ac6e46d7c39e7f3386f9da72c7bed692104440e5127254face3addd372a"
     },
     {
+      "path": "dist/holiday-assets/assets/orange-book/desktop-near.glb",
+      "bytes": 494540,
+      "sha256": "068562fb0b0ddbc1f10f611bb7fe0e5d96add11d53fa0353c3a1b775454248b5"
+    },
+    {
+      "path": "dist/holiday-assets/assets/orange-book/desktop-visit.glb",
+      "bytes": 5335248,
+      "sha256": "25e982fcc83d0ce5625a80d232d50063a6c87a261fe0abac504fb284aec3fa4c"
+    },
+    {
       "path": "dist/holiday-assets/assets/orange-book/front.jpg",
       "bytes": 582615,
       "sha256": "640fbfa8e2e4e28384ebfbc91b3481355d3a58f310720d6d1bffe67b685bc7c9"
@@ -410,6 +475,16 @@
       "path": "dist/holiday-assets/assets/phone/back.jpg",
       "bytes": 384638,
       "sha256": "b7edd638cf9d3ff212ef33ec35de677ab706020bab8bbe4ba9657dd794974813"
+    },
+    {
+      "path": "dist/holiday-assets/assets/phone/desktop-near.glb",
+      "bytes": 651112,
+      "sha256": "df697fb268fe83300480ded4c1168f0f8df5ecec034608f0852bb3832b80341a"
+    },
+    {
+      "path": "dist/holiday-assets/assets/phone/desktop-visit.glb",
+      "bytes": 5550712,
+      "sha256": "d2df959540e892edc8c1c52d6506da243ac9e53862bdddf3a9186adebce20f63"
     },
     {
       "path": "dist/holiday-assets/assets/phone/front.jpg",
