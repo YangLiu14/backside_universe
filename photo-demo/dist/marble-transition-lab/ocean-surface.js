@@ -46,6 +46,16 @@ export function waterCap(shape,surface,inverse,coasts){
 
 // Height and analytic gradient share phase. Long swells carry the silhouette;
 // short capillary ripples break up the reflected sky without moving island roots.
+// The floating paper samples the same displaced triangles as the renderer.
+// Each row describes direction, frequency, amplitude, speed, phase and current warp.
+const swells=[
+  [.94,.34,31,.0022,-1.68,0,.029,0],
+  [-.46,.89,49,.0014,-2.09,.8,.029,.013],
+  [.71,-.70,73,.00077,2.54,0,.019,0],
+  [.17,.985,91,.00042,-2.89,0,.029,0],
+  [.97,-.24,116,.00029,-3.21,0,0,0],
+];
+const gl=n=>Number.isInteger(n)?n.toFixed(1):String(n);
 export const waveField=`
   vec3 component(vec2 p,vec2 dir,float k,float amplitude,float phase){
     float a=k*dot(p,dir)+phase;
@@ -53,12 +63,29 @@ export const waveField=`
   }
   vec3 swell(vec2 p,float t){
     vec2 current=vec2(sin(dot(p,vec2(13.1,9.7))-.31*t),cos(dot(p,vec2(8.6,-15.2))+.37*t));
-    vec2 q=p+.029*current;
-    vec3 wave=component(q,vec2(.94,.34),31.,.0022,-t*1.68);
-    wave+=component(q+.013*current.yx,vec2(-.46,.89),49.,.0014,-t*2.09+.8);
-    wave+=component(p+.019*current,vec2(.71,-.70),73.,.00077,t*2.54);
-    wave+=component(q,vec2(.17,.985),91.,.00042,-t*2.89);
-    wave+=component(p,vec2(.97,-.24),116.,.00029,-t*3.21);
+    vec3 wave=vec3(0.);
+    ${swells.map(([x,z,k,height,speed,phase,warp,cross])=>
+      `wave+=component(p+${gl(warp)}*current+${gl(cross)}*current.yx,vec2(${gl(x)},${gl(z)}),${gl(k)},${gl(height)},${gl(speed)}*t+${gl(phase)});`).join('\n')}
     return wave;
   }
 `;
+
+export function waterHeightProbe(table,x,z) {
+  const ray=new THREE.Raycaster(new THREE.Vector3(x,table.position.y+10,z),new THREE.Vector3(0,-1,0));
+  const hit=ray.intersectObject(table,false)[0];
+  if(!hit)throw Error('纸船航线越过了桌面海岸');
+  const attrs=table.geometry.attributes;
+  const vertices=[hit.face.a,hit.face.b,hit.face.c].map(i=>new THREE.Vector3().fromBufferAttribute(attrs.position,i));
+  const bary=THREE.Triangle.getBarycoord(hit.point,...vertices,new THREE.Vector3()).toArray();
+  const weights=[hit.face.a,hit.face.b,hit.face.c].map((i,n)=>bary[n]*attrs.waveWeight.getX(i));
+  return time=>{
+    let y=hit.point.y;
+    for(let i=0;i<3;i++){
+      const {x,z}=vertices[i],cx=Math.sin(x*13.1+z*9.7-.31*time),cz=Math.cos(x*8.6-z*15.2+.37*time);
+      for(const [dx,dz,k,h,speed,phase,w,c] of swells){
+        y+=weights[i]*h*Math.sin(k*((x+w*cx+c*cz)*dx+(z+w*cz+c*cx)*dz)+speed*time+phase);
+      }
+    }
+    return y;
+  };
+}

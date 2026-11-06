@@ -55,3 +55,63 @@ body.book-portal{height:100vh;overflow:hidden}
 #lamp-position::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(90deg,#eab67a,#eae2c0 50%,#d28c72)}
 #lamp-position::-webkit-slider-thumb{margin-top:-6px;width:16px;height:16px;background:#fff5db;border:2px solid #26392f;outline:1px solid #f1deb2}
 #lamp-position::-moz-range-track{height:4px;border-radius:2px;background:linear-gradient(90deg,#eab67a,#eae2c0 50%,#d28c72)}
+
+#harbor-controls{display:flex;gap:14px;align-items:center;padding:14px 22px;min-height:78px}
+#harbor-hint{margin:0 auto 0 0;font-size:13px;color:#d4dccf;line-height:1.65}
+#harbor-controls button{min-height:44px;padding:8px 14px;border-radius:4px;font-size:12px;white-space:nowrap}
+#harbor-action{background:#ece2c7;color:#233531;border:1px solid #ece2c7}
+#harbor-exit{background:transparent;border:1px solid #647568}
+#harbor-ending{position:absolute;bottom:7%;left:5%;margin:0;color:#fff8e7;text-shadow:0 1px 5px #152e2b,0 2px 18px #102725;font:400 clamp(20px,2.5vw,34px)/1.6 "Songti SC","Noto Serif CJK SC",serif;pointer-events:none;animation:shore-words 1.1s ease-out both}
+@keyframes shore-words{from{opacity:0}to{opacity:1}}
+#stage[data-harbor=note] canvas{cursor:pointer}
+#stage[data-harbor=boat] canvas{cursor:grab}
+#stage[data-harbor=boat] canvas:active{cursor:grabbing}
+.book-portal #harbor-controls{position:absolute;bottom:8px;left:8px;right:8px;border-radius:5px;background:#16271eee}
+.book-portal #harbor-ending{bottom:18%}
+@media(max-width:700px){#harbor-controls{gap:7px;padding:10px}#harbor-hint{font-size:12px}#harbor-controls button{padding:8px 10px}}
+@media(prefers-reduced-motion:reduce){#harbor-ending{animation:none}}
+
+#enter-island-story{left:20px;right:auto;background:#f0e4c8;color:#283b33}
+.scope-lens{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(circle closest-side at center,transparent 81%,rgba(26,31,27,.16) 89%,#192222 98%,#142020 100%)}
+.scope-lens::after{content:"";position:absolute;inset:49.6% calc(50% - 8px);border-left:1px solid #f3ebd08c;border-right:1px solid #f3ebd08c}
+#port-sound{border:1px solid #738176;background:transparent}
+@media(max-width:700px){#enter-island-story{left:10px}#harbor-controls:has(#port-sound:not([hidden])){flex-wrap:wrap}#harbor-controls:has(#port-sound:not([hidden])) #harbor-hint{flex-basis:100%}}
+
+.story-tour{display:flex;align-items:center;gap:16px;min-height:61px;padding:8px 18px;background:#203129;border-bottom:1px solid #46584c}
+.tour-location{display:flex;align-items:baseline;gap:12px;flex:1;min-width:0;font-size:14px;color:#e5e6d8}
+#tour-position{white-space:nowrap;color:#bdc7b7;font:12px/1.2 ui-monospace,monospace}
+.story-tour button{min-height:42px;border-radius:5px;font:inherit;font-size:13px}
+#tour-next{display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:144px;padding:9px 15px;border:1px solid #e9dfbd;background:#eee4c9;color:#23372e;font-weight:600}
+#tour-next svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.5;fill:none}
+#tour-next[aria-disabled=true]{cursor:default;background:#cccfbb;border-color:#cccfbb}
+#tour-exit{padding:6px 2px;color:#d7dfcf;background:transparent;border:0}
+.guided-tour :is(#desk-transport,#daylight-tools,#explore-tools,#enter-bookroom,#enter-island-story,#harbor-action,#harbor-exit,#visit-transport,#gesture){display:none}
+.book-portal .story-tour{display:none}
+@media(max-width:700px){
+  .story-tour{padding:6px 10px;gap:10px}
+  .tour-location{flex-direction:column;gap:3px;font-size:13px}
+  .story-tour button{min-height:44px}
+  #tour-next{min-width:112px;padding:9px 10px;gap:7px}
+  #tour-exit{font-size:12px}
+}
+.guided-tour #harbor-controls:has(#harbor-hint:empty):has(#port-sound[hidden]),main:has(.guided-tour) .inspection{display:none}
+.guided-tour #stage[data-island-story]:not([data-island-story=""]) .scene-caption{display:none}
+
+#scope-optics{display:flex;align-items:center;gap:10px;white-space:nowrap;font-size:13px;color:#f1e8d4}
+#scope-power{width:clamp(96px,13vw,174px);height:44px;margin:0;background:transparent;cursor:ew-resize}
+#scope-power::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,#dbbd84 var(--progress,20%),#526157 var(--progress,20%))}
+#scope-power::-webkit-slider-thumb{width:16px;height:16px;margin-top:-6px;background:#eee2c6;border:2px solid #293a31;outline:1px solid #dcc79c}
+#scope-power::-moz-range-track{height:4px;background:#526157}
+#scope-power::-moz-range-progress{height:4px;background:#dbbd84}
+#scope-reading{width:4.2ch;text-align:right;font-variant-numeric:tabular-nums;color:#e9c891}
+@media(max-width:700px){
+  #harbor-controls:has(#scope-optics:not([hidden])){flex-wrap:wrap}
+  #harbor-controls:has(#scope-optics:not([hidden])) #harbor-hint{flex-basis:100%}
+  #harbor-controls:has(#scope-optics:not([hidden])) #harbor-action{margin-left:auto}
+  #scope-optics{order:-1;flex-basis:100%}
+  #scope-power{flex:1;min-width:0}
+}
+
+#crossing-veil{position:absolute;inset:0;opacity:0;pointer-events:none}
+#crossing-veil canvas{display:block;width:100%;height:100%}
+#stage[data-crossing] #harbor-ending,.guided-tour:has(#stage[data-crossing]) #harbor-controls{visibility:hidden}

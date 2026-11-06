@@ -47,7 +47,7 @@ export async function createHiddenWorld(scene,registered,surface,loader){
   const saucer=registered.group.getObjectByName('saucer'),rear=cup.material.uniforms.cupRear.value;
   for(const mesh of [cup,saucer])fitCupInlet(mesh,center,rear,surface);
   const cupSlot=new THREE.Group();cupSlot.name='Cup harbour behind ceramic wall';cupSlot.position.set(center.x,bounds.min.y+.008,center.z);cupSlot.rotation.y=Math.PI;cupSlot.scale.setScalar(.039);root.add(cupSlot);
-  const [grotto,island]=await Promise.all([grottoPromise,createHolidayWorld(THREE,cupSlot,{islandUrl:'../assets/holiday-island.glb',houseUrl:'../assets/holiday-house.glb'})]);await island.ready;
+  const [grotto,island]=await Promise.all([grottoPromise,createHolidayWorld(THREE,cupSlot,{loader,islandUrl:'../assets/holiday-island-hd.glb',islandFallbackUrl:'../assets/holiday-island.glb',houseUrl:'../assets/holiday-house.glb'})]);await island.ready;
   if(island.source!=='hi3d-island')throw Error('完整 Hi3D 海岛未加载');
   // The cottage sits on a shelf inside the raised ceramic. Its beach slopes
   // down to the lower berth shared by the boat and the open sea.

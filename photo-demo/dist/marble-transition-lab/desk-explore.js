@@ -8,7 +8,7 @@ const travelKeys=new Set(['arrowleft','arrowright','arrowup','arrowdown','a','d'
 export const isTravelKey=key=>travelKeys.has(key);
 
 // Work in desk coordinates on both sides of the islands' tilted waterline.
-export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,reduced}){
+export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,reduced,enterCup}){
   const {surface,corners}=holiday;
   const limits=new THREE.Box3().setFromPoints(corners).expandByScalar(1.35);
   const cup=objects.group.getObjectByName('cup-wall');
@@ -156,6 +156,7 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     else{keys.delete(key);if(!keys.size)clearKeys();}
   }
   function focus(id){
+    if(id==='cup'&&enterCup())return;
     if(id==='reef')return move(holiday.ocean.diveView());
     const item=destinations.get(id);
     if(!item)return;
@@ -195,6 +196,8 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     if(hit)focus(roots.get(hit));
   }
   return {setHome,stop,cancelMotion,clearKeys,tick,key,look,pan,zoom,focus,pick,move,
+    bounds:id=>destinations.get(id).bounds,
+    resume(){if(!view.modified)view=copy(overview);apply();},
     overview:()=>move(overview),get distance(){return view.distance;},get projectionY(){return camera.projectionMatrix.elements[5];},
     get modified(){return !!view?.modified;},get state(){return view&&copy(view);}};
 }

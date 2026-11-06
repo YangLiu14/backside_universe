@@ -65,14 +65,14 @@ async function desktop(browser){
   await page.waitForFunction(()=>document.querySelector('#explore-island').value==='blue-book');
   await page.waitForTimeout(700);
   await page.selectOption('#explore-island','phone');
-  await page.waitForFunction(()=>window.__marbleTransition.islands.find(e=>e.id==='phone').level==='near');
+  await page.waitForFunction(()=>window.__marbleTransition.islands.find(e=>e.id==='phone').level==='hd');
   await page.waitForTimeout(700);
   const phone=await state(page);
-  assert(!same(phone.camera,overview.camera));assert.deepEqual(detail,[]);
+  assert(!same(phone.camera,overview.camera));assert.deepEqual(detail.map(u=>u.split('/').pop()),['shell-grotto-v6.glb']);
   // Browsing while the room downloads cancels the entry, even at 180°.
   let release,signal;
   const gate=new Promise(done=>{release=done;}),requested=new Promise(done=>{signal=done;});
-  await page.route('**/bookroom/shell-grotto-v6.glb',async route=>{signal();await gate;await route.continue();});
+  await page.route('**/bookroom/bookcase-hd.glb',async route=>{signal();await gate;await route.continue();});
   await page.click('#enter-bookroom');await requested;
   await page.locator('#world').focus();await page.keyboard.press('d');release();
   await page.waitForFunction(()=>window.__marbleTransition.grotto.interior.book);

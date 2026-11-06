@@ -83,7 +83,7 @@ export async function buildInterior(scene,loader,{furnitureWidthScale=1,grotto=f
  contents.name='bookroom-furnishings';contents.visible=!deferFurniture;
  const result={root,pivot,door,furniture,contents,loadFurniture,book:null};
  async function asset(slug,axis,length,x,y,yaw){
-  const gltf=await loader.loadAsync(new URL(`assets/bookroom/${slug}.glb`,import.meta.url).href);const book=slug==='desk'?await printBook(gltf.scene):null;const group=new THREE.Group();group.name='tripo-'+slug;group.add(gltf.scene);
+  const gltf=await loader.loadAsync(new URL(`assets/bookroom/${slug}-hd.glb`,import.meta.url).href);const book=slug==='desk'?await printBook(gltf.scene):null;const group=new THREE.Group();group.name='tripo-'+slug;group.add(gltf.scene);
   const bounds=new THREE.Box3().setFromObject(gltf.scene),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
   gltf.scene.position.sub(new THREE.Vector3(center.x,bounds.min.y,center.z));const scale=length/size[axis];group.scale.setScalar(scale);group.rotation.y=yaw;const placement=new THREE.Group();placement.name='placement-'+slug;placement.position.copy(P(x,y,.011));placement.scale.x=furnitureWidthScale;placement.add(group);
   let triangles=0;group.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;triangles+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3;}});

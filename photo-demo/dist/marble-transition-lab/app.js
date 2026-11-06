@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
 import {SparkRenderer,SplatMesh} from '@sparkjsdev/spark';
 import {projectionBounds} from '../marble-lab/camera.js';
 import {createObjects,createDesktop} from './objects.js';
@@ -8,16 +10,20 @@ import {createCompositor} from './compositor.js';
 import {initialDaylight} from './lamp-sun.js';
 import {DURATION,clamp01,smooth,sampleJourney,cameraPose,applyProjection,sourceCrop} from './journey.js';
 import {createDeskExplore,exploreGestures,isTravelKey} from './desk-explore.js';
-import {createBookroomVisit} from './bookroom-visit.js';
+import {approachPath,createBookroomVisit} from './bookroom-visit.js';
+
+import {createStoryTour} from './story-tour.js';
+import {islandCrossing} from './island-crossing.js';
+import {createCupHarbor} from './cup-harbor.js';
 
 const $=id=>document.getElementById(id),canvas=$('world'),stage=$('stage');
 const embedded=new URLSearchParams(location.search).get('portal')==='book'&&parent!==window;
 document.body.classList.toggle('book-portal',embedded);
-let embedActive=!embedded,spark,visit,lastTick=performance.now();
+let embedActive=!embedded,spark,visit,islandVisit,cupHarbor,lastTick=performance.now();
 const tellParent=(type,detail={})=>{if(embedded)parent.postMessage({type,...detail},location.origin);};
 let visitReturnProgress=1,visitReturnView,explore,gestures,islandOptions,entryFeedback=false;
-const browsing=()=>ready&&progress===1&&!visit?.active;
-// Direct seeks may arrive before the small overview models. Hold the last dry
+const browsing=()=>ready&&progress===1&&!visit?.active&&!islandVisit?.active;
+// Direct seeks may arrive before the HD islands. Hold the last dry
 // frame and honour the latest seek (including Home) when decoding completes.
 const islandGate=.33;
 let pendingIslandSeek=null,waitingForIslands=false,islandGateReleased=false;
@@ -27,8 +33,37 @@ let oceanTime=0;
 let reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function status(message){$('status').textContent=message;}
 function fitBookPhoto(){const [x,y,w,h]=sourceCrop(width/height);Object.assign($('book-photo').style,{width:`${100/w}%`,height:`${100/h}%`,left:`${-x/w*100}%`,top:`${-y/h*100}%`});}
+const storyEntries={'blue-book':'走到白崖望远镜前','orange-book':'走近峡谷里的书签',phone:'走到手机静音键旁'};
+const storyVisits=new Map();
+let guideIslandFactory;
+let guideArrival=null,crossingFrame=null;
+const tour=createStoryTour({
+  bar:$('story-tour'),button:$('tour-next'),exit:$('tour-exit'),position:$('tour-position'),title:$('tour-title'),label:$('tour-label'),
+  location(){
+    const room=visit?.state;
+    return {ready,embedded,cycles:room?.cycles||0,busy:!!room?.busy,
+      id:islandVisit?.active?(islandVisit.id||'cup'):visit?.active?'grotto':null,
+      phase:islandVisit?.active?islandVisit.phase:room?.stage};
+  },
+  open:openTourStop,
+  act(command){
+    if(command==='fold')cupHarbor.fold();
+    else if(command==='release')cupHarbor.release();
+    else if(command==='sight')islandVisit.action(cupHarbor.boatAtSea);
+    else if(command==='action')islandVisit.action();
+    else visit.actions[command]();
+  },
+  onExit(){visit?.cancelEntry();canvas.focus({preventScroll:true});},
+});
+tour.refresh();
+function storyEntry(focus){
+ const entry=$('enter-island-story'),label=storyEntries[focus];
+ entry.hidden=!label||!browsing()||variant==='real';
+ if(label&&entry.textContent!==label)entry.textContent=label;
+}
 function browseUI(){
  const free=browsing();
+ storyEntry($('explore-island').value);
  $('daylight-tools').hidden=!free||variant==='real';
  $('explore-tools').hidden=!free;$('explore-help').hidden=!free||!!visit?.state.preparing||entryFeedback;
  $('visit-feedback').hidden=!$('explore-help').hidden;
@@ -54,10 +89,12 @@ function visitUI(state){
  else{$('angle').hidden=false;$('phase').textContent=sampleJourney(progress).label;$('gesture').hidden=progress>.03;}
  $('visit-hint').textContent=state.stage==='book'?'点击右页照片，走进最初的空间':state.busy?'慢慢靠近，看看这一段风景':'拖动环顾 · WASD / 方向键移动';
  browseUI();
- if(active&&!state.busy)canvas.focus({preventScroll:true});
+ tour.refresh();
+ if(active&&!state.busy&&!tour.active)canvas.focus({preventScroll:true});
 }
 function stop(cancelSeek=true){if(cancelSeek){pendingIslandSeek=null;if(!visit?.active)explore?.stop();}playing=null;$('play-icon').innerHTML='<svg viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></svg>';$('play-label').textContent=progress>=1?'返回实景':'播放转场';$('play').setAttribute('aria-pressed','false');$('play').setAttribute('aria-label',progress>=1?'返回实景':'播放转场');canvas.dataset.frameTimes=JSON.stringify(frameTimes);settleUntil=performance.now()+450;}
 function setProgress(value,manual=true){
+  if(islandVisit?.active)return;
   if(visit?.active&&visit.state.stage!=='returning')return;
   if(!ready||!Number.isFinite(Number(value)))return;if(manual)stop();let requested=clamp01(Number(value));
   if(requested<.97)visit?.cancelEntry();
@@ -99,19 +136,25 @@ function setProgress(value,manual=true){
   canvas.dataset.camera=JSON.stringify(camera.matrixWorld.toArray());canvas.dataset.projection=JSON.stringify(camera.projectionMatrix.toArray());canvas.dataset.progress=String(progress);canvas.dataset.seaAmount=String(state.sea);
   if(!playing)stop(false);
   if(visit?.active)visitUI(visit.state);else if(atEndpoint)browseUI();
+  if(arriving)guideArrival?.();
   if(arriving&&embedActive&&document.activeElement?.matches('body,#play,[data-progress]'))canvas.focus({preventScroll:true});
 }
 async function travel(to){visit?.cancelEntry();stop();
  if(to===0&&browsing()&&explore.modified&&!reduce){if(!await explore.overview())return;}
  if(reduce){setProgress(to);return;}frameTimes=[];lastFrame=0;playing={from:progress,to,start:performance.now(),duration:Math.max(400,DURATION*Math.abs(to-progress))};$('play-icon').innerHTML='<svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>';$('play-label').textContent='暂停';$('play').setAttribute('aria-pressed','true');$('play').setAttribute('aria-label','暂停转场');}
-function setVariant(value){if(!ready||!['transition','real','dream'].includes(value))return;stop();variant=value;browseUI();document.querySelectorAll('[data-variant]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.variant===value)));}
-function resize(){const rect=stage.getBoundingClientRect();width=Math.max(1,rect.width);height=Math.max(1,rect.height);fitBookPhoto();if(!renderer)return;renderer.setSize(width,height,false);compositor?.resize(width,height);if(visit?.active)visit.resize();else if(browsing()&&explore.modified){
+function setVariant(value){if(!ready||islandVisit?.active||!['transition','real','dream'].includes(value))return;stop();variant=value;browseUI();document.querySelectorAll('[data-variant]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.variant===value)));}
+function resize(){const rect=stage.getBoundingClientRect();width=Math.max(1,rect.width);height=Math.max(1,rect.height);fitBookPhoto();if(!renderer)return;renderer.setSize(width,height,false);compositor?.resize(width,height);if(visit?.active)visit.resize();else if(islandVisit?.active||(browsing()&&explore.modified)){
    explore.setHome(cameraPose(meta.calibration.parameters,1,width/height),true);
    applyProjection(camera,meta.calibration.parameters,1,width/height);settleUntil=performance.now()+450;
    canvas.dataset.projection=JSON.stringify(camera.projectionMatrix.toArray());
  }else if(ready)setProgress(progress,false);}
-function updateIslands(amount,allowDetail){
-  if(holiday.islands.update(amount,camera,height*renderer.getPixelRatio(),allowDetail,holiday.sea,reduce))holiday.daylight.invalidateShadows();
+function updateIslands(amount){
+  if(holiday.islands.update(amount,holiday.sea,reduce))holiday.daylight.invalidateShadows();
+  if(guideIslandFactory&&storyVisits.size<holiday.islands.destinations.length){
+    for(const [id,berth] of holiday.islands.destinations){
+      if(berth.landed&&!storyVisits.has(id))getIslandStory(id,guideIslandFactory).prepare(false);
+    }
+  }
   if(browsing())for(const {root,option} of islandOptions){
     if(option.disabled===root.visible)option.disabled=!root.visible;
   }
@@ -119,30 +162,50 @@ function updateIslands(amount,allowDetail){
 function animateOcean(dt,amount){
   if(amount>0&&!reduce)oceanTime+=dt;
   holiday.animateOcean(oceanTime,amount);
+  cupHarbor?.updateDrift(reduce?0:dt,oceanTime,amount);
 }
 function frame(now){
   const frameMs=now-lastTick,dt=Math.min(frameMs/1000,.05);lastTick=now;
   if(document.hidden||!embedActive)return;
+  if(islandVisit?.active){
+    animateOcean(dt,1);
+    const changed=islandVisit.tick(dt,oceanTime);
+    const transit=crossingFrame?.(dt);
+    if(!changed&&!transit&&now>settleUntil)return;
+    holiday.update(sampleJourney(1).time,camera,1);
+    updateIslands(1);
+    if(islandVisit.id==='blue-book')$('scope-lens').style.opacity=String(islandVisit.lens*(1-(transit?.withdrawal||0)));
+    renderer.info.reset();
+    if(islandVisit.ashore||tour.active){
+      if(islandVisit.ashore||islandVisit.id)holiday.legacy.visible=false;
+      compositor.renderVisit(camera);
+    }
+    else compositor.render(camera,sampleJourney(1),'dream',false);
+    canvas.dataset.camera=JSON.stringify(camera.matrixWorld.toArray());return;
+  }
   explore?.tick(dt,now);visit?.tick(dt);
   if(visit?.active){
     const phase=visit.state.stage;holiday.update(sampleJourney(progress).time,camera,phase==='returning'?0:1);
-    updateIslands(phase==='returning'?0:1,false);
+    updateIslands(phase==='returning'?0:1);
     animateOcean(dt,phase==='returning'?0:1);
     renderer.info.reset();
     if(phase==='returning')compositor.render(camera,sampleJourney(0),'transition',false);
+    else if(tour.active&&['approaching','terrace'].includes(phase)){holiday.legacy.visible=false;compositor.renderVisit(camera);}
     else if(['approaching','departing','terrace'].includes(phase))compositor.render(camera,sampleJourney(1),'dream',false);
     else compositor.renderVisit(camera);
     canvas.dataset.camera=JSON.stringify(camera.matrixWorld.toArray());canvas.dataset.localCamera=JSON.stringify(visit.state.localCamera);
     visitFrames.push(frameMs);if(visitFrames.length>180)visitFrames.shift();canvas.dataset.visitFrames=JSON.stringify(visitFrames);return;
   }
+  // A hidden tab pauses playback; resume the guided crossing on its next visible frame.
+  if(guideArrival&&!playing&&pendingIslandSeek===null&&progress!==1)travel(1);
   const wasPlaying=!!playing;
   if(playing&&pendingIslandSeek===null){const t=clamp01((now-playing.start)/playing.duration),{from,to}=playing;setProgress(THREE.MathUtils.lerp(from,to,smooth(0,1,t)),false);if(t===1&&pendingIslandSeek===null)stop();}
   if(!ready)return;
   const journey=sampleJourney(progress),live=journey.sea>0&&!reduce&&variant!=='real';
   if(!playing&&!live&&now>settleUntil)return;
   animateOcean(variant==='real'?0:dt,journey.sea);
-  // Moving water alone does not change screen-space LOD or the island poses.
-  if(wasPlaying || now<=settleUntil)updateIslands(journey.sea,!playing&&variant!=='real'&&now>settleUntil-300);
+  // Moving water alone does not change the registered island poses.
+  if(wasPlaying || now<=settleUntil)updateIslands(journey.sea);
   renderer.info.reset();compositor.render(camera,journey,variant,$('softness').checked&&!reduce);
   if(wasPlaying&&lastFrame){frameTimes.push(now-lastFrame);if(frameTimes.length>1000)frameTimes.shift();}lastFrame=now;
   if(wasPlaying)canvas.dataset.frameTimes=JSON.stringify(frameTimes);
@@ -159,8 +222,9 @@ async function boot(){
   const room=new SplatMesh({url:'../marble-refined-lab/assets/room-without-objects.spz',lod:false});room.scale.setScalar(meta.semantics_metadata.metric_scale_factor);room.rotation.x=Math.PI;room.position.y=meta.semantics_metadata.ground_plane_offset;realScene.add(room);
   const sourceCamera=camera.clone();sourceCamera.projectionMatrix.makePerspective(...projectionBounds(p,[0,0,1,1],1320,1739,sourceCamera.near),sourceCamera.near,sourceCamera.far);sourceCamera.projectionMatrixInverse.copy(sourceCamera.projectionMatrix).invert();sourceCamera.updateMatrixWorld(true);
   status('正在对齐电脑、书本和杯子…');
-  const registered=createObjects(renderer,realScene,meta,sourceCamera);
-  [objects,desktop,holiday]=await Promise.all([registered,createDesktop(realScene),registered.then(o=>createHoliday(dreamScene,meta,o,renderer,{
+  const modelLoader=new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('../vendor/draco/').setWorkerLimit(2));
+  const registered=createObjects(renderer,realScene,meta,sourceCamera,modelLoader);
+  [objects,desktop,holiday]=await Promise.all([registered,createDesktop(realScene),registered.then(o=>createHoliday(dreamScene,meta,o,renderer,modelLoader,{
     invalidate:()=>{settleUntil=performance.now()+450;},
     report:message=>{$('island-feedback').textContent=message;$('island-retry').hidden=!message;},
   })),room.initialized]);
@@ -169,8 +233,8 @@ async function boot(){
   realScene.add(realSun,realSun.target,new THREE.HemisphereLight('#e3e9e6','#8d8574',1.0));
   objects.meshes.forEach(o=>o.castShadow=!['book','note'].includes(o.userData.kind));
   compositor=createCompositor(renderer,{objects:objects.group,desktop},realScene,dreamScene,holiday);resize();
-  explore=createDeskExplore(camera,holiday,objects,dreamScene,{reduced:()=>reduce,changed:view=>{
-    $('explore-island').value=view.focus;settleUntil=performance.now()+450;
+  explore=createDeskExplore(camera,holiday,objects,dreamScene,{reduced:()=>reduce,enterCup,changed:view=>{
+    $('explore-island').value=view.focus;storyEntry(view.focus);settleUntil=performance.now()+450;
     holiday.update(sampleJourney(1).time,camera,1);
     canvas.dataset.camera=JSON.stringify(camera.matrixWorld.toArray());
   }});
@@ -181,7 +245,7 @@ async function boot(){
     onStatus:message=>{$('visit-feedback').textContent=message;entryFeedback=true;if(ready)browseUI();},
     beforeApproach:()=>{
       gestures.clear();explore.clearKeys();visitReturnView=progress===1&&explore.modified?explore.state:null;
-      return visitReturnView?explore.overview():undefined;
+      return visitReturnView&&!tour.active?explore.overview():undefined;
     },
     onPhoto:opacity=>{fitBookPhoto();$('book-photo-bridge').style.opacity=String(opacity);},
     onExit:()=>{camera.up.set(0,1,0);setProgress(visitReturnProgress);if(visitReturnView&&progress===1)explore.move(visitReturnView);visitReturnView=null;},
@@ -207,6 +271,203 @@ async function boot(){
   canvas.dataset.ready='true';tellParent('book-world:ready');
   visitUI(visit.state);
 }
+function islandVisitUI(phase,hint){
+  settleUntil=performance.now()+300;
+  const active=phase!=='desk';
+  stage.dataset.harbor=phase;
+  stage.dataset.islandStory=active?(islandVisit.id||'cup'):'';
+  $('scope-lens').hidden=!(active&&islandVisit.id==='blue-book');
+  $('scope-optics').hidden=phase!=='looking';
+  if(phase==='looking')showScopePower(islandVisit.magnification);
+  $('port-sound').hidden=!(active&&islandVisit.audio);
+  soundUI();
+  $('harbor-controls').hidden=!active;
+  $('harbor-ending').hidden=phase!=='farewell';
+  $('harbor-hint').textContent=hint;
+  const action=islandVisit.id?islandVisit.actionLabel:({note:'折成纸船',boat:'推向海面'}[phase]);
+  $('harbor-action').hidden=!active||!action;
+  if(action)$('harbor-action').textContent=action;
+  $('harbor-controls').setAttribute('aria-label',islandVisit.id?islandVisit.label:'蓝杯港湾');
+  document.querySelector('.inspection').hidden=active;
+  tour.refresh();
+  if(!active){visitUI(visit.state);return;}
+  browseUI();
+  for(const id of ['desk-transport','enter-bookroom','visit-feedback','angle'])$(id).hidden=true;
+  $('phase').textContent=islandVisit.id?islandVisit.label:'蓝杯港湾';canvas.setAttribute('aria-label',islandVisit.label);
+}
+function enterCup(){
+  if(!browsing()||variant==='real')return false;
+  beginBrowseInput();gestures.clear();explore.clearKeys();
+  cupHarbor??=createCupHarbor({cup:objects.group.getObjectByName('cup-wall'),holiday,scene:dreamScene,camera,canvas,
+    reduced:()=>reduce,changed:islandVisitUI,returned:returnToIslands});
+  islandVisit=cupHarbor;islandVisit.enter();applyProjection(camera,meta.calibration.parameters,1,width/height);
+  if(!tour.active)canvas.focus({preventScroll:true});
+  return true;
+}
+function returnToIslands(){
+  applyProjection(camera,meta.calibration.parameters,1,width/height);
+  explore.resume();if(!tour.active)canvas.focus({preventScroll:true});
+}
+function getIslandStory(id,createIslandVisit){
+  if(!storyVisits.has(id)){
+    const island=holiday.islands.destinations.find(([key])=>key===id)[1].root;
+    // A just-retried GLB may not have drawn its first frame. Ground picking
+    // needs the entire model in its final world pose before building the visit.
+    island.updateWorldMatrix(true,true);
+    storyVisits.set(id,createIslandVisit({id,island,holiday,scene:dreamScene,camera,canvas,reduced:()=>reduce,changed:islandVisitUI,returned:returnToIslands}));
+  }
+  return storyVisits.get(id);
+}
+function startIslandStory(destination,landed=false){
+  islandVisit=destination;islandVisit.enter(landed);
+  if(!tour.active)canvas.focus({preventScroll:true});
+}
+function crossToIslands(signal){
+  if(progress===1)return;
+  return new Promise(resolve=>{
+    function arrived(){
+      guideArrival=null;signal.removeEventListener('abort',cancel);resolve();
+    }
+    function cancel(){stop();arrived();}
+    guideArrival=arrived;signal.addEventListener('abort',cancel,{once:true});travel(1);
+  });
+}
+// The existing render loop owns the camera and keeps the sea and the departing
+// island alive throughout the crossing. Cancelling returns control to that visit.
+async function sailToIsland(id,landing,signal){
+  const source=islandVisit,start=camera.clone();
+  const advance=islandCrossing(camera,source,id,explore.bounds,landing,()=>width/height);
+  let cancel;
+  try{
+    const dissolve=await new Promise(resolve=>{
+      cancel=()=>resolve(false);
+      signal.addEventListener('abort',cancel,{once:true});
+      crossingFrame=dt=>{
+        const sample=advance(reduce?0:dt);
+        if(reduce||sample.done)resolve(reduce);
+        return sample;
+      };
+    });
+    if(dissolve&&!signal.aborted){
+      // A visitor can request less motion in mid-flight. Hold the last
+      // painted pose while it fades, even as the source story keeps ticking.
+      crossingFrame=()=>advance(0);
+      const still=document.createElement('canvas');
+      still.width=canvas.width;still.height=canvas.height;
+      still.getContext('2d').drawImage(canvas,0,0);
+      const lens=$('scope-lens').cloneNode(true);lens.removeAttribute('id');
+      $('crossing-veil').replaceChildren(still,lens);
+      await fadeCrossing(0,1,signal);
+      if(!signal.aborted)advance(Infinity);
+    }
+    return dissolve;
+  }finally{
+    crossingFrame=null;signal.removeEventListener('abort',cancel);
+    if(signal.aborted){
+      camera.position.copy(start.position);camera.quaternion.copy(start.quaternion);
+      camera.fov=start.fov;camera.near=start.near;camera.aspect=width/height;camera.updateProjectionMatrix();
+      if(source===cupHarbor)applyProjection(camera,meta.calibration.parameters,1,camera.aspect);
+      camera.updateMatrixWorld(true);source.withdraw?.(0);settleUntil=performance.now()+450;
+    }
+  }
+}
+async function fadeCrossing(from,to,signal){
+  const veil=$('crossing-veil');
+  const fade=veil.animate([{opacity:from},{opacity:to}],{duration:280,easing:'ease-in-out',fill:'forwards'});
+  const cancel=()=>fade.cancel();
+  signal.addEventListener('abort',cancel,{once:true});
+  try{await fade.finished;veil.style.opacity=String(to);}
+  catch(error){if(!signal.aborted)throw error;}
+  finally{signal.removeEventListener('abort',cancel);fade.cancel();}
+}
+async function openTourStop(id,signal){
+  if(variant!=='transition')setVariant('transition');
+  await crossToIslands(signal);
+  if(signal.aborted)return;
+  if(id==='cup'){
+    // Set the fixtures on the registered shores during the first wide view,
+    // including islands that finish loading later on a slow connection.
+    const module=await import('./island-visit.js');
+    if(signal.aborted)return;
+    guideIslandFactory=module.createIslandVisit;updateIslands(1);
+    if(!enterCup())throw Error('蓝杯入口尚未准备好');
+    return;
+  }
+  // Keep the previous stop usable until the destination assets are ready.
+  const room=id==='grotto';
+  if(room)await holiday.grotto.prepareVisit();
+  else await holiday.islands.prepareDestination(id);
+  if(signal.aborted)return;
+  let destination;
+  try{
+    let landing;
+    if(room){
+      const grotto=holiday.grotto;
+      grotto.closeView(true);
+      const [,bay,balcony,eye]=approachPath(grotto,camera.position);
+      landing=()=>({via:[bay,balcony],eye,target:grotto.toWorld(grotto.entryTarget),fov:88,fit:false,near:.00001});
+    }else{
+      updateIslands(1);
+      destination=getIslandStory(id,guideIslandFactory);
+      landing=destination.prepare();
+    }
+    stage.dataset.crossing=id;
+    const dissolve=await sailToIsland(id,landing,signal);
+    if(signal.aborted)return;
+    const landed=camera.clone();
+    islandVisit.leave();
+    gestures.clear();explore.stop();
+    // The bookroom still needs a desk pose for its independent reverse walk.
+    const desk=room?{position:camera.position.clone(),quaternion:camera.quaternion.clone(),near:camera.near,
+      fov:THREE.MathUtils.radToDeg(2*Math.atan(1/camera.projectionMatrix.elements[5]))}:null;
+    camera.position.copy(landed.position);camera.quaternion.copy(landed.quaternion);
+    camera.fov=landed.fov;camera.aspect=width/height;
+    if(room)camera.near=landed.near;
+    camera.updateProjectionMatrix();camera.updateMatrixWorld(true);
+    if(destination)startIslandStory(destination,true);
+    else{
+      visitReturnProgress=progress;await visit.start(desk);
+      if(!signal.aborted&&visit.state.stage!=='terrace')throw Error('未能抵达书屋露台');
+    }
+    if(dissolve&&!signal.aborted)await fadeCrossing(1,0,signal);
+  }finally{
+    if(!room&&!destination?.active)destination?.stopPreview();
+    if(room&&!visit.active)holiday.grotto.closeView(false);
+    delete stage.dataset.crossing;$('crossing-veil').style.opacity='0';$('crossing-veil').replaceChildren();
+  }
+}
+$('enter-island-story').addEventListener('click',async()=>{
+  const id=explore.state.focus;
+  if(!storyEntries[id]||!browsing()||variant==='real')return;
+  beginBrowseInput();gestures.clear();explore.clearKeys();
+  try{
+    const [{createIslandVisit}]=await Promise.all([import('./island-visit.js'),holiday.islands.prepareDestination(id)]);
+    if(tour.active||!browsing()||variant==='real'||explore.state.focus!==id||visit.state.preparing)return;
+    updateIslands(1);
+    startIslandStory(getIslandStory(id,createIslandVisit));
+  }catch(err){entryFeedback=true;$('visit-feedback').textContent='这座岛的故事未能载入，再点入口即可重试。';browseUI();console.error(err);}
+});
+function showScopePower(value){
+  const slider=$('scope-power');
+  slider.value=String(value);slider.setAttribute('aria-valuetext',value+' 倍');
+  slider.style.setProperty('--progress',((value-slider.min)/(slider.max-slider.min)*100)+'%');
+  $('scope-reading').value=value+'×';
+}
+$('scope-power').addEventListener('input',event=>{
+  if(!islandVisit?.active||islandVisit.phase!=='looking')return;
+  islandVisit.setMagnification(event.target.valueAsNumber);
+  showScopePower(islandVisit.magnification);
+});
+function soundUI(){
+  const on=!!islandVisit?.audio?.on;
+  $('port-sound').setAttribute('aria-pressed',String(on));$('port-sound').textContent=on?'关闭港湾环境声':'开启港湾环境声';
+}
+$('port-sound').addEventListener('click',()=>{islandVisit?.audio?.toggle();soundUI();});
+$('harbor-action').addEventListener('click',()=>{
+  if(islandVisit?.id)islandVisit.action();else if(islandVisit?.phase==='note')islandVisit.fold();else if(islandVisit?.phase==='boat')islandVisit.release();
+  canvas.focus({preventScroll:true});
+});
+$('harbor-exit').addEventListener('click',()=>islandVisit?.leave());
 function setDaylight(phase){
   if(!browsing()||variant==='real')return;
   holiday.daylight.setPhase(phase);
@@ -229,7 +490,7 @@ $('explore-island').addEventListener('change',e=>{if(browsing()){beginBrowseInpu
 $('island-retry').addEventListener('click',()=>holiday?.islands.retryMissing());
 $('enter-bookroom').addEventListener('click',()=>{stop();if(embedded)tellParent('book-world:revisit');else{visitReturnProgress=progress;visit.start();}});
 for(const button of document.querySelectorAll('[data-visit-action]'))button.addEventListener('click',()=>visit?.actions[button.dataset.visitAction]());
-$('reduce-motion').addEventListener('click',()=>{reduce=!reduce;if(reduce)stop();if(visit)visitUI(visit.state);});
+$('reduce-motion').addEventListener('click',()=>{reduce=!reduce;if(reduce)stop();if(islandVisit?.active)$('reduce-motion').setAttribute('aria-pressed',String(reduce));else if(visit)visitUI(visit.state);});
 for(const button of document.querySelectorAll('[data-walk]')){
  button.addEventListener('pointerdown',event=>{event.preventDefault();button.setPointerCapture(event.pointerId);visit?.key(button.dataset.walk,true);});
  for(const type of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(type,()=>visit?.key(button.dataset.walk,false));
@@ -238,12 +499,12 @@ window.addEventListener('message',async event=>{
  if(!embedded||event.origin!==location.origin||event.source!==parent||!ready)return;
  const data=event.data;
  if(data?.type==='book-world:active'){
-  embedActive=!!data.active;if(!embedActive)stop();else{settleUntil=performance.now()+1000;canvas.focus({preventScroll:true});}
+  embedActive=!!data.active;if(!embedActive){stop();islandVisit?.audio?.stop();soundUI();}else{settleUntil=performance.now()+1000;canvas.focus({preventScroll:true});}
  }else if(data?.type==='book-world:motion'){
   reduce=!!data.reduced;if(reduce)stop();
  }else if(data?.type==='book-world:prepare'){
   try{
-   reduce=!!data.reduced;stop();variant='transition';setProgress(0);resize();
+   islandVisit?.leave();reduce=!!data.reduced;stop();variant='transition';setProgress(0);resize();
    await spark.update({scene:realScene,camera});
    compositor.render(camera,sampleJourney(0),'transition',false);
    tellParent('book-world:prepared',{id:data.id});
@@ -251,7 +512,10 @@ window.addEventListener('message',async event=>{
  }
 });
 canvas.addEventListener('webglcontextlost',()=>tellParent('book-world:error'));
-window.addEventListener('keydown',event=>{if(event.key==='Escape'&&embedded&&!visit?.active){event.preventDefault();tellParent('book-world:leave');}});
+window.addEventListener('keydown',event=>{
+ if(event.key==='Escape'&&tour.active){event.preventDefault();event.stopPropagation();tour.end();}
+},true);
+window.addEventListener('keydown',event=>{if(event.key==='Escape'&&islandVisit?.active){event.preventDefault();islandVisit.leave();return;}if(event.key==='Escape'&&embedded&&!visit?.active){event.preventDefault();tellParent('book-world:leave');}});
 $('progress').addEventListener('input',e=>setProgress(Number(e.target.value)/1000));
 $('play').addEventListener('click',()=>playing?stop():travel(progress>.995?0:1));$('home').addEventListener('click',()=>setProgress(0));
 document.querySelectorAll('[data-progress]').forEach(b=>b.addEventListener('click',()=>setProgress(Number(b.dataset.progress))));
@@ -260,6 +524,8 @@ $('softness').addEventListener('change',stop);
 let drag=null,lastTimelineWheel=0;
 canvas.addEventListener('contextmenu',e=>{if(browsing())e.preventDefault();});
 canvas.addEventListener('pointerdown',e=>{
+ if(tour.moving)return;
+ if(islandVisit?.active){islandVisit.down(e);return;}
  if(!ready||visit?.busy||drag)return;
  const free=browsing();
  if(e.button!==0&&!(free&&e.button===2))return;
@@ -278,6 +544,7 @@ canvas.addEventListener('pointerdown',e=>{
  canvas.setPointerCapture(e.pointerId);
 });
 canvas.addEventListener('pointermove',e=>{
+ if(islandVisit?.active){islandVisit.move(e);return;}
  if(gestures?.has(e.pointerId)){if(browsing())gestures.move(e);return;}
  if(drag?.id!==e.pointerId)return;
  if(drag.lamp){setDaylight(drag.lamp(e.clientX,e.clientY));return;}
@@ -286,6 +553,7 @@ canvas.addEventListener('pointermove',e=>{
  drag.lastX=e.clientX;drag.lastY=e.clientY;
 });
 function endDrag(e){
+ if(islandVisit?.active){islandVisit.end(e);return;}
  if(gestures?.has(e.pointerId)){if(browsing())gestures.end(e);else gestures.clear();return;}
  if(drag?.id!==e.pointerId)return;
  if(e.type==='pointerup'&&drag.visit&&visit.active&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<5){
@@ -295,7 +563,8 @@ function endDrag(e){
 }
 for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,endDrag);
 canvas.addEventListener('wheel',e=>{
- if(!ready||visit?.active)return;
+ if(tour.moving){e.preventDefault();return;}
+ if(!ready||visit?.active||islandVisit?.active)return;
  e.preventDefault();
  const dy=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?height:1);
  if(browsing()){
@@ -306,7 +575,12 @@ canvas.addEventListener('wheel',e=>{
  lastTimelineWheel=e.timeStamp;setProgress(progress+dy*.00065);
 },{passive:false});
 canvas.addEventListener('keydown',e=>{
- if(!ready)return;
+ if(!ready||tour.moving)return;
+ if(islandVisit?.active){
+   if(islandVisit.id&&e.key.startsWith('Arrow')){e.preventDefault();islandVisit.key(e.key);return;}
+   if(['Enter',' '].includes(e.key)){e.preventDefault();if(!e.repeat)$('harbor-action').click();}
+   return;
+ }
  if(visit.active){const key=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(key)){e.preventDefault();visit.key(key,true);}if(e.key==='Escape'){e.preventDefault();const phase=visit.state.stage;visit.actions[phase==='book'?'leave':phase==='inside'?'exit':'desktop']();}if(e.key==='Enter'&&visit.state.stage==='book'){e.preventDefault();visit.actions.photo();}return;}
  if(browsing()){
   const key=e.key.toLowerCase();
@@ -326,7 +600,7 @@ window.addEventListener('keyup',event=>{
  const key=event.key.toLowerCase();explore?.key(key,false);visit?.key(key,false);
 });
 canvas.addEventListener('blur',()=>explore?.clearKeys());
-window.addEventListener('blur',()=>{drag=null;canvas.classList.remove('moving-lamp');gestures?.clear();explore?.clearKeys();visit?.clearKeys();});
-new ResizeObserver(resize).observe(stage);document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();visit?.clearKeys();}else{lastTick=performance.now();settleUntil=lastTick+450;}});
+window.addEventListener('blur',()=>{islandVisit?.cancelHand();drag=null;canvas.classList.remove('moving-lamp');gestures?.clear();explore?.clearKeys();visit?.clearKeys();});
+new ResizeObserver(resize).observe(stage);document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();visit?.clearKeys();islandVisit?.cancelHand();islandVisit?.audio?.stop();soundUI();}else{lastTick=performance.now();settleUntil=lastTick+450;}});
 window.__marbleTransition={setProgress,setVariant,stop,get visit(){return visit;},get grotto(){return holiday?.grotto;},get state(){return{ready,progress,variant,browsing:browsing(),playing:!!playing,...sampleJourney(progress),visit:visit?.state,camera:camera?.matrixWorld.toArray(),projection:camera?.projectionMatrix.toArray(),compositor:compositor?.stats,houseReady:holiday?.houseReady,frames:frameTimes.slice()};},get islands(){return holiday?.islands.state;},get renderer(){return renderer;},get scene(){return realScene;},get dreamScene(){return dreamScene;},get camera(){return camera;},get objects(){return objects;}};
 boot().catch(error=>{console.error(error);status(`加载未完成：${error.message}。请恢复本地资产后刷新。`);$('loading').dataset.error='true';tellParent('book-world:error');});

@@ -2,17 +2,22 @@ import * as THREE from 'three';
 
 // Shared calibrated geometry for both render passes; no duplicate object poses.
 // Decode the photo to linear color for the offscreen compositor. Older pages stay unchanged.
-export async function createObjects(renderer,scene,meta,sourceCamera){
+export async function createObjects(renderer,scene,meta,sourceCamera,modelLoader){
   const load=path=>new THREE.TextureLoader().loadAsync(path);
-  const [data,photo,laptopMask,cupMask,noteMask,glaze,bookPhoto]=await Promise.all([
+  const [data,photo,laptopMask,cupMask,noteMask,glaze,bookPhoto,paper]=await Promise.all([
     fetch('../marble-refined-lab/assets/objects.json').then(r=>r.json()),load('../assets/desk-original.jpg'),
     load('../assets/objects/laptop-mask.png'),load('../assets/objects/cup-mask.png'),
-    load('../assets/objects/note-mask.png'),load('../marble-refined-lab/assets/cup-glaze.png'),load('../marble-refined-lab/assets/book-photo.png')]);
+    load('../assets/objects/note-mask.png'),load('../marble-refined-lab/assets/cup-glaze.png'),load('../marble-refined-lab/assets/book-photo.png'),
+    modelLoader.loadAsync('../assets/note-hd.glb').then(g=>g.scene.getObjectByProperty('isMesh',true)).catch(()=>null)]);
   for(const t of [photo,laptopMask,cupMask,noteMask,glaze,bookPhoto]){t.colorSpace=THREE.NoColorSpace;t.generateMipmaps=false;t.minFilter=THREE.LinearFilter;}
   const group=new THREE.Group();group.name='Registered photo-textured objects';
   for(const part of data.parts){
-    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(part.positions,3));geo.setIndex(part.indices);geo.computeVertexNormals();
-    const mesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial());mesh.name=part.name;mesh.userData.kind=part.object;mesh.userData.color=part.color;group.add(mesh);
+    let mesh=part.name==='hi3d-paper-0'?paper:null;
+    if(!mesh){
+      const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(part.positions,3));geo.setIndex(part.indices);geo.computeVertexNormals();
+      mesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial());
+    }
+    mesh.name=part.name;mesh.userData.kind=part.object;mesh.userData.color=part.color;group.add(mesh);
   }
   scene.add(group);group.updateMatrixWorld(true);sourceCamera.updateMatrixWorld(true);
   const view=sourceCamera.matrixWorldInverse.clone(),K=new THREE.Vector4(...meta.intrinsics),size=new THREE.Vector2(meta.width,meta.height);

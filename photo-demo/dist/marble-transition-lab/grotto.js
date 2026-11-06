@@ -15,12 +15,14 @@ export async function createGrotto(registered,surface,loader){
   seatHarborBase(environment,registration.matrix,surface,harborFits.grotto);
   return environment;
  }
- const [overview,layout,interior]=await Promise.all([
-  shell('laptop/desktop-grotto.glb'),
+ const fullShell='bookroom/shell-grotto-v6.glb';
+ let fallback=false,retry;
+ const [initial,layout,interior]=await Promise.all([
+  shell(fullShell).catch(()=>{fallback=true;return shell('laptop/desktop-grotto.glb');}),
   fetch('../holiday-assets/assets/bookroom/grotto-layout.json').then(r=>{if(!r.ok)throw Error('洞窟布局未能载入');return r.json();}),
   buildInterior(root,loader,{furnitureWidthScale:.75,grotto:true,deferFurniture:true}),
  ]);
- root.add(overview);
+ let environment=initial;root.add(environment);
  const localRoom=roomFrame(layout),worldFromRoom=registration.matrix.clone().multiply(localRoom),roomFromWorld=worldFromRoom.clone().invert();
  interior.root.applyMatrix4(localRoom);root.applyMatrix4(registration.matrix);root.updateMatrixWorld(true);
  interior.root.traverse(o=>{if(o.isPointLight){const s=.75*registration.scale;o.intensity*=s*s;o.distance*=s;}});
@@ -31,24 +33,19 @@ export async function createGrotto(registered,surface,loader){
    for(const m of Array.isArray(o.material)?o.material:[o.material])if(m.map)m.map.anisotropy=8;
   });
  }
- prepareMeshes(overview,true);prepareMeshes(interior.root);
- let shellRequest,detail,showingDetail=false;
+ prepareMeshes(environment,true);prepareMeshes(interior.root);
  async function prepareVisit(){
-  if(detail)return;
-  if(!shellRequest)shellRequest=shell('bookroom/shell-grotto-v6.glb').catch(error=>{shellRequest=null;throw error;});
-  const [environment]=await Promise.all([shellRequest,interior.loadFurniture()]);
-  prepareMeshes(environment,true);prepareMeshes(interior.contents);
-  detail=environment;
+  if(fallback&&!retry){
+   retry=shell(fullShell).then(model=>{
+    prepareMeshes(model,true);root.remove(environment);root.add(model);environment=model;
+    root.updateWorldMatrix(true,true);fallback=false;
+   }).finally(()=>{retry=null;});
+  }
+  await Promise.all([retry,interior.loadFurniture()]);
+  prepareMeshes(interior.contents);
  }
- function closeView(on){
-  if(!detail||on===showingDetail)return;
-  showingDetail=on;
-  // Only the active shell is attached, so door picking sees the same geometry as the camera.
-  root.remove(on?overview:detail);root.add(on?detail:overview);
-  interior.contents.visible=on;
-  root.updateWorldMatrix(true,true);
- }
- return {root,interior,prepareVisit,closeView,get environment(){return showingDetail?detail:overview;},
+ function closeView(on){interior.contents.visible=on;}
+ return {root,interior,get environment(){return environment;},prepareVisit,closeView,
   layout:{...layout,terraceX:.043},registration,
   toWorld:p=>p.clone().applyMatrix4(worldFromRoom),toRoom:p=>p.clone().applyMatrix4(roomFromWorld),
   islandToWorld:p=>p.clone().applyMatrix4(registration.matrix),

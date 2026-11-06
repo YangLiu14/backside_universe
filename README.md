@@ -9,7 +9,7 @@ cd photo-demo
 npm run dev
 ```
 
-从 3DGS 工位绕到桌面背后，可以自由浏览蓝书白崖、橙书峡谷和手机潮港，再走进电脑洞窟里的书屋，从书页回到起点。[进入主桌面](http://127.0.0.1:9988/marble-transition-lab/index.html)
+从 3DGS 工位绕到背面，可以自由浏览高清群岛，也可以点「跟随故事」，从蓝杯港湾依次前往蓝书白崖、橙书峡谷、手机潮港和洞窟书屋，再从书页回到工位。[进入主桌面](http://127.0.0.1:9988/marble-transition-lab/index.html)
 
 单件资产也可独立审阅。
 
@@ -18,7 +18,7 @@ npm run dev
 - [可进入的海风书屋](http://127.0.0.1:9988/holiday-assets/bookroom.html)：已接入新版洞窟，可开门进入、阅读原图书页并回到最初的3DGS空间；支持再次进入的循环。
 - [逐物件 3D 资产](http://127.0.0.1:9988/holiday-assets/index.html)与[电脑背面小岛](http://127.0.0.1:9988/holiday-assets/laptop-spatial.html)：真实网格、独立微缩景观和约25°屏幕倾角。
 
-下一步是将台灯高度与群岛日照联动。早期照片转场及重建实验可供对照。[原版 demo](http://127.0.0.1:9988/) · [FlashWorld 与 Marble 实测](photo-demo/experiments/flashworld/README.md)
+移动台灯可以调节群岛日照，蓝杯的热气会凝成云。早期照片转场及重建实验可供对照。[原版 demo](http://127.0.0.1:9988/) · [FlashWorld 与 Marble 实测](photo-demo/experiments/flashworld/README.md)
 
 新克隆需要恢复本地资产才能运行完整演示。说明与入口见 [photo-demo/README.md](photo-demo/README.md)，资产恢复见 [ASSETS.md](photo-demo/docs/ASSETS.md)。
 

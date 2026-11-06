@@ -7,7 +7,7 @@ export function createDesktopSea(photo,objects,shores){
   const points=name=>{const p=objects.getObjectByName(name).geometry.attributes.position;return Array.from({length:4},(_,i)=>new THREE.Vector2(p.getX(i),p.getZ(i)));};
   const saucer=new THREE.Box3().setFromObject(objects.getObjectByName('saucer'));
   const c=saucer.getCenter(new THREE.Vector3()),s=saucer.getSize(new THREE.Vector3());
-  const uniforms={sunward:{value:new THREE.Vector3(-.35,.64,.69).normalize()},sunTint:{value:new THREE.Color(1,1,1)},skyTint:{value:new THREE.Color(.52,.73,.76)},seaTime:{value:0},seaAmount:{value:0},laptopShore:{value:points('laptop-base')},islandShore:{value:shores.flat()},shoreBlend:{value:[0,0,0]},bookShore:{value:points('book-cover')},cupShore:{value:new THREE.Vector4(c.x,c.z,s.x*.5,s.z*.5)}};
+  const uniforms={portCenter:{value:new THREE.Vector3()},portSize:{value:new THREE.Vector2(1,1)},portMap:{value:null},portGlow:{value:0},closeDetail:{value:0},sunward:{value:new THREE.Vector3(-.35,.64,.69).normalize()},sunTint:{value:new THREE.Color(1,1,1)},skyTint:{value:new THREE.Color(.52,.73,.76)},seaTime:{value:0},seaAmount:{value:0},laptopShore:{value:points('laptop-base')},islandShore:{value:shores.flat()},shoreBlend:{value:[0,0,0]},bookShore:{value:points('book-cover')},cupShore:{value:new THREE.Vector4(c.x,c.z,s.x*.5,s.z*.5)}};
   const material=new THREE.MeshPhysicalMaterial({map:photo,color:0xffffff,roughness:.8,metalness:0,clearcoat:.48,clearcoatRoughness:.23,envMapIntensity:.7,side:THREE.DoubleSide});
   material.onBeforeCompile=shader=>{
     Object.assign(shader.uniforms,uniforms);
@@ -19,7 +19,8 @@ export function createDesktopSea(photo,objects,shores){
     shader.fragmentShader=`varying vec3 seaWorld;varying float seaTop;
       varying float seaWeight;uniform vec3 sunward,sunTint,skyTint;
       ${waveField}
-      uniform float seaTime,seaAmount;uniform vec2 laptopShore[4],bookShore[4],islandShore[24];uniform float shoreBlend[3];uniform vec4 cupShore;
+      uniform vec3 portCenter;uniform vec2 portSize;uniform sampler2D portMap;uniform float portGlow;
+      uniform float seaTime,seaAmount,closeDetail;uniform vec2 laptopShore[4],bookShore[4],islandShore[24];uniform float shoreBlend[3];uniform vec4 cupShore;
       float segmentDistance(vec2 p,vec2 a,vec2 b){vec2 v=b-a;return length(p-a-v*clamp(dot(p-a,v)/dot(v,v),0.,1.));}
       float shoreDistance(vec2 p){
         float d=10.;
@@ -53,7 +54,12 @@ export function createDesktopSea(photo,objects,shores){
       vec2 wind=q+.016*vec2(sin(q.y*32.+1.2*cos(q.x*14.)-seaTime*.55),cos(q.x*26.+sin(q.y*13.)+seaTime*.48));
       waveSlope=swell(q,seaTime).yz*max(seaWeight,.12);
       waveSlope+=component(wind,vec2(.83,.56),170.,.00055,-seaTime*2.9).yz;
-      waveSlope+=component(wind,vec2(-.6,.8),275.,.00023,seaTime*3.8).yz;`);
+      waveSlope+=component(wind,vec2(-.6,.8),275.,.00023,seaTime*3.8).yz;
+      if(closeDetail>0.){
+        vec2 riffle=q+.0009*vec2(sin(q.y*370.+seaTime*.6),cos(q.x*273.-seaTime*.8));
+        waveSlope+=component(riffle,vec2(.38,.925),1480.,.000036,-seaTime*2.8).yz;
+        waveSlope+=component(riffle,vec2(-.28,.96),2260.,.000016,-seaTime*3.3).yz;
+      }`);
     shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
       float shallows=exp(-shore*32.);
       float current=seaNoise(q*8.+vec2(seaTime*.025,-seaTime*.018));
@@ -61,6 +67,9 @@ export function createDesktopSea(photo,objects,shores){
       vec3 water=mix(deep,turquoise,.36+.42*current);
       water=mix(water,sandWater,shallows*.82);
       float caustic=pow(1.-abs(sin(q.x*135.+sin(q.y*112.+seaTime*.2))*sin(q.y*147.-sin(q.x*96.-seaTime*.27))),18.);
+      water=mix(water,vec3(.026,.24,.22),.25*closeDetail);
+      float filaments=sin(q.x*1480.+sin(q.y*830.-seaTime*.8))+cos(q.y*1740.+sin(q.x*1210.+seaTime));
+      water+=closeDetail*.024*pow(max(0.,1.-abs(filaments)),4.)*vec3(.75,1.,.8);
       water+=vec3(.045,.10,.085)*caustic*(.2+shallows*.8);
       float wash=exp(-shore*180.)*(.4+.6*pow(sin(shore*260.-seaTime*.65),2.));
       water=mix(water,vec3(.58,.73,.64),wash*.32);
@@ -71,6 +80,16 @@ export function createDesktopSea(photo,objects,shores){
       vec3 sky=mix(skyTint,skyTint*vec3(.30,.48,.71),smoothstep(-.15,.89,reflected.y));
       float glint=pow(max(dot(reflected,sunward),0.),90.);
       water=mix(water,sky,fresnel*.84)+sunTint*glint*1.15;
+      if(portGlow>.001 && distance(q,portCenter.xz)<.085){
+        vec3 origin=mat3(viewMatrix)*(seaWorld-portCenter);
+        vec3 dir=mat3(viewMatrix)*reflected;
+        float t=-origin.z/(abs(dir.z)<.0001?.0001:dir.z);
+        vec2 uv=(origin.xy+t*dir.xy)/portSize+.5;
+        if(t>0. && all(greaterThan(uv,vec2(0.))) && all(lessThan(uv,vec2(1.)))){
+          vec4 light=texture2D(portMap,uv);
+          water=mix(water,light.rgb*vec3(.78,.88,.84),.58*portGlow*light.a);
+        }
+      }
       if(!gl_FrontFacing)water=mix(vec3(.018,.26,.32),vec3(.33,.77,.70),smoothstep(.22,.97,-eye.y)+.18*waveSlope.y);
       diffuseColor.rgb=mix(diffuseColor.rgb,water,wet);`);
     shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(roughnessFactor,.23,wet);');
@@ -92,5 +111,8 @@ export function createDesktopSea(photo,objects,shores){
   };
   material.customProgramCacheKey=()=> 'photographed-desk-to-archipelago-v3';
   const cup=Array.from({length:28},(_,i)=>{const a=i*Math.PI/14;return new THREE.Vector2(c.x+.5*s.x*Math.cos(a),c.z+.5*s.z*Math.sin(a));});
-  return{material,setSun(sun){uniforms.sunward.value=sun.direction;uniforms.sunTint.value=sun.color;uniforms.skyTint.value=sun.waterSky;},clock:uniforms.seaTime,coasts:[...shores,uniforms.laptopShore.value,uniforms.bookShore.value,cup],setShoreBlend(index,amount){uniforms.shoreBlend.value[index]=amount;},setAmount(amount){uniforms.seaAmount.value=amount;}};
+  return{material,setPortNotice(center,w,h,map,amount){
+    uniforms.portCenter.value.copy(center);uniforms.portSize.value.set(w,h);
+    uniforms.portMap.value=map;uniforms.portGlow.value=amount;
+  },clearPortNotice(){uniforms.portGlow.value=0;},setCloseDetail(amount){uniforms.closeDetail.value=amount;},setSun(sun){uniforms.sunward.value=sun.direction;uniforms.sunTint.value=sun.color;uniforms.skyTint.value=sun.waterSky;},clock:uniforms.seaTime,coasts:[...shores,uniforms.laptopShore.value,uniforms.bookShore.value,cup],setShoreBlend(index,amount){uniforms.shoreBlend.value[index]=amount;},setAmount(amount){uniforms.seaAmount.value=amount;}};
 }

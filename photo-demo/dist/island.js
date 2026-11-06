@@ -300,7 +300,7 @@ export async function createHolidayWorld(THREE, parent, options = {}) {
     birdPivots.push({ pivot, bird, phase: i * 2.3 });
   }
 
-  const loader = new GLTFLoader();
+  const loader = options.loader || new GLTFLoader();
   function fitModel(model, maxWidth, maxDepth, maxHeight, y) {
     model.updateMatrixWorld(true);
     const bounds = new THREE.Box3().setFromObject(model);
@@ -322,21 +322,18 @@ export async function createHolidayWorld(THREE, parent, options = {}) {
   }
   async function loadAssets() {
     const islandUrl = options.islandUrl === false ? null : (options.islandUrl || './assets/holiday-island.glb');
-    if (islandUrl) {
+    const islandUrls=islandUrl?[islandUrl,options.islandFallbackUrl].filter(Boolean):[];
+    for (const url of islandUrls) {
       try {
-        const response = await fetch(islandUrl, { method: 'HEAD' });
-        if (response.ok && !(response.headers.get('content-type') || '').includes('text/html')) {
-          const result = await loader.loadAsync(islandUrl);
-          if (disposed) return;
-          const whole = fitModel(result.scene, 1.65, 1.5, 1.25, .035);
-          whole.rotation.y = options.islandRotation || 0;
-          whole.position.z = -.06;
-          whole.name = 'Hi3D miniature holiday island'; group.add(whole); fallback.visible = false;
-          source = 'hi3d-island';
-          return;
-        }
+        const result = await loader.loadAsync(url);
+        if (disposed) return;
+        const whole = fitModel(result.scene, 1.65, 1.5, 1.25, .035);
+        whole.rotation.y = options.islandRotation || 0;
+        whole.position.z = -.06;
+        whole.name = 'Hi3D miniature holiday island'; group.add(whole); fallback.visible = false;
+        source = 'hi3d-island';
+        return;
       } catch (error) {
-        // A usable miniature remains visible if an optional asset is unavailable.
         if (options.onAssetError) options.onAssetError('island', error);
       }
     }

@@ -22,7 +22,7 @@ async function sample(browser) {
     return await page.evaluate(()=>{
       const requests=performance.getEntriesByType('resource').filter(r=>r.startTime<window.startupReady);
       const assets=requests.filter(r=>r.name.includes('/bookroom/')&&r.name.endsWith('.glb'));
-      return {readyMs:Math.round(window.startupReady),encodedMB:+(requests.reduce((sum,r)=>sum+r.encodedBodySize,0)/1e6).toFixed(2),
+      return {bookroomFiles:assets.map(r=>new URL(r.name).pathname.split('/').pop()),readyMs:Math.round(window.startupReady),encodedMB:+(requests.reduce((sum,r)=>sum+r.encodedBodySize,0)/1e6).toFixed(2),
         bookroomMB:+(assets.reduce((sum,r)=>sum+r.encodedBodySize,0)/1e6).toFixed(2),bookroomRequests:assets.length,stages:window.startupStages,
         largest:requests.sort((a,b)=>b.encodedBodySize-a.encodedBodySize).slice(0,10).map(r=>[new URL(r.name).pathname,+(r.encodedBodySize/1e6).toFixed(2),Math.round(r.responseEnd)])};
     });
@@ -31,12 +31,12 @@ async function sample(browser) {
 async function checkEntry(browser){
   const page=await browser.newPage({reducedMotion:'reduce'});
   try{
-    const shell='**/bookroom/shell-grotto-v6.glb',desk='**/bookroom/desk.glb';
+    const casework='**/bookroom/bookcase-hd.glb',desk='**/bookroom/desk-hd.glb';
     let release,signal;
     const gate=new Promise(resolve=>{release=resolve;});
     const requested=new Promise(resolve=>{signal=resolve;});
     let requests=0;
-    await page.route(shell,async route=>{requests++;signal();await gate;await route.continue();});
+    await page.route(casework,async route=>{requests++;signal();await gate;await route.continue();});
     await page.goto(baseURL+'/marble-transition-lab/index.html?progress=1');
     await page.click('#enter-bookroom');await requested;
     await page.click('#home');release();
@@ -57,6 +57,6 @@ async function checkEntry(browser){
 (async()=>{const browser=await launchBrowser();try{
   const results=[];for(let i=0;i<2;i++)results.push(await sample(browser));
   console.log(JSON.stringify(results,null,2));
-  for(const result of results)assert.equal(result.bookroomRequests,0,'opening the desk must not wait for the unseen bookroom');
+  for(const result of results)assert.deepEqual(result.bookroomFiles,['shell-grotto-v6.glb'],'the HD exterior is ready before browsing while furniture stays deferred');
   await checkEntry(browser);
 }finally{await browser.close();}})().catch(e=>{console.error(e.message);process.exitCode=1;});

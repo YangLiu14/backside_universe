@@ -78,7 +78,7 @@ npm run check
 # 主桌面洞窟配准、同一相机循环、原路退出和失败恢复
 npm run check:desktop-bookroom
 
-# 从已有的完整版洞窟重建桌面远景；进入书屋时才载入近景和家具
+# 重建仅在高清洞窟加载失败时使用的备用外壳
 blender -b -t 4 --python-exit-code 1 -P scripts/build-grotto-overview.py
 
 # 本地服务和 Playwright 就绪后，检查冷启动、书屋延迟载入与逐顶点书页配准
@@ -86,8 +86,9 @@ npm run check:desktop-startup
 node scripts/bake-book-pages.cjs
 # 换书桌资产时，重新采样两页：node scripts/bake-book-pages.cjs --write
 
-# 从三件已有的 model-unified-v2.glb 重建两档主桌面模型
-blender -b -t 4 --python-exit-code 1 -P scripts/build-desktop-islands.py
+# 从本机留存的 Hi3D / Tripo 原件重建主桌面和书屋高清 GLB
+blender -b -t 4 --python-exit-code 1 -P scripts/build-desktop-islands.py -- --hd
+node scripts/bake-book-pages.cjs --write
 
 # 启动本地服务后，以 Playwright 验证三岛、弱网回退、窄屏和书屋循环
 npm run check:desktop-islands

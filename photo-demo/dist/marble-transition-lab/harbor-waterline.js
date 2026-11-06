@@ -6,7 +6,7 @@ import * as THREE from '../vendor/three.module.js';
 export const harborFits = {
   grotto: {plane:[.0485,.1890,-.1584], clearance:.006, maxDrop:.023},
   'orange-book': {plane:[.0051,-.1251,.0673], clearance:.006, maxDrop:.025},
-  phone: {plane:[.0150,-.0492,.0263], clearance:.0035, maxDrop:.005},
+  phone: {plane:[.0150,-.0492,.0263], clearance:.004, maxDrop:.012, basinOnly:true},
   cup: {plane:[-.0083,-.0556,.0626], clearance:.004, maxDrop:.012, seaward:[.09,.42]},
 };
 
@@ -48,7 +48,7 @@ export function fitCupInlet(mesh,center,rear,surface) {
 // Fit the loaded shore once in its final berth. The same correction applies to
 // dock and shore vertices at a given XZ, retaining their relief above the water.
 // Higher terrain, the house, and the interactive door stay in their rigid frame.
-export function seatHarborBase(model, berth, surface, {plane,clearance,maxDrop,seaward}) {
+export function seatHarborBase(model, berth, surface, {plane,clearance,maxDrop,seaward,basinOnly}) {
   const [a,b,c] = plane;
   const assetPoint = new THREE.Vector3(), pool = new THREE.Vector3(), world = new THREE.Vector3();
   model.updateWorldMatrix(true,true);
@@ -73,6 +73,17 @@ export function seatHarborBase(model, berth, surface, {plane,clearance,maxDrop,s
         pool.set(assetPoint.x,a*assetPoint.x+b*assetPoint.z+c,assetPoint.z).applyMatrix4(berth);
         const excess = THREE.MathUtils.clamp(pool.y-surface(pool.x,pool.z)+clearance,0,maxDrop);
         let drop = excess*(1-THREE.MathUtils.smoothstep(height,.032,.070));
+        if(basinOnly){
+          // The surveyed teal bed and the timber decking belong to a single
+          // textured mesh. Grade by relief above the bed and leave the metal
+          // lip and the raised camera shoulder at their authored heights.
+          const {x,y,z}=assetPoint;
+          const right=.275-.12*THREE.MathUtils.smoothstep(-z,.06,.48);
+          const edge=Math.min(x+.275,right-x,z+.48,.475-z);
+          drop*=THREE.MathUtils.smoothstep(edge,.008,.034)
+            *(1-THREE.MathUtils.smoothstep(y-(a*x+b*z+c),.008,.033))
+            *THREE.MathUtils.smoothstep(z,-.36,-.28);
+        }
         if(seaward)drop*=THREE.MathUtils.smoothstep(assetPoint.z,seaward[0],seaward[1]);
         if (drop>0) {
           vertex.addScaledVector(down,drop);

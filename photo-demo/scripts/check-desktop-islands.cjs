@@ -4,7 +4,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const {baseURL, launchBrowser} = require('./marble-browser.cjs');
 const out = path.join(__dirname, '../evidence/desktop-islands');
-const modelURL = /\/(blue-book|orange-book|phone)\/desktop-(near|far)\.glb$/;
+const modelURL = /\/(blue-book|orange-book|phone)\/desktop-(near|far|visit)\.glb$/;
 const url = baseURL+'/marble-transition-lab/index.html';
 
 async function open(browser, options={}) {
@@ -46,12 +46,24 @@ async function imageStats(page) {
       const rayAt=(x,z)=>new T.Raycaster(new T.Vector3(x,2,z),new T.Vector3(0,-1,0));
       const sample=(x,z)=>rayAt(x,z).intersectObject(table,false)[0];
       const displayed=[];root.traverseVisible(o=>{if(o.isMesh)displayed.push(o);});
-      const bayGaps=sites[island.id].map(site=>{
+      function waterGap(site){
         const p=root.localToWorld(new T.Vector3(...site)),ray=rayAt(p.x,p.z);
         const bed=ray.intersectObjects(displayed,false)[0],sea=sample(p.x,p.z);
         if(!bed||!sea)throw Error(island.id+' missing harbor sample');
         return bed.point.y-sea.point.y;
-      });
+      }
+      const bayGaps=sites[island.id].map(waterGap);
+      if(island.id==='phone'){
+        // Opposite titanium rails, the central timber bridge, and the landing.
+        // A wet basin alone used to pass even with the handset under the sea.
+        const {waterHeightProbe}=await import('/marble-transition-lab/ocean-surface.js');
+        for(const site of [[-.289,.049,0],[.289,.049,.15],[0,.070,-.05],[-.035,.061,.38]]){
+          const p=root.localToWorld(new T.Vector3(...site)),hit=rayAt(p.x,p.z).intersectObjects(displayed,false)[0];
+          const wave=waterHeightProbe(table,p.x,p.z);
+          for(let t=0;t<24;t+=.25)if(!hit||hit.point.y-wave(t)<.001)
+            throw Error('Submerged phone frame or jetty at '+site+' and t='+t);
+        }
+      }
       const coastInside=island.shore.every(([x,z])=>sample(x,z));
       const meshes=[],textures=new Set();let loadedGeometryBytes=0,triangles=0;
       root.traverse(o=>{
@@ -59,7 +71,7 @@ async function imageStats(page) {
         const g=o.geometry;
         for(const a of Object.values(g.attributes))loadedGeometryBytes+=a.array.byteLength;
         loadedGeometryBytes+=g.index.array.byteLength;
-        for(const value of Object.values(o.material))if(value?.isTexture)textures.add(value);
+        for(const material of [].concat(o.material))for(const value of Object.values(material))if(value?.isTexture)textures.add(value);
       });
       root.traverseVisible(o=>{if(o.isMesh){triangles+=o.geometry.index.count/3;meshes.push([o,o.layers.mask]);o.layers.mask=0;}});
       const hidden=await snapshot();
@@ -206,23 +218,36 @@ async function checkViewport(browser, mobile){
     await page.locator('#world').screenshot({path:path.join(out,sourceFile)});
     // Slow reads followed by Home must not later take the user back to the sea.
     if(!mobile){
-      await page.route('**/desktop-far.glb',async route=>{await new Promise(r=>setTimeout(r,420));await route.continue();});
+      await page.route('**/desktop-visit.glb',async route=>{await new Promise(r=>setTimeout(r,420));await route.continue();});
       await page.evaluate(()=>{const t=window.__marbleTransition;t.setProgress(1);t.setProgress(0);});
-      await page.waitForFunction(()=>window.__marbleTransition.islands.every(e=>e.loaded.includes('far')));
+      await page.waitForFunction(()=>window.__marbleTransition.islands.every(e=>e.loaded.includes('hd')));
       assert.equal(await page.evaluate(()=>window.__marbleTransition.state.progress),0);
-      await page.unroute('**/desktop-far.glb');
+      await page.unroute('**/desktop-visit.glb');
     }
     await page.click('[data-progress="1"]');
     await settled(page);
     // Freeze the independent ocean clock for same-frame occlusion comparisons.
     if(!mobile)await page.click('#reduce-motion');
+    assert.deepEqual(requests.slice().sort(),['blue-book/visit','orange-book/visit','phone/visit'],'all three islands should open directly in HD');
+    const geometryCounts=await page.evaluate(()=>{
+      const app=window.__marbleTransition;
+      const count=root=>{
+        let faces=0;root.traverseVisible(o=>{if(o.isMesh)faces+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3;});
+        return faces;
+      };
+      const names=['Hi3D miniature holiday island','Original Hi3D lamp','Original Hi3D chair','tripo-unified-grotto-bookhouse-harbor'];
+      const counts=names.map(name=>count(app.dreamScene.getObjectByName(name)));
+      counts.push(count(app.objects.group.getObjectByName('hi3d-paper-0')));
+      return counts;
+    });
+    assert(geometryCounts.every(n=>n>=319000),'HD cup harbour, lamp, chair, grotto and registered paper: '+geometryCounts);
     await checkHarborWaterlines(page);
     const cupExposure=await checkCupExposure(page);
     const pixels=await imageStats(page);
     for(const item of pixels){
       assert(item.visiblePixels>150,item.id+' must visibly change the rendered frame');
       assert(item.xMin>1&&item.xMax<item.width-2&&item.yMin>1&&item.yMax<item.height-2,item.id+' cropped');
-      assert(item.triangles<=42500);
+      assert.equal(item.level,'hd');assert(item.triangles>=(item.id==='phone'?250000:319000),'HD geometry, including the fitted phone coastline');
       assert(item.coastInside&&item.bayGaps.every(gap=>gap<-.002&&gap>-.012),item.id+' waterline '+item.bayGaps);
     }
     const endpoint=await page.locator('#world').screenshot({path:path.join(out,mobile?'mobile-back.png':'desktop-back.png')});
@@ -245,6 +270,8 @@ async function checkViewport(browser, mobile){
     }
     await page.click('#enter-bookroom');
     await page.waitForSelector('[data-visit=terrace][data-visit-busy=false]');
+    const furnishings=await page.evaluate(()=>window.__marbleTransition.grotto.interior.furniture.map(f=>f.triangles));
+    assert(furnishings.length===3&&furnishings.every(f=>f>=319000),'HD bookroom furniture');
     await checkHarborWaterlines(page);
     for(const [action,stage] of [['enter','inside'],['read','book'],['photo','desk']]){
       await page.click('[data-visit-action='+action+']');
@@ -263,18 +290,18 @@ async function checkViewport(browser, mobile){
 async function checkMissing(browser){
   const {page}=await open(browser,{viewport:{width:1000,height:700}});
   try{
-    await page.route('**/phone/desktop-far.glb',r=>r.fulfill({status:404,body:''}));
-    await page.route('**/orange-book/desktop-far.glb',async r=>{await new Promise(ok=>setTimeout(ok,2200));await r.continue();});
+    await page.route('**/phone/desktop-visit.glb',r=>r.fulfill({status:404,body:''}));
+    await page.route('**/orange-book/desktop-visit.glb',async r=>{await new Promise(ok=>setTimeout(ok,2200));await r.continue();});
     await page.click('[data-progress="1"]');
     await page.waitForFunction(()=>window.__marbleTransition.state.progress===1);
     const slow=await page.evaluate(()=>window.__marbleTransition.islands);
-    assert(!slow.find(i=>i.id==='orange-book').loaded.includes('far'),'a slow island must not block arrival');
+    assert(!slow.find(i=>i.id==='orange-book').loaded.includes('hd'),'a slow island must not block arrival');
     await page.waitForFunction(()=>window.__marbleTransition.islands.find(i=>i.id==='orange-book').amount===1);
     const fallback=await page.evaluate(()=>window.__marbleTransition.islands.find(i=>i.id==='phone'));
-    assert.equal(fallback.level,'ordinary');assert(fallback.failed.includes('far'));
-    await page.unroute('**/phone/desktop-far.glb');await page.click('#island-retry');await settled(page);
+    assert.equal(fallback.level,'near');assert(fallback.failed.includes('hd'));
+    await page.unroute('**/phone/desktop-visit.glb');await page.click('#island-retry');await page.waitForFunction(()=>window.__marbleTransition.islands.every(e=>e.level==='hd'));
     assert(await page.locator('#island-retry').isHidden());
-    return {ordinaryFallback:true,slowIslandIndependent:true,retryRecovered:true};
+    return {detailFallback:true,slowIslandIndependent:true,retryRecovered:true};
   }finally{await page.close();}
 }
 

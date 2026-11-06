@@ -40,6 +40,20 @@ test('grotto registration preserves shape and aligns the lid hinge and width',()
  assert(worldFromRoom.determinant()>0);
 });
 
+test('the offshore approach keeps the bookroom door in view',async()=>{
+ const {visit,camera,grotto}=harness();
+ camera.position.set(-.27,1.13,-2.49);camera.lookAt(-.20,.93,-2.20);camera.updateMatrixWorld();
+ const door=grotto.toWorld(grotto.entryTarget),entry=visit.start();
+ for(let i=0;i<105;i++){
+  visit.tick(.04);await Promise.resolve();
+  if(i>=40){
+   const target=door.clone().project(camera);
+   assert(target.z>-1&&target.z<1&&Math.abs(target.x)<.4&&Math.abs(target.y)<.4,'door left the approach shot');
+  }
+ }
+ await entry;
+});
+
 test('same camera completes repeated door, room, book and original-GS loops',async()=>{
  for(const reduced of [false,true]){
   const h=harness({reduced}),{visit:v}=h;

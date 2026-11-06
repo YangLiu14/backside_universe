@@ -7,10 +7,10 @@ import {bookView} from '../dist/holiday-assets/bookroom-book.js';
 import {sourceCrop} from '../dist/marble-transition-lab/journey.js';
 import {createBookPortal} from '../dist/holiday-assets/bookroom-portal.js';
 
-test('the book uses the unchanged input photo and original desk GLB',()=>{
+test('the book uses the input photo and the matching HD desk calibration',()=>{
  const hash=path=>createHash('sha256').update(readFileSync(new URL(path,import.meta.url))).digest('hex');
  assert.equal(hash('../dist/assets/desk-original.jpg'),'a5a2ad89c596347fb97f38b9741b2d5e831f657cefa33b4150d7709c8d9365a0');
- assert.equal(hash('../dist/holiday-assets/assets/bookroom/desk.glb'),'c9d8f42646681e4d1c0f366acd88f1de724d84f9d746e9f8bcd37866855cab8f');
+ assert.equal(hash('../dist/holiday-assets/assets/bookroom/desk-hd.glb'),JSON.parse(readFileSync(new URL('../dist/holiday-assets/assets/bookroom/page-surfaces.json',import.meta.url))).deskSHA256);
 });
 
 test('zoomed book crop reaches all four GS viewport corners, at phone and desktop aspects',()=>{

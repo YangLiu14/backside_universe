@@ -1,4 +1,5 @@
 import * as THREE from '../vendor/three.module.js';
+import {createPhoneCase,fitCoastToCase,handset,handsetShore} from './phone-case.js';
 import {harborFits,seatHarborBase} from './harbor-waterline.js';
 
 const V = THREE.Vector3;
@@ -11,8 +12,8 @@ const designs = {
     coast:[[-.384,-.065],[-.201,-.427],[-.040,-.484],[.243,-.372],[.426,-.222],[.403,-.044],[-.036,.485],[-.391,.354]]},
   'orange-book': {size:[.81833,.42667,.97995], water:.017, draft:.006, berth:[-.32,-.21], accessory:[0,.41], yaw:-.18,
     coast:[[-.409,.472],[-.398,-.199],[-.125,-.479],[.360,-.480],[.401,-.464],[.409,.472],[.357,.488],[-.218,.486]]},
-  phone: {size:[.57172,.19985,.98074], water:.012, draft:.0035, berth:[-.075,-.49], yaw:0,
-    coast:[[-.285,.374],[-.266,-.368],[.062,-.484],[.179,-.405],[.272,-.077],[.284,.355],[.227,.464],[-.185,.490]]},
+  phone: {size:[handset.width,.19985,handset.length], water:handset.water, draft:0, berth:[-.075,-.49], yaw:0,
+    coast:handsetShore},
 };
 
 function fittedCorners(group, fit) {
@@ -50,7 +51,7 @@ function register(corners, design, offset, surface) {
   const berthMatrix=new THREE.Matrix4().compose(seated,root.quaternion,root.scale);
   const bounds=new THREE.Box3(new V(-w/2,0,-d/2),new V(w/2,h,d/2))
     .applyMatrix4(berthMatrix);
-  return {root, up, seated, shore, bounds, berthMatrix, length:d*scale, height:h*scale};
+  return {root, up, seated, shore, bounds, berthMatrix, height:h*scale};
 }
 
 // The source meshes are shared by the GS and modeled captures. Only the
@@ -80,7 +81,7 @@ function clearanceAboveDesk(object, lateral, surface, extreme) {
   return clearance;
 }
 
-export function createDesktopIslands({scene, registered, details, fit, desk, surface, loader, invalidate, report}) {
+export function createDesktopIslands({scene, registered, details, fit, desk, surface, loader, anisotropy, invalidate, report}) {
   desk.updateWorldMatrix(true,true);
   registered.group.updateWorldMatrix(true,true);
   const delta = ([x,z]) => new V(x,0,z).applyMatrix4(desk.matrixWorld).sub(new V().applyMatrix4(desk.matrixWorld));
@@ -115,33 +116,54 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
 
   let warming, prepared=false, currentSea=0;
   function warn(){
-    const missing=entries.filter(e=>e.failed.has('far')).map(e=>({'blue-book':'蓝书','orange-book':'橙书',phone:'手机'})[e.id]);
-    report(missing.length ? missing.join('、')+'的景观未能载入，暂时显示原物件。' : '');
+    const names={'blue-book':'蓝书','orange-book':'橙书',phone:'手机'};
+    const missing=entries.filter(e=>e.failed.has('hd')).map(e=>names[e.id]);
+    report(missing.length ? missing.join('、')+'高清模型未能载入，可重试。' : '');
   }
-  function load(entry,lod){
-    if(entry.requests[lod])return entry.requests[lod];
-    entry.requests[lod]=loader.loadAsync('../holiday-assets/assets/'+entry.id+'/desktop-'+lod+'.glb').then(({scene:model})=>{
+  function load(entry,level){
+    if(entry.requests[level])return entry.requests[level];
+    const file=level==='hd'?'desktop-visit.glb':'desktop-near.glb';
+    entry.requests[level]=loader.loadAsync('../holiday-assets/assets/'+entry.id+'/'+file).then(({scene:model})=>{
       if(harborFits[entry.id])seatHarborBase(model,entry.berthMatrix,surface,harborFits[entry.id]);
-      model.traverse(o=>{if(o.isMesh){o.layers.enable(3);o.receiveShadow=true;o.castShadow=true;}});
-      model.visible=false;entry.root.add(model);entry.models[lod]=model;
-      entry.failed.delete(lod);
-      if(lod==='far'&&currentSea>.04)entry.lateArrival=performance.now();
+      if(entry.id==='phone')fitCoastToCase(model);
+      model.traverse(o=>{
+        if(!o.isMesh)return;
+        o.layers.enable(3);o.receiveShadow=o.castShadow=true;
+        for(const mat of [].concat(o.material)){
+          for(const map of [mat.map,mat.normalMap,mat.roughnessMap,mat.metalnessMap]){
+            if(map)map.anisotropy=anisotropy;
+          }
+        }
+      });
+      const first=!entry.models.hd&&!entry.models.near;
+      if(first&&entry.id==='phone')entry.root.add(createPhoneCase());
+      model.visible=false;entry.root.add(model);entry.models[level]=model;
+      entry.failed.delete(level);
+      if(first&&currentSea>.04)entry.lateArrival=performance.now();
       invalidate();
-    }).catch(()=>{entry.failed.add(lod);if(lod==='far')warn();});
-    return entry.requests[lod];
+    }).catch(()=>entry.failed.add(level));
+    return entry.requests[level];
+  }
+  async function prepareModel(entry,retry=false){
+    if(retry){
+      for(const level of entry.failed)delete entry.requests[level];
+      entry.failed.clear();
+    }
+    await load(entry,'hd');
+    if(!entry.models.hd)await load(entry,'near');
+    warn();
   }
   function prepare(){
-    if(!warming)warming=Promise.all(entries.map(e=>load(e,'far'))).then(()=>{prepared=true;warn();invalidate();});
+    if(!warming)warming=Promise.all(entries.map(e=>prepareModel(e))).then(()=>{prepared=true;invalidate();});
     return warming;
   }
-  const eye=new V();
-  function update(amount,view,physicalHeight,allowDetail,seaMaterial,reduced){
+  function update(amount,seaMaterial,reduced){
     currentSea=amount;
     let shadowChanged=false;
 
     for(const [index,e] of entries.entries()){
       const oldAmount=e.amount,oldLevel=e.level;
-      e.amount=e.models.far?ease(.04,.94,amount):0;
+      e.amount=(e.models.hd||e.models.near)?ease(.04,.94,amount):0;
       if(e.lateArrival){
         const arrival=reduced?1:ease(0,550,performance.now()-e.lateArrival);
         e.amount*=arrival;
@@ -153,26 +175,25 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
       e.root.visible=rise>0;
       e.root.position.copy(e.seated).addScaledVector(e.up,-(1-rise)*(e.height+.003));
       if(!e.root.visible){e.level='ordinary';continue;}
-      const depth=-eye.copy(e.seated).applyMatrix4(view.matrixWorldInverse).z;
-      const pixels=depth>view.near ? physicalHeight*view.projectionMatrix.elements[5]*e.length/(2*depth) : 0;
-      if(allowDetail && pixels>110 && !e.requests.near)load(e,'near');
-      const near=!!e.models.near && pixels>(e.level==='near'?85:100);
-      e.level=near?'near':'far';
+      e.level=e.models.hd?'hd':'near';
       if(oldLevel!==e.level)shadowChanged=true;
-      e.models.far.visible=!near;
-      if(e.models.near)e.models.near.visible=near;
+      if(e.models.hd)e.models.hd.visible=true;
+      if(e.models.near)e.models.near.visible=e.level==='near';
     }
     return shadowChanged;
   }
   return {
+    async prepareDestination(id){
+      const e=entries.find(entry=>entry.id===id);
+      await prepareModel(e,e.failed.has('hd'));
+      if(!e.models.hd&&!e.models.near)throw Error('岛屿模型未能载入');
+      e.lateArrival=0;
+    },
     prepare, get prepared(){return prepared;},
     retryMissing(){
-      const missing=entries.filter(e=>e.failed.has('far'));
-      if(!missing.length)return;
-      for(const e of missing){delete e.requests.far;e.failed.delete('far');}
-      warming=null;prepare();
+      for(const entry of entries)if(entry.failed.has('hd'))prepareModel(entry,true);
     },
-    destinations:entries.map(({id,root,bounds})=>[id,{root,bounds}]),
+    destinations:entries.map(e=>[e.id,{root:e.root,bounds:e.bounds,get landed(){return e.amount===1;}}]),
     shores:entries.map(e=>e.shore),update,
     applyPass(modeled){
       for(const e of entries){

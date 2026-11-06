@@ -19,7 +19,7 @@ const folder=path.join(__dirname,'../dist/holiday-assets/assets/bookroom');
    const {GLTFLoader}=await import('three/addons/loaders/GLTFLoader.js');
    const {DRACOLoader}=await import('three/addons/loaders/DRACOLoader.js');
    const loader=new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('/vendor/draco/'));
-   const {scene}=await loader.loadAsync('/holiday-assets/assets/bookroom/desk.glb');
+   const {scene}=await loader.loadAsync('/holiday-assets/assets/bookroom/desk-hd.glb');
    scene.updateMatrixWorld(true);
    const ray=new THREE.Raycaster(), down=new THREE.Vector3(0,-1,0);
    function heightAt(x,z){
@@ -46,7 +46,7 @@ const folder=path.join(__dirname,'../dist/holiday-assets/assets/bookroom');
    }
    return surface;
   },!process.argv.includes('--write'));
-  calibration.deskSHA256=createHash('sha256').update(await readFile(path.join(folder,'desk.glb'))).digest('hex');
+  calibration.deskSHA256=createHash('sha256').update(await readFile(path.join(folder,'desk-hd.glb'))).digest('hex');
   const output=path.join(folder,'page-surfaces.json');
   if(process.argv.includes('--write'))await writeFile(output,JSON.stringify(calibration)+'\n');
   else assert.deepEqual(calibration,JSON.parse(await readFile(output,'utf8')));

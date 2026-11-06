@@ -1,6 +1,4 @@
 import * as THREE from 'three';
-import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
 import {createDesktopIslands} from './desktop-islands.js';
 import {createRoom} from '../room.js';
 import {createHiddenWorld} from './hidden-world.js';
@@ -12,7 +10,7 @@ import {createDesktopSea} from './desktop-sea.js';
 
 // The original art direction and complete Hi3D island, registered to Marble.
 // No replacement toy landscape; the old room and coast remain the source.
-export async function createHoliday(scene,meta,registeredObjects,renderer,{invalidate,report}){
+export async function createHoliday(scene,meta,registeredObjects,renderer,modelLoader,{invalidate,report}){
   const json=path=>fetch('../assets/'+path+'.json').then(r=>{if(!r.ok)throw Error('缺少原版场景资产：'+path);return r.json();});
   const loader=new THREE.TextureLoader();
   const texture=async path=>{const t=await loader.loadAsync('../assets/'+path);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;};
@@ -44,7 +42,7 @@ export async function createHoliday(scene,meta,registeredObjects,renderer,{inval
 
   // Keep the original well-developed furniture, including the photographed lamp.
   await Promise.all(['chair','lamp'].map(async name=>{
-    const fit=generatedFit[name],{scene:model}=await new GLTFLoader().loadAsync('../assets/'+fit.file);
+    const fit=generatedFit[name],{scene:model}=await modelLoader.loadAsync('../assets/'+name+'-hd.glb').catch(()=>modelLoader.loadAsync('../assets/'+fit.file));
     model.scale.setScalar(fit.scale);model.position.fromArray(fit.sourceOrigin).multiplyScalar(-fit.scale);
     const object=new THREE.Group();object.name='Original Hi3D '+name;object.position.fromArray(fit.position);object.rotation.y=fit.yaw;object.add(model);room.root.add(object);room[name].visible=false;
     model.traverse(o=>{if(!o.isMesh)return;o.castShadow=o.receiveShadow=true;for(const m of Array.isArray(o.material)?o.material:[o.material]){
@@ -54,10 +52,9 @@ export async function createHoliday(scene,meta,registeredObjects,renderer,{inval
     }});
   }));
 
-  const modelLoader=new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('../vendor/draco/').setWorkerLimit(2));
   const coast=await createHiddenWorld(scene,registeredObjects,surface,modelLoader);
   const islands=createDesktopIslands({scene,registered:registeredObjects,details:room.details,fit:detailFit,
-    desk:legacy,surface,loader:modelLoader,invalidate,report});
+    desk:legacy,surface,loader:modelLoader,anisotropy:Math.min(8,renderer.capabilities.getMaxAnisotropy()),invalidate,report});
 
   // Render the original desk texture on its photographed outline, not a giant
   // blank polygon enlarged to accommodate a different landscape.

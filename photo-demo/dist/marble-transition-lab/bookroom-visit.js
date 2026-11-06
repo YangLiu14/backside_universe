@@ -33,7 +33,12 @@ export function createBookroomVisit(grotto,camera,{aspect,reduced,onChange,onSta
   const pointAt=t=>{if(!walking)return curve.getPoint(t);if(t>=1)return positions.at(-1);let d=total*t;for(let i=0;i<distances.length;i++){if(d<=distances[i])return positions[i].clone().lerp(positions[i+1],distances[i]?d/distances[i]:0);d-=distances[i];}return positions.at(-1);};
   await animate(duration,t=>{
    const p=pointAt(t);if(walking){const local=toRoom(p);local.y=eyeHeight(-local.z);p.copy(toWorld(local));}
-   const up=new THREE.Vector3(0,1,0).transformDirection(worldFromRoom),q=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(p,startTarget.clone().lerp(target,t),up));
+   const up=new THREE.Vector3(0,1,0).transformDirection(worldFromRoom);
+   // The offshore eye travels past its initial forward point. Keep the door
+   // in sight on approach instead of turning back towards that point at sea.
+   const aim=walking?startTarget.clone().lerp(target,t):target;
+   const q=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(p,aim,up));
+   if(!walking)q.slerp(from.quaternion,1-THREE.MathUtils.smoothstep(t,0,.22));
    apply({position:p,quaternion:q,fov:THREE.MathUtils.lerp(from.fov,fov,t),near:THREE.MathUtils.lerp(from.near,.00001,t)});
   });angles();
  }
@@ -85,7 +90,7 @@ export function createBookroomVisit(grotto,camera,{aspect,reduced,onChange,onSta
    if(!pendingEntry)return;
    pendingEntry=null;onStatus('可以继续绕行，回到电脑背后时再进入书屋。');changed();
   },
-  async start(){
+  async start(landedFrom=null){
    if(stage!=='desk'||busy||pendingEntry)return;
    if(grotto.prepareVisit){
     const request={};pendingEntry=request;changed();onStatus('正在准备书屋近景，可以继续绕行。');
@@ -100,9 +105,11 @@ export function createBookroomVisit(grotto,camera,{aspect,reduced,onChange,onSta
    return perform(async()=>{
     stage='approaching';changed();
     if(beforeApproach)await beforeApproach();
-    returnPose=pose();onStatus('沿着电脑背后的海湾，靠近二层绿门。');
-    approachPoints=approachPath(grotto,camera.position);
-    await fly(approachPoints.slice(1),toWorld(grotto.entryTarget),4200,false,88);stage='terrace';onStatus('来到电脑背后的露台。推开绿门，走进书屋。');
+    returnPose=landedFrom||pose();onStatus('沿着电脑背后的海湾，靠近二层绿门。');
+    approachPoints=approachPath(grotto,returnPose.position);
+    if(landedFrom)angles();
+    else await fly(approachPoints.slice(1),toWorld(grotto.entryTarget),4200,false,88);
+    stage='terrace';onStatus('来到电脑背后的露台。推开绿门，走进书屋。');
    });
   },
   resize(){if(!api.active)return;camera.aspect=aspect();if(stage==='book'&&!busy)apply(bookView(interior.book.frame(),aspect(),false));else camera.updateProjectionMatrix();},
