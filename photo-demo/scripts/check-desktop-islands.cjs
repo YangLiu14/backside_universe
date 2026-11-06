@@ -64,11 +64,21 @@ async function imageStats(page) {
       root.traverseVisible(o=>{if(o.isMesh){triangles+=o.geometry.index.count/3;meshes.push([o,o.layers.mask]);o.layers.mask=0;}});
       const hidden=await snapshot();
       for(const [o,mask] of meshes)o.layers.mask=mask;
-      let changed=0,xMin=helper.width,xMax=0,yMin=helper.height,yMax=0;
-      for(let y=0;y<helper.height;y++)for(let x=0;x<helper.width;x++){
+      // Long sunrise shadows can reach the edge of the desk. Test framing
+      // against the projected mesh and count its visible pixels inside that box.
+      const bounds=new T.Box2(),v=new T.Vector3(),screen=new T.Vector2();
+      for(const o of displayed){
+        const pos=o.geometry.attributes.position;
+        for(let i=0;i<pos.count;i++){
+          v.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld).project(t.camera);
+          bounds.expandByPoint(screen.set((1+v.x)*helper.width/2,(1-v.y)*helper.height/2));
+        }
+      }
+      const xMin=Math.floor(bounds.min.x),xMax=Math.ceil(bounds.max.x),yMin=Math.floor(bounds.min.y),yMax=Math.ceil(bounds.max.y);
+      let changed=0;
+      for(let y=Math.max(0,yMin);y<Math.min(helper.height,yMax);y++)for(let x=Math.max(0,xMin);x<Math.min(helper.width,xMax);x++){
         const i=(y*helper.width+x)*4;
-        if(Math.max(...[0,1,2].map(c=>Math.abs(hidden[i+c]-full[i+c])))<=12)continue;
-        xMin=Math.min(x,xMin);xMax=Math.max(x,xMax);yMin=Math.min(y,yMin);yMax=Math.max(y,yMax);changed++;
+        if(Math.max(...[0,1,2].map(c=>Math.abs(hidden[i+c]-full[i+c])))>12)changed++;
       }
       const textureMiB=[...textures].reduce((n,t)=>n+t.image.width*t.image.height*4*4/3/1048576,0);
       result.push({id:island.id,level:island.level,loaded:island.loaded,triangles,bayGaps,coastInside,visiblePixels:changed,

@@ -122,7 +122,7 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
     if(entry.requests[lod])return entry.requests[lod];
     entry.requests[lod]=loader.loadAsync('../holiday-assets/assets/'+entry.id+'/desktop-'+lod+'.glb').then(({scene:model})=>{
       if(harborFits[entry.id])seatHarborBase(model,entry.berthMatrix,surface,harborFits[entry.id]);
-      model.traverse(o=>{if(o.isMesh){o.layers.enable(3);o.receiveShadow=true;o.castShadow=false;}});
+      model.traverse(o=>{if(o.isMesh){o.layers.enable(3);o.receiveShadow=true;o.castShadow=true;}});
       model.visible=false;entry.root.add(model);entry.models[lod]=model;
       entry.failed.delete(lod);
       if(lod==='far'&&currentSea>.04)entry.lateArrival=performance.now();
@@ -137,14 +137,17 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
   const eye=new V();
   function update(amount,view,physicalHeight,allowDetail,seaMaterial,reduced){
     currentSea=amount;
+    let shadowChanged=false;
 
     for(const [index,e] of entries.entries()){
+      const oldAmount=e.amount,oldLevel=e.level;
       e.amount=e.models.far?ease(.04,.94,amount):0;
       if(e.lateArrival){
         const arrival=reduced?1:ease(0,550,performance.now()-e.lateArrival);
         e.amount*=arrival;
         if(arrival<1)invalidate();else e.lateArrival=0;
       }
+      if(oldAmount!==e.amount)shadowChanged=true;
       const rise=ease(.17,1,e.amount);
       seaMaterial.setShoreBlend(index,rise);
       e.root.visible=rise>0;
@@ -155,9 +158,11 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
       if(allowDetail && pixels>110 && !e.requests.near)load(e,'near');
       const near=!!e.models.near && pixels>(e.level==='near'?85:100);
       e.level=near?'near':'far';
+      if(oldLevel!==e.level)shadowChanged=true;
       e.models.far.visible=!near;
       if(e.models.near)e.models.near.visible=near;
     }
+    return shadowChanged;
   }
   return {
     prepare, get prepared(){return prepared;},

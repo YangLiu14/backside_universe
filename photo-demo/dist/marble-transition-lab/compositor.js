@@ -15,6 +15,7 @@ export function createCompositor(renderer,shared,realScene,dreamScene,holiday){
   uniforms.seaAmount={value:0};uniforms.seaPlane={value:holiday.seaPlane};uniforms.worldFromClip={value:new THREE.Matrix4()};
   uniforms.clipFromWorld={value:new THREE.Matrix4()};
   uniforms.oceanPlanes={value:holiday.ocean.planes};uniforms.oceanTime=holiday.sea.clock;
+  uniforms.solarDirection={value:holiday.daylight.direction};uniforms.solarColor={value:holiday.daylight.color};
   uniforms.oceanExtent={value:0};uniforms.oceanEye={value:new THREE.Vector3()};
   const material=new THREE.ShaderMaterial({uniforms,depthTest:false,depthWrite:false,toneMapped:false,
     vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}',
@@ -79,7 +80,8 @@ export function createCompositor(renderer,shared,realScene,dreamScene,holiday){
         float coc=smoothstep(.20,.65,abs(depth-focus));
         float optical=softness*focusPull*(1.-smoothstep(.05,.7,max(solid,max(island,destination))));
         float blendSoft=pow(sin(handoff*3.14159),2.)*6.;
-        float radius=optical*(coc*11.+blendSoft);
+        // Once the whole desk is navigable, atmospheric haze carries the distant background.
+        float radius=optical*(coc*11.+blendSoft)*(1.-.89*smoothstep(115.,177.,angle));
         vec4 world=worldFromClip*vec4(vUv*2.-1.,raw*2.-1.,1.);world/=world.w;
         float onSea=1.-smoothstep(.002,.005,abs(dot(seaPlane,world)));
         radius=mix(radius,min(radius,1.4),seaAmount*onSea);
@@ -103,7 +105,13 @@ export function createCompositor(renderer,shared,realScene,dreamScene,holiday){
       }`.replace(';#include',';\n#include')});
   const screen=new THREE.Scene();screen.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),material));const screenCamera=new THREE.Camera();let passes=0;
   function attach(parent){holiday.applyPass(parent===dreamScene);parent.add(shared.objects);realScene.add(shared.desktop);}
-  function capture(target,parent,view){attach(parent);renderer.setRenderTarget(target);renderer.render(parent,view);passes++;}
+  let previousShell;
+  function prepareLight(){
+    const shell=holiday.grotto.environment;
+    if(holiday.daylight.takeShadowUpdate()||previousShell!==shell)renderer.shadowMap.needsUpdate=true;
+    previousShell=shell;
+  }
+  function capture(target,parent,view){attach(parent);if(parent===dreamScene)prepareLight();renderer.setRenderTarget(target);renderer.render(parent,view);passes++;}
   const focal=new THREE.Vector3();
   return{resize(w,h){const ratio=renderer.getPixelRatio(),W=Math.round(w*ratio),H=Math.round(h*ratio);for(const t of [real,dream,mask,discovery])t.setSize(W,H);uniforms.resolution.value.set(W,H);uniforms.ratio.value=ratio;},
     render(view,state,variant='transition',soft=true){
@@ -139,5 +147,5 @@ export function createCompositor(renderer,shared,realScene,dreamScene,holiday){
       holiday.grotto.root.visible=visible;this.render(view,state,'transition',false);gl.readPixels(0,0,size.x,size.y,gl.RGBA,gl.UNSIGNED_BYTE,after);
       let changedPixels=0,maxChannelDifference=0;for(let i=0;i<count;i+=4){let changed=false;for(let c=0;c<3;c++){const d=Math.abs(before[i+c]-after[i+c]);maxChannelDifference=Math.max(maxChannelDifference,d);changed ||= d>0;}if(changed)changedPixels++;}
       return {width:size.x,height:size.y,changedPixels,maxChannelDifference,includesFullGrotto:true};
-    },renderVisit(view){attach(dreamScene);renderer.setRenderTarget(null);renderer.render(dreamScene,view);attach(realScene);},get stats(){return{passes,handoff:uniforms.handoff.value,sharedGeometry:true,screenWipe:false,originalIsland:true};}};
+    },renderVisit(view){attach(dreamScene);prepareLight();renderer.setRenderTarget(null);renderer.render(dreamScene,view);attach(realScene);},get stats(){return{passes,handoff:uniforms.handoff.value,sharedGeometry:true,screenWipe:false,originalIsland:true};}};
 }

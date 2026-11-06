@@ -5,6 +5,8 @@ import {createDesktopIslands} from './desktop-islands.js';
 import {createRoom} from '../room.js';
 import {createHiddenWorld} from './hidden-world.js';
 import {createUnderDeskOcean} from './under-desk-ocean.js';
+import {createLampSun} from './lamp-sun.js';
+import {createCoffeeClouds} from './coffee-clouds.js';
 import {waterCap} from './ocean-surface.js';
 import {createDesktopSea} from './desktop-sea.js';
 
@@ -87,14 +89,24 @@ export async function createHoliday(scene,meta,registeredObjects,renderer,{inval
   const pmrem=new THREE.PMREMGenerator(renderer),environment=pmrem.fromScene(studio,.12).texture;pmrem.dispose();
   scene.environment=environment;scene.environmentIntensity=.75;scene.background=new THREE.Color('#b1bfbd');
   const sun=new THREE.DirectionalLight('#f2f0e8',1.1);sun.position.set(-1.1,3.1,-3.4);sun.target.position.set(0,.82,-2.3);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-1.5,right:1.5,top:1.5,bottom:-1.5,near:.1,far:7});sun.shadow.normalBias=.001;sun.shadow.bias=-.00015;sun.shadow.radius=3;
-  scene.add(sun,sun.target,new THREE.HemisphereLight('#e3e9e6','#8d8574',1.0));
+  const skyLight=new THREE.HemisphereLight('#e3e9e6','#8d8574',1.0);
+  scene.add(sun,sun.target,skyLight);
+  const daylight=createLampSun(scene,room.details.lampRig,sun,skyLight);
+  const clouds=createCoffeeClouds(scene,registeredObjects.group.getObjectByName('coffee'),daylight);
+  sea.setSun(daylight);
   // Scale physical light power to the new metric dimensions.
   room.lampLight.intensity=.20;room.lampLight.distance=1.5;
   let previousTime;
-  return {islands,sea,ocean,corners,group:coast.group,grotto:coast.grotto,table,seaPlane,houseReady:coast.cottageReady,islandSource:coast.islandSource,maskMaterial:coast.maskMaterial,surface,environment,sun,legacy,
+  return {islands,sea,ocean,daylight,corners,group:coast.group,grotto:coast.grotto,table,seaPlane,houseReady:coast.cottageReady,islandSource:coast.islandSource,maskMaterial:coast.maskMaterial,surface,environment,sun,legacy,
     applyPass(modeled){coast.applyPass(modeled);islands.applyPass(modeled);},
+    canGrabLamp(camera,rect,x,y,touch){
+      const shared=registeredObjects.group;
+      this.applyPass(true);shared.updateWorldMatrix(true,true);
+      try{return daylight.canGrab(camera,rect,x,y,touch,shared);}
+      finally{this.applyPass(false);shared.updateWorldMatrix(true,true);}
+    },
     animateOcean(time,amount){
-      sea.clock.value=time;ocean.update(amount,time);
+      sea.clock.value=time;ocean.update(amount,time);daylight.update(amount);clouds.update(time,amount);
       const height=1-ocean.extent;
       room.deskSupports.visible=height>.005;room.deskSupports.scale.y=height;room.deskSupports.position.y=-1.56*(1-height);
     },

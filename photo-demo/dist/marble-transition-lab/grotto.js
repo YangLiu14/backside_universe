@@ -24,20 +24,20 @@ export async function createGrotto(registered,surface,loader){
  const localRoom=roomFrame(layout),worldFromRoom=registration.matrix.clone().multiply(localRoom),roomFromWorld=worldFromRoom.clone().invert();
  interior.root.applyMatrix4(localRoom);root.applyMatrix4(registration.matrix);root.updateMatrixWorld(true);
  interior.root.traverse(o=>{if(o.isPointLight){const s=.75*registration.scale;o.intensity*=s*s;o.distance*=s;}});
- function prepareMeshes(group){
+ function prepareMeshes(group,exterior=false){
   group.traverse(o=>{
    if(!o.isMesh)return;
-   o.layers.enable(3);o.castShadow=false;o.receiveShadow=true;
+   o.layers.enable(3);o.castShadow=exterior;o.receiveShadow=true;
    for(const m of Array.isArray(o.material)?o.material:[o.material])if(m.map)m.map.anisotropy=8;
   });
  }
- prepareMeshes(root);
+ prepareMeshes(overview,true);prepareMeshes(interior.root);
  let shellRequest,detail,showingDetail=false;
  async function prepareVisit(){
   if(detail)return;
   if(!shellRequest)shellRequest=shell('bookroom/shell-grotto-v6.glb').catch(error=>{shellRequest=null;throw error;});
   const [environment]=await Promise.all([shellRequest,interior.loadFurniture()]);
-  prepareMeshes(environment);prepareMeshes(interior.contents);
+  prepareMeshes(environment,true);prepareMeshes(interior.contents);
   detail=environment;
  }
  function closeView(on){

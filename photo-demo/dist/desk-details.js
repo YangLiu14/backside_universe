@@ -59,21 +59,26 @@ export function createDeskDetails(parent,{point,onPlane,camera,photo,fit,orangeT
   const arm=new THREE.Group();arm.name='Articulated double-link task lamp';parent.add(arm);
   const anchor=point(909,693,0),plane=new THREE.Plane(new THREE.Vector3(0,0,1),-anchor.z);
   const p=(x,y)=>onPlane(x,y,plane),black=mat('#393c37',.4,.55),steel=mat('#85867d',.3,.72);
+  // Keep the source-space geometry on two rigid links. Their pivots and
+  // springs can then follow the same measured joints in the holiday scene.
+  const lower=new THREE.Group(),upper=new THREE.Group();
+  arm.add(lower,upper);
   const rails=[[[905,691],[914,550],[907,393]],[[911,691],[922,549],[915,391]],[[908,386],[791,430]],[[918,397],[791,444]]];
-  for(const rail of rails)for(let i=1;i<rail.length;i++)bar(arm,p(...rail[i-1]).toArray(),p(...rail[i]).toArray(),.0085,black);
+  for(const [j,rail] of rails.entries())for(let i=1;i<rail.length;i++)bar(j<2?lower:upper,p(...rail[i-1]).toArray(),p(...rail[i]).toArray(),.0085,black);
   const joints=[[909,693],[919,550],[913,391],[791,437]];
-  for(const xy of joints){const at=p(...xy);const pin=add(arm,new THREE.CylinderGeometry(.021,.021,.035,28),steel,at.toArray());pin.rotation.x=Math.PI/2;const screw=add(arm,new THREE.CylinderGeometry(.007,.007,.037,16),black,at.toArray());screw.rotation.x=Math.PI/2;}
-  function spring(a,b,r,turns){const A=p(...a),B=p(...b),direction=B.clone().sub(A).normalize(),u=new THREE.Vector3(0,0,1),v=new THREE.Vector3().crossVectors(direction,u).normalize();const points=Array.from({length:161},(_,i)=>{const t=i/160,angle=t*turns*Math.PI*2;return A.clone().lerp(B,t).addScaledVector(u,Math.cos(angle)*r).addScaledVector(v,Math.sin(angle)*r);});tube(arm,points,.0022,steel);}
-  spring([811,432],[855,415],.012,12);spring([917,489],[921,535],.011,11);
-  tube(arm,[[788,433],[797,414],[797,398],[789,400],[785,421]].map(v=>p(...v)),.004,black);
+  for(const [i,xy] of joints.entries()){const holder=i===0?arm:i===3?upper:lower;const at=p(...xy);const pin=add(holder,new THREE.CylinderGeometry(.021,.021,.035,28),steel,at.toArray());pin.rotation.x=Math.PI/2;const screw=add(holder,new THREE.CylinderGeometry(.007,.007,.037,16),black,at.toArray());screw.rotation.x=Math.PI/2;}
+  function spring(holder,a,b,r,turns){const A=p(...a),B=p(...b),direction=B.clone().sub(A).normalize(),u=new THREE.Vector3(0,0,1),v=new THREE.Vector3().crossVectors(direction,u).normalize();const points=Array.from({length:161},(_,i)=>{const t=i/160,angle=t*turns*Math.PI*2;return A.clone().lerp(B,t).addScaledVector(u,Math.cos(angle)*r).addScaledVector(v,Math.sin(angle)*r);});tube(holder,points,.0022,steel);}
+  spring(upper,[811,432],[855,415],.012,12);spring(lower,[917,489],[921,535],.011,11);
+  tube(upper,[[788,433],[797,414],[797,398],[789,400],[785,421]].map(v=>p(...v)),.004,black);
   const top=p(775,394),bottom=p(749,470),direction=top.clone().sub(bottom).normalize(),radius=p(746,426).distanceTo(p(778,438))*.5;
   const head=new THREE.Group();head.name='Tilted brushed-metal cylindrical shade';head.position.copy(top).add(bottom).multiplyScalar(.5);head.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction);arm.add(head);const length=top.distanceTo(bottom);
   const shade=mat('#8e8980',.34,.78);add(head,new THREE.CylinderGeometry(radius,radius,length,64,1,true),shade);
   for(const sign of [-1,1]){const ring=add(head,new THREE.TorusGeometry(radius,.005,10,64),sign>0?mat('#8a6550',.4,.65):steel,[0,sign*length/2,0]);ring.rotation.x=Math.PI/2;}
-  add(head,new THREE.CylinderGeometry(radius*.94,radius*.94,.005,48),mat('#3b3c37',.7),[0,-length/2+.003,0]);
+  const bulb=add(head,new THREE.CylinderGeometry(radius*.94,radius*.94,.005,48),mat('#3b3c37',.7),[0,-length/2+.003,0]);
   add(head,new THREE.CylinderGeometry(radius*.94,radius*.94,.005,48),mat('#ac8e6a',.5,.35),[0,length/2-.003,0]);
   add(arm,new THREE.BoxGeometry(.07,.04,.085),black,[anchor.x,-.018,anchor.z]);
-  const details={phone,headphones,book,arm,cups,lensGroup};
+  const lampRig={arm,lower,upper,head,bulb,radius,base:anchor,elbow:p(...joints[2]),wrist:p(...joints[3])};
+  const details={phone,headphones,book,arm,cups,lensGroup,lampRig};
   details.measurements={phoneLensCount:lensCenters.length,headphoneCupCount:cups.length,armJointCount:joints.length,armSpringCount:2,phoneSourceQuad:phoneFit.sourceQuad,headphoneSourceQuads:cups.map((_,i)=>fit[i?'headphoneRear':'headphoneFront'].sourceQuad)};
   return details;
 }

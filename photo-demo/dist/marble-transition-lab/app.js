@@ -5,6 +5,7 @@ import {createObjects,createDesktop} from './objects.js';
 import {createHoliday} from './holiday.js';
 import {auditSourceOcclusion} from './hidden-world.js';
 import {createCompositor} from './compositor.js';
+import {initialDaylight} from './lamp-sun.js';
 import {DURATION,clamp01,smooth,sampleJourney,cameraPose,applyProjection,sourceCrop} from './journey.js';
 import {createDeskExplore,exploreGestures,isTravelKey} from './desk-explore.js';
 import {createBookroomVisit} from './bookroom-visit.js';
@@ -28,6 +29,7 @@ function status(message){$('status').textContent=message;}
 function fitBookPhoto(){const [x,y,w,h]=sourceCrop(width/height);Object.assign($('book-photo').style,{width:`${100/w}%`,height:`${100/h}%`,left:`${-x/w*100}%`,top:`${-y/h*100}%`});}
 function browseUI(){
  const free=browsing();
+ $('daylight-tools').hidden=!free||variant==='real';
  $('explore-tools').hidden=!free;$('explore-help').hidden=!free||!!visit?.state.preparing||entryFeedback;
  $('visit-feedback').hidden=!$('explore-help').hidden;
  stage.dataset.browsing=String(free);
@@ -89,6 +91,7 @@ function setProgress(value,manual=true){
   camera.position.copy(pose.position);camera.quaternion.copy(pose.quaternion);camera.updateMatrixWorld(true);
   if(requested===1){explore.setHome(pose);$('explore-island').value='';}
   applyProjection(camera,meta.calibration.parameters,progress,width/height);holiday.update(state.time,camera,state.sea);
+  if(manual)holiday.daylight.invalidateShadows();
   $('progress').value=Math.round(progress*1000);$('progress').style.setProperty('--progress',`${progress*100}%`);
   $('phase').textContent=state.label;$('angle').textContent=`${state.angle.toFixed(0)}°`;$('elapsed').textContent=`${(progress*DURATION/1000).toFixed(1)} / 4.8 s`;
   $('gesture').hidden=progress>.03;document.querySelectorAll('[data-progress]').forEach(b=>b.setAttribute('aria-current',String(Math.abs(progress-Number(b.dataset.progress))<.01)));
@@ -101,14 +104,14 @@ function setProgress(value,manual=true){
 async function travel(to){visit?.cancelEntry();stop();
  if(to===0&&browsing()&&explore.modified&&!reduce){if(!await explore.overview())return;}
  if(reduce){setProgress(to);return;}frameTimes=[];lastFrame=0;playing={from:progress,to,start:performance.now(),duration:Math.max(400,DURATION*Math.abs(to-progress))};$('play-icon').innerHTML='<svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>';$('play-label').textContent='暂停';$('play').setAttribute('aria-pressed','true');$('play').setAttribute('aria-label','暂停转场');}
-function setVariant(value){if(!ready||!['transition','real','dream'].includes(value))return;stop();variant=value;document.querySelectorAll('[data-variant]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.variant===value)));}
+function setVariant(value){if(!ready||!['transition','real','dream'].includes(value))return;stop();variant=value;browseUI();document.querySelectorAll('[data-variant]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.variant===value)));}
 function resize(){const rect=stage.getBoundingClientRect();width=Math.max(1,rect.width);height=Math.max(1,rect.height);fitBookPhoto();if(!renderer)return;renderer.setSize(width,height,false);compositor?.resize(width,height);if(visit?.active)visit.resize();else if(browsing()&&explore.modified){
    explore.setHome(cameraPose(meta.calibration.parameters,1,width/height),true);
    applyProjection(camera,meta.calibration.parameters,1,width/height);settleUntil=performance.now()+450;
    canvas.dataset.projection=JSON.stringify(camera.projectionMatrix.toArray());
  }else if(ready)setProgress(progress,false);}
 function updateIslands(amount,allowDetail){
-  holiday.islands.update(amount,camera,height*renderer.getPixelRatio(),allowDetail,holiday.sea,reduce);
+  if(holiday.islands.update(amount,camera,height*renderer.getPixelRatio(),allowDetail,holiday.sea,reduce))holiday.daylight.invalidateShadows();
   if(browsing())for(const {root,option} of islandOptions){
     if(option.disabled===root.visible)option.disabled=!root.visible;
   }
@@ -204,6 +207,19 @@ async function boot(){
   canvas.dataset.ready='true';tellParent('book-world:ready');
   visitUI(visit.state);
 }
+function setDaylight(phase){
+  if(!browsing()||variant==='real')return;
+  holiday.daylight.setPhase(phase);
+  showDaylight(phase);settleUntil=performance.now()+450;
+}
+function showDaylight(phase){
+  const minutes=360+Math.round(720*phase);
+  const time=String(Math.floor(minutes/60)).padStart(2,'0')+':'+String(minutes%60).padStart(2,'0');
+  $('lamp-time').value=time;$('lamp-position').value=String(Math.round(phase*1000));
+  $('lamp-position').setAttribute('aria-valuetext',time);
+}
+showDaylight(initialDaylight);
+$('lamp-position').addEventListener('input',e=>{if(browsing()){beginBrowseInput();setDaylight(Number(e.target.value)/1000);}});
 function beginBrowseInput(){
  visit.cancelEntry();stop(false);explore.cancelMotion();
  if(entryFeedback){entryFeedback=false;browseUI();}
@@ -248,7 +264,15 @@ canvas.addEventListener('pointerdown',e=>{
  const free=browsing();
  if(e.button!==0&&!(free&&e.button===2))return;
  canvas.focus({preventScroll:true});
- if(free){beginBrowseInput();gestures.down(e);return;}
+ if(free){
+  beginBrowseInput();
+  const rect=canvas.getBoundingClientRect();
+  if(variant!=='real'&&e.isPrimary&&e.button===0&&!e.shiftKey&&holiday.canGrabLamp(camera,rect,e.clientX,e.clientY,e.pointerType==='touch')){
+    explore.clearKeys();drag={id:e.pointerId,lamp:holiday.daylight.dragStart(camera,rect,e.clientX,e.clientY)};
+    canvas.setPointerCapture(e.pointerId);canvas.classList.add('moving-lamp');return;
+  }
+  gestures.down(e);return;
+ }
  stop();
  drag={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,progress,visit:visit.active};
  canvas.setPointerCapture(e.pointerId);
@@ -256,6 +280,7 @@ canvas.addEventListener('pointerdown',e=>{
 canvas.addEventListener('pointermove',e=>{
  if(gestures?.has(e.pointerId)){if(browsing())gestures.move(e);return;}
  if(drag?.id!==e.pointerId)return;
+ if(drag.lamp){setDaylight(drag.lamp(e.clientX,e.clientY));return;}
  if(drag.visit&&visit.active)visit.rotate(e.clientX-drag.lastX,e.clientY-drag.lastY);
  else if(!drag.visit)setProgress(drag.progress-(e.clientX-drag.x)/Math.max(250,width*.72));
  drag.lastX=e.clientX;drag.lastY=e.clientY;
@@ -266,7 +291,7 @@ function endDrag(e){
  if(e.type==='pointerup'&&drag.visit&&visit.active&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<5){
   const r=canvas.getBoundingClientRect();visit.click(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,1-(e.clientY-r.top)/r.height*2));
  }
- drag=null;
+ drag=null;canvas.classList.remove('moving-lamp');
 }
 for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,endDrag);
 canvas.addEventListener('wheel',e=>{
@@ -301,7 +326,7 @@ window.addEventListener('keyup',event=>{
  const key=event.key.toLowerCase();explore?.key(key,false);visit?.key(key,false);
 });
 canvas.addEventListener('blur',()=>explore?.clearKeys());
-window.addEventListener('blur',()=>{drag=null;gestures?.clear();explore?.clearKeys();visit?.clearKeys();});
+window.addEventListener('blur',()=>{drag=null;canvas.classList.remove('moving-lamp');gestures?.clear();explore?.clearKeys();visit?.clearKeys();});
 new ResizeObserver(resize).observe(stage);document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();visit?.clearKeys();}else{lastTick=performance.now();settleUntil=lastTick+450;}});
 window.__marbleTransition={setProgress,setVariant,stop,get visit(){return visit;},get grotto(){return holiday?.grotto;},get state(){return{ready,progress,variant,browsing:browsing(),playing:!!playing,...sampleJourney(progress),visit:visit?.state,camera:camera?.matrixWorld.toArray(),projection:camera?.projectionMatrix.toArray(),compositor:compositor?.stats,houseReady:holiday?.houseReady,frames:frameTimes.slice()};},get islands(){return holiday?.islands.state;},get renderer(){return renderer;},get scene(){return realScene;},get dreamScene(){return dreamScene;},get camera(){return camera;},get objects(){return objects;}};
 boot().catch(error=>{console.error(error);status(`加载未完成：${error.message}。请恢复本地资产后刷新。`);$('loading').dataset.error='true';tellParent('book-world:error');});

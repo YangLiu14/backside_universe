@@ -7,7 +7,7 @@ export function createDesktopSea(photo,objects,shores){
   const points=name=>{const p=objects.getObjectByName(name).geometry.attributes.position;return Array.from({length:4},(_,i)=>new THREE.Vector2(p.getX(i),p.getZ(i)));};
   const saucer=new THREE.Box3().setFromObject(objects.getObjectByName('saucer'));
   const c=saucer.getCenter(new THREE.Vector3()),s=saucer.getSize(new THREE.Vector3());
-  const uniforms={seaTime:{value:0},seaAmount:{value:0},laptopShore:{value:points('laptop-base')},islandShore:{value:shores.flat()},shoreBlend:{value:[0,0,0]},bookShore:{value:points('book-cover')},cupShore:{value:new THREE.Vector4(c.x,c.z,s.x*.5,s.z*.5)}};
+  const uniforms={sunward:{value:new THREE.Vector3(-.35,.64,.69).normalize()},sunTint:{value:new THREE.Color(1,1,1)},skyTint:{value:new THREE.Color(.52,.73,.76)},seaTime:{value:0},seaAmount:{value:0},laptopShore:{value:points('laptop-base')},islandShore:{value:shores.flat()},shoreBlend:{value:[0,0,0]},bookShore:{value:points('book-cover')},cupShore:{value:new THREE.Vector4(c.x,c.z,s.x*.5,s.z*.5)}};
   const material=new THREE.MeshPhysicalMaterial({map:photo,color:0xffffff,roughness:.8,metalness:0,clearcoat:.48,clearcoatRoughness:.23,envMapIntensity:.7,side:THREE.DoubleSide});
   material.onBeforeCompile=shader=>{
     Object.assign(shader.uniforms,uniforms);
@@ -17,7 +17,7 @@ export function createDesktopSea(photo,objects,shores){
       float flood=smoothstep(.82-uv.y,1.18-uv.y,seaAmount*1.36-.18);
       transformed.y+=swell(seaWorld.xz,seaTime).x*max(0.,waveWeight)*flood;`);
     shader.fragmentShader=`varying vec3 seaWorld;varying float seaTop;
-      varying float seaWeight;
+      varying float seaWeight;uniform vec3 sunward,sunTint,skyTint;
       ${waveField}
       uniform float seaTime,seaAmount;uniform vec2 laptopShore[4],bookShore[4],islandShore[24];uniform float shoreBlend[3];uniform vec4 cupShore;
       float segmentDistance(vec2 p,vec2 a,vec2 b){vec2 v=b-a;return length(p-a-v*clamp(dot(p-a,v)/dot(v,v),0.,1.));}
@@ -68,9 +68,9 @@ export function createDesktopSea(photo,objects,shores){
       vec3 eye=normalize(cameraPosition-seaWorld);
       vec3 reflected=reflect(-eye,rippleNormal);
       float fresnel=.025+.72*pow(1.-clamp(dot(eye,rippleNormal),0.,1.),4.);
-      vec3 sky=mix(vec3(.52,.73,.76),vec3(.13,.35,.56),smoothstep(-.15,.89,reflected.y));
-      float glint=pow(max(dot(reflected,normalize(vec3(-.35,.64,.69))),0.),90.);
-      water=mix(water,sky,fresnel*.84)+vec3(.90,.86,.64)*glint*.75;
+      vec3 sky=mix(skyTint,skyTint*vec3(.30,.48,.71),smoothstep(-.15,.89,reflected.y));
+      float glint=pow(max(dot(reflected,sunward),0.),90.);
+      water=mix(water,sky,fresnel*.84)+sunTint*glint*1.15;
       if(!gl_FrontFacing)water=mix(vec3(.018,.26,.32),vec3(.33,.77,.70),smoothstep(.22,.97,-eye.y)+.18*waveSlope.y);
       diffuseColor.rgb=mix(diffuseColor.rgb,water,wet);`);
     shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(roughnessFactor,.23,wet);');
@@ -92,5 +92,5 @@ export function createDesktopSea(photo,objects,shores){
   };
   material.customProgramCacheKey=()=> 'photographed-desk-to-archipelago-v3';
   const cup=Array.from({length:28},(_,i)=>{const a=i*Math.PI/14;return new THREE.Vector2(c.x+.5*s.x*Math.cos(a),c.z+.5*s.z*Math.sin(a));});
-  return{material,clock:uniforms.seaTime,coasts:[...shores,uniforms.laptopShore.value,uniforms.bookShore.value,cup],setShoreBlend(index,amount){uniforms.shoreBlend.value[index]=amount;},setAmount(amount){uniforms.seaAmount.value=amount;}};
+  return{material,setSun(sun){uniforms.sunward.value=sun.direction;uniforms.sunTint.value=sun.color;uniforms.skyTint.value=sun.waterSky;},clock:uniforms.seaTime,coasts:[...shores,uniforms.laptopShore.value,uniforms.bookShore.value,cup],setShoreBlend(index,amount){uniforms.shoreBlend.value[index]=amount;},setAmount(amount){uniforms.seaAmount.value=amount;}};
 }

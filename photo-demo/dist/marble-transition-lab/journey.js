@@ -21,7 +21,7 @@ export function cameraPose(parameters, progress, aspect=2) {
   const target=new THREE.Vector3(.04,.89,-2.36);
   const close=new THREE.Vector3(target.x+.80*Math.sin(a),1.27,target.z+.92*Math.cos(a));
   // On a narrow screen the new canyon sits beyond the old laptop-centred frame.
-  const aim=target.clone();aim.y-=.14*smooth(108,172,angle);aim.x-=.105*(1-smooth(.95,1.8,aspect))*t;
+  const aim=target.clone();aim.y-=(.14-.077*smooth(.9,1.7,aspect))*smooth(108,172,angle);aim.x-=.105*(1-smooth(.95,1.8,aspect))*t;
   const q=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(close,aim,new THREE.Vector3(0,1,0)));
   pose.position.lerp(close,t);pose.quaternion.slerp(q,t);pose.pivot.lerp(target,t);
   return pose;

@@ -250,7 +250,7 @@ export function createUnderDeskOcean(scene,corners,surface,clock){
 export const waterVolumeGLSL=`
 uniform vec4 oceanPlanes[6];
 uniform float oceanExtent,oceanTime;
-uniform vec3 oceanEye;
+uniform vec3 oceanEye,solarDirection,solarColor;
 float waterSegment(vec3 rd,float distanceToScene,out float start){
   start=0.;
   if(oceanExtent<.001)return 0.;
@@ -266,12 +266,12 @@ float waterSegment(vec3 rd,float distanceToScene,out float start){
 vec3 immerse(vec3 objectColor,vec3 rd,float entry,float travel,float distanceToScene){
   vec3 p=oceanEye+rd*(entry+.48*travel);
   float depthHere=max(0.,dot(oceanPlanes[4],vec4(p,1.)));
-  vec2 lit=p.xz-depthHere*vec2(.26,.18);
+  vec2 lit=p.xz+depthHere*solarDirection.xz/max(.28,solarDirection.y);
   float shafts=.5+.5*sin(lit.x*44.+lit.y*15.+2.*sin(lit.y*27.+oceanTime*.41)+oceanTime*.56);
   float rays=pow(shafts,7.)*(.62+.38*cos(lit.y*37.-oceanTime*.25));
   vec3 transmit=exp(-travel*vec3(4.4,2.9,2.05));
   vec3 scatter=mix(vec3(.038,.285,.34),vec3(.005,.061,.12),smoothstep(.015,.51,depthHere));
-  scatter+=vec3(.045,.115,.095)*rays*exp(-depthHere*2.7);
+  scatter+=vec3(.070,.125,.105)*mix(vec3(1.),solarColor,.65)*rays*exp(-depthHere*2.7);
   vec3 exitPoint=oceanEye+rd*(entry+travel);
   float headDepth=dot(oceanPlanes[4],vec4(oceanEye,1.));
   float edge=1.;
