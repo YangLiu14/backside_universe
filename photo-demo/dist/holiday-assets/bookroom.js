@@ -3,7 +3,7 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {buildInterior,P,room,eyeHeight} from './bookroom-interior.js';
-import {planWalk} from './bookroom-navigation.js';
+import {planWalk,canStandInRoom} from './bookroom-navigation.js';
 import {sourceCrop} from '../marble-transition-lab/journey.js';
 import {createBookPortal} from './bookroom-portal.js';
 import {bookView} from './bookroom-book.js';
@@ -158,16 +158,8 @@ const movementKeys=['w','a','s','d','arrowup','arrowdown','arrowleft','arrowrigh
 host.addEventListener('keydown',e=>{if(movementKeys.includes(e.key.toLowerCase())){e.preventDefault();keys.add(e.key.toLowerCase());}if(e.key==='Escape'&&!busy){if(stage==='inside')$('exit').click();if(stage==='book')$('leave-book').click();}if(e.key==='Enter'&&stage==='book')$('enter-photo').click();});
 window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>{keys.clear();touchMoves.clear();});
 for(const b of document.querySelectorAll('[data-move]')){b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);touchMoves.add(b.dataset.move);};for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,()=>touchMoves.delete(b.dataset.move));}
-function walkable(x,y){
- const m=.007,inside=x>room.minX+m&&x<room.maxX-m&&y>room.minY+m&&y<room.maxY-m;
- const terrace=x>-.052&&x<.100&&y>.700&&y<terraceMaxY;
- const passage=x>room.doorMin+m&&x<room.doorMax-m&&y>.657&&y<.727;
- if(!(inside||terrace||passage))return false;
- if(!doorOpen&&y>.665&&y<.702)return false;
- if(doorOpen){const ax=.011,ay=.684,bx=ax+.064*Math.cos(openAngle),by=ay+.064*Math.sin(openAngle),dx=bx-ax,dy=by-ay,t=Math.max(0,Math.min(1,((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy)));if(Math.hypot(x-ax-t*dx,y-ay-t*dy)<.008)return false;}
- for(const f of interior?.furniture||[]){const b=f.bounds;if(x>b.min[0]-.006&&x<b.max[0]+.006&&-y>b.min[2]-.006&&-y<b.max[2]+.006)return false;}
- return true;
-}
+function walkable(x,y){return canStandInRoom(x,y,{room,terraceMaxY,openAngle,doorOpen,furniture:interior?.furniture||[]});}
+
 function move(dt){if(!ready||busy||!['inside','terrace'].includes(stage))return;let f=Number(keys.has('w')||keys.has('arrowup')||touchMoves.has('forward'))-Number(keys.has('s')||keys.has('arrowdown')||touchMoves.has('back'));let r=Number(keys.has('d')||keys.has('arrowright')||touchMoves.has('right'))-Number(keys.has('a')||keys.has('arrowleft')||touchMoves.has('left'));if(!f&&!r)return;const norm=Math.hypot(f,r);f/=norm;r/=norm;const dx=(Math.sin(yaw)*f+Math.cos(yaw)*r)*dt*.055,dz=(-Math.cos(yaw)*f+Math.sin(yaw)*r)*dt*.055;if(walkable(camera.position.x+dx,-camera.position.z))camera.position.x+=dx;if(walkable(camera.position.x,-camera.position.z-dz))camera.position.z+=dz;camera.position.y=eyeHeight(-camera.position.z);look();const next=-camera.position.z<.66?'inside':-camera.position.z>.716?'terrace':stage;if(next!==stage){stage=next;ui();}}
 const debug={get state(){return{ready,busy,stage,doorOpen,doorAngle:interior?.pivot.rotation.y,camera:camera.position.toArray(),yaw,pitch,reduced,portalState:portal.state,islandVersion:grotto?'v6':'v3',worldCamera:worldCamera.position.toArray(),terraceX,terraceY};},walkable,get lastWalkPath(){return lastWalkPath;},get furniture(){return interior?.furniture;},get book(){return interior?.book;},get scene(){return scene;},get layout(){return layout;},get camera(){return worldCamera;},toWorld,toRoom};window.bookroom=debug;
 function frame(now){const dt=Math.min((now-lastTime)/1000,.05);lastTime=now;if(tween){const t=Math.min(1,(now-tween.start)/tween.duration),e=t*t*(3-2*t);tween.update(e);if(t===1){const done=tween.resolve;tween=null;done();}}if(stage!=='world'){move(dt);syncCamera();renderer.render(scene,worldCamera);}requestAnimationFrame(frame);}requestAnimationFrame(frame);ui();

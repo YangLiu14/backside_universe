@@ -2,11 +2,11 @@ import * as THREE from 'three';
 
 // Change the material of the registered tabletop itself. There is no second
 // sheet of water to z-fight, overflow its outline, or cover the objects.
-export function createDesktopSea(photo,objects){
+export function createDesktopSea(photo,objects,shores){
   const points=name=>{const p=objects.getObjectByName(name).geometry.attributes.position;return Array.from({length:4},(_,i)=>new THREE.Vector2(p.getX(i),p.getZ(i)));};
   const saucer=new THREE.Box3().setFromObject(objects.getObjectByName('saucer'));
   const c=saucer.getCenter(new THREE.Vector3()),s=saucer.getSize(new THREE.Vector3());
-  const uniforms={seaTime:{value:0},seaAmount:{value:0},laptopShore:{value:points('laptop-base')},bookShore:{value:points('book-cover')},cupShore:{value:new THREE.Vector4(c.x,c.z,s.x*.5,s.z*.5)}};
+  const uniforms={seaTime:{value:0},seaAmount:{value:0},laptopShore:{value:points('laptop-base')},islandShore:{value:shores.flat()},shoreBlend:{value:[0,0,0]},bookShore:{value:points('book-cover')},cupShore:{value:new THREE.Vector4(c.x,c.z,s.x*.5,s.z*.5)}};
   const material=new THREE.MeshPhysicalMaterial({map:photo,color:0xffffff,roughness:.8,metalness:0,clearcoat:.48,clearcoatRoughness:.23,envMapIntensity:.7,side:THREE.DoubleSide});
   material.onBeforeCompile=shader=>{
     Object.assign(shader.uniforms,uniforms);
@@ -14,11 +14,22 @@ export function createDesktopSea(photo,objects){
     shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
       seaWorld=(modelMatrix*vec4(position,1.)).xyz;seaTop=smoothstep(.65,.95,normal.y);`);
     shader.fragmentShader=`varying vec3 seaWorld;varying float seaTop;
-      uniform float seaTime,seaAmount;uniform vec2 laptopShore[4],bookShore[4];uniform vec4 cupShore;
+      uniform float seaTime,seaAmount;uniform vec2 laptopShore[4],bookShore[4],islandShore[24];uniform float shoreBlend[3];uniform vec4 cupShore;
       float segmentDistance(vec2 p,vec2 a,vec2 b){vec2 v=b-a;return length(p-a-v*clamp(dot(p-a,v)/dot(v,v),0.,1.));}
       float shoreDistance(vec2 p){
         float d=10.;
-        for(int i=0;i<4;i++){int j=(i+1)%4;d=min(d,segmentDistance(p,laptopShore[i],laptopShore[j]));d=min(d,segmentDistance(p,bookShore[i],bookShore[j]));}
+        for(int i=0;i<4;i++){
+          int j=(i+1)%4;
+          d=min(d,segmentDistance(p,laptopShore[i],laptopShore[j]));
+          d=min(d,segmentDistance(p,bookShore[i],bookShore[j])+shoreBlend[0]);
+        }
+        for(int k=0;k<3;k++){
+          if(shoreBlend[k]<=0.)continue;
+          for(int i=0;i<8;i++){
+            float edge=segmentDistance(p,islandShore[k*8+i],islandShore[k*8+(i+1)%8]);
+            d=min(d,edge+(1.-shoreBlend[k]));
+          }
+        }
         return min(d,abs(length((p-cupShore.xy)/cupShore.zw)-1.)*min(cupShore.z,cupShore.w));
       }
       float hash21(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
@@ -57,6 +68,6 @@ export function createDesktopSea(photo,objects){
       gl_FragColor.rgb=mix(gl_FragColor.rgb,texture2D(map,vMapUv).rgb,.88*(1.-wet));
       #include <colorspace_fragment>`);
   };
-  material.customProgramCacheKey=()=> 'photographed-desk-to-archipelago-v1';
-  return{material,update(time,amount){uniforms.seaTime.value=time;uniforms.seaAmount.value=amount;}};
+  material.customProgramCacheKey=()=> 'photographed-desk-to-archipelago-v2';
+  return{material,setShoreBlend(index,amount){uniforms.shoreBlend.value[index]=amount;},update(time,amount){uniforms.seaTime.value=time;uniforms.seaAmount.value=amount;}};
 }

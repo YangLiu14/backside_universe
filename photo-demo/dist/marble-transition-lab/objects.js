@@ -26,12 +26,13 @@ export async function createObjects(renderer,scene,meta,sourceCamera){
   group.traverse(o=>{if(!o.isMesh)return;meshes.push(o);const old=Array.isArray(o.material)?o.material[0]:o.material;
     const map=old?.map;if(map){map.colorSpace=THREE.NoColorSpace;map.needsUpdate=true;}
     const kind=o.userData.kind;
+    const photoVertex=['book','note'].includes(kind)?vertex.replace('sourceView*world','sourceView*vec4(position,1.)'):vertex;
     const material=new THREE.ShaderMaterial({uniforms:{
       sourceView:{value:view},sourceDepth:{value:target.texture},sourcePhoto:{value:o.name==='book-cover'?bookPhoto:photo},glazePhoto:{value:glaze},handle:{value:o.name==='cup-handle'?1:0},cover:{value:o.name==='book-cover'?1:0},
       sourceMask:{value:kind==='cup'?cupMask:kind==='note'?noteMask:laptopMask},K:{value:K},imageSize:{value:size},
       baseMap:{value:map||photo},hasBaseMap:{value:map?1:0},fallback:{value:new THREE.Vector3(...o.userData.color)},
       inspection:{value:0},photoEnabled:{value:1},blueOnly:{value:['cup-handle','saucer'].includes(o.name)?1:0},cupGlaze:{value:kind==='cup'&&o.name!=='coffee'?1:0},useMask:{value:['laptop','book'].includes(kind)?0:1}},
-      vertexShader:vertex,
+      vertexShader:photoVertex,
       fragmentShader:`precision highp float;varying vec3 sourcePoint;varying vec3 worldNormal;varying vec2 materialUv;
       uniform sampler2D sourceDepth,sourcePhoto,sourceMask,baseMap,glazePhoto;uniform vec4 K;uniform vec2 imageSize;uniform float handle,cover;
       uniform vec3 fallback;uniform float hasBaseMap,inspection,photoEnabled,cupGlaze,useMask,blueOnly;

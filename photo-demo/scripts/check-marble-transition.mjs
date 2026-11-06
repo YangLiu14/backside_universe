@@ -16,7 +16,7 @@ for(const aspect of [.55,1.7,2.95]){
   let prior=null,previousBlend=0,previousSea=0;
   const forward=[];
   for(let i=0;i<=3600;i++){
-    const progress=i/3600,state=sampleJourney(progress),pose=cameraPose(p,progress);
+    const progress=i/3600,state=sampleJourney(progress),pose=cameraPose(p,progress,aspect);
     applyProjection(camera,p,progress,aspect);
     assert(pose.position.toArray().every(Number.isFinite));assert(Math.abs(pose.quaternion.length()-1)<1e-9);
     assert(state.handoff>=previousBlend&&state.handoff<=1);previousBlend=state.handoff;
@@ -30,7 +30,7 @@ for(const aspect of [.55,1.7,2.95]){
     prior=record;
   }
   for(let i=3600;i>=0;i--){
-    const progress=i/3600,pose=cameraPose(p,progress);applyProjection(camera,p,progress,aspect);
+    const progress=i/3600,pose=cameraPose(p,progress,aspect);applyProjection(camera,p,progress,aspect);
     assert.deepEqual({position:pose.position.toArray(),quaternion:pose.quaternion.toArray(),projection:camera.projectionMatrix.toArray(),state:sampleJourney(progress)},forward[i]);
   }
 }

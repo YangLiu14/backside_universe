@@ -1,12 +1,14 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
+import {createDesktopIslands} from './desktop-islands.js';
 import {createRoom} from '../room.js';
 import {createHiddenWorld} from './hidden-world.js';
 import {createDesktopSea} from './desktop-sea.js';
 
 // The original art direction and complete Hi3D island, registered to Marble.
 // No replacement toy landscape; the old room and coast remain the source.
-export async function createHoliday(scene,meta,registeredObjects,renderer){
+export async function createHoliday(scene,meta,registeredObjects,renderer,{invalidate,report}){
   const json=path=>fetch('../assets/'+path+'.json').then(r=>{if(!r.ok)throw Error('缺少原版场景资产：'+path);return r.json();});
   const loader=new THREE.TextureLoader();
   const texture=async path=>{const t=await loader.loadAsync('../assets/'+path);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;};
@@ -48,7 +50,10 @@ export async function createHoliday(scene,meta,registeredObjects,renderer){
     }});
   }));
 
-  const coast=await createHiddenWorld(scene,registeredObjects);
+  const modelLoader=new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('../vendor/draco/').setWorkerLimit(2));
+  const coast=await createHiddenWorld(scene,registeredObjects,surface,modelLoader);
+  const islands=createDesktopIslands({scene,registered:registeredObjects,details:room.details,fit:detailFit,
+    desk:legacy,surface,loader:modelLoader,invalidate,report});
 
   // Render the original desk texture on its photographed outline, not a giant
   // blank polygon enlarged to accommodate a different landscape.
@@ -62,7 +67,7 @@ export async function createHoliday(scene,meta,registeredObjects,renderer){
     const x=pos.getX(i),z=pos.getZ(i),local=new THREE.Vector3(x,surface(x,z),z).applyMatrix4(inverse);
     pos.setY(i,pos.getY(i)+surface(x,z)-.030);uv.setXY(i,(local.x+2.1)/4.2,1-(local.z+.85)/1.7);
   }geo.computeVertexNormals();
-  const sea=createDesktopSea(assets.desk,registeredObjects.group);
+  const sea=createDesktopSea(assets.desk,registeredObjects.group,islands.shores);
   const table=new THREE.Mesh(geo,sea.material);table.name='Original tabletop becoming a single sea';table.receiveShadow=true;scene.add(table);
   const seaPlane=new THREE.Vector4(normal.x,normal.y,normal.z,-constant+normal.y*.004).multiplyScalar(1/normal.length());
 
@@ -76,9 +81,10 @@ export async function createHoliday(scene,meta,registeredObjects,renderer){
   scene.add(sun,sun.target,new THREE.HemisphereLight('#e3e9e6','#8d8574',1.0));
   // Scale physical light power to the new metric dimensions.
   room.lampLight.intensity=.20;room.lampLight.distance=1.5;
-  return {group:coast.group,table,seaPlane,houseReady:coast.cottageReady,islandSource:coast.islandSource,maskMaterial:coast.maskMaterial,surface,environment,sun,legacy,
+  let previousTime;
+  return {islands,sea,corners,group:coast.group,grotto:coast.grotto,table,seaPlane,houseReady:coast.cottageReady,islandSource:coast.islandSource,maskMaterial:coast.maskMaterial,surface,environment,sun,legacy,
     update(time,view,seaAmount=0){
-      coast.update(time);sea.update(time,seaAmount);room.lampLight.intensity=.22;room.lampLight.distance=1.5;
+      if(time!==previousTime){coast.update(time);previousTime=time;}sea.update(time,seaAmount);room.lampLight.intensity=.22;room.lampLight.distance=1.5;
       if(view){const local=view.position.clone().applyMatrix4(inverse);for(const wall of room.windowObjects)wall.visible=local.z>-1.15;room.sideWall.visible=local.x<3.65;room.poster.visible=room.sideWall.visible;}
     }};
 }

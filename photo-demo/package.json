@@ -11,6 +11,10 @@
     "check:marble-assets": "python3 scripts/check-marble-hybrid.py && python3 scripts/check-marble-refined.py",
     "check:marble-browser": "node scripts/check-marble-lab.cjs",
     "check:marble-transition": "node scripts/check-marble-transition.mjs",
+    "check:desktop-startup": "node scripts/check-desktop-startup.cjs",
+    "check:desk-explore": "node scripts/check-desk-explore.cjs",
+    "check:desktop-islands": "node scripts/check-desktop-islands.cjs",
+    "check:desktop-bookroom": "node --test scripts/check-desktop-bookroom.mjs",
     "check:bookroom-loop": "node --test scripts/check-bookroom-loop.mjs"
   }
 }

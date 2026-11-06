@@ -1,9 +1,9 @@
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.js';
 import {printBook} from './bookroom-book.js';
 export const P=(x,y,z)=>new THREE.Vector3(x,z,-y);
 export const room={minX:-.061,maxX:.230,minY:.522,maxY:.674,floor:.008,eye:.100,doorX:.043,doorY:.682,doorMin:.010,doorMax:.076};
 export const eyeHeight=y=>room.eye+.0275*THREE.MathUtils.smoothstep(y,.645,.690);
-export async function buildInterior(scene,loader,{furnitureWidthScale=1,grotto=false}={}){
+export async function buildInterior(scene,loader,{furnitureWidthScale=1,grotto=false,deferFurniture=false}={}){
  const root=new THREE.Group();root.name='crafted-bookroom-interior';scene.add(root);
  const material=(color,roughness=.75,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
  const plaster=material('#d8c7a6'),wood=material('#725039'),darkWood=material('#463327'),brass=material('#a88342',.32,.72),green=material('#306c58',.52),paper=material('#eee0b7');
@@ -79,15 +79,36 @@ export async function buildInterior(scene,loader,{furnitureWidthScale=1,grotto=f
  }
  const fill=new THREE.PointLight('#ffe4bb',.010,.35,2);fill.position.copy(P(.08,.595,.137));root.add(fill);
  const tableLight=new THREE.PointLight('#ffd7a0',.002,.16,2);tableLight.position.copy(P(-.022,.583,.073));root.add(tableLight);
- const furniture=[];let book;
+ const furniture=[],contents=new THREE.Group();
+ contents.name='bookroom-furnishings';contents.visible=!deferFurniture;
+ const result={root,pivot,door,furniture,contents,loadFurniture,book:null};
  async function asset(slug,axis,length,x,y,yaw){
-  const gltf=await loader.loadAsync(`assets/bookroom/${slug}.glb`);if(slug==='desk')book=await printBook(gltf.scene);const group=new THREE.Group();group.name='tripo-'+slug;group.add(gltf.scene);
+  const gltf=await loader.loadAsync(new URL(`assets/bookroom/${slug}.glb`,import.meta.url).href);const book=slug==='desk'?await printBook(gltf.scene):null;const group=new THREE.Group();group.name='tripo-'+slug;group.add(gltf.scene);
   const bounds=new THREE.Box3().setFromObject(gltf.scene),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
-  gltf.scene.position.sub(new THREE.Vector3(center.x,bounds.min.y,center.z));const scale=length/size[axis];group.scale.setScalar(scale);group.rotation.y=yaw;const placement=new THREE.Group();placement.name='placement-'+slug;placement.position.copy(P(x,y,.011));placement.scale.x=furnitureWidthScale;placement.add(group);root.add(placement);
+  gltf.scene.position.sub(new THREE.Vector3(center.x,bounds.min.y,center.z));const scale=length/size[axis];group.scale.setScalar(scale);group.rotation.y=yaw;const placement=new THREE.Group();placement.name='placement-'+slug;placement.position.copy(P(x,y,.011));placement.scale.x=furnitureWidthScale;placement.add(group);
   let triangles=0;group.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;triangles+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3;}});
-  placement.updateMatrixWorld(true);const bb=new THREE.Box3().setFromObject(placement);furniture.push({slug,triangles,bounds:{min:bb.min.toArray(),max:bb.max.toArray()}});return group;
+  placement.updateMatrixWorld(true);const bb=new THREE.Box3().setFromObject(placement);return {placement,book,obstacle:{slug,triangles,bounds:{min:bb.min.toArray(),max:bb.max.toArray()}}};
  }
  // Tripo's canonical front is +X; rotations orient each item into the room.
- await Promise.all([asset('bookcase','y',.117,.133,.542,Math.PI/2),asset('desk','z',.084,-.017,.585,Math.PI),asset('chair','y',.055,.183,.616,Math.PI*.65)]);
- return {root,pivot,door,furniture,book};
+ const specs=[['bookcase','y',.117,.133,.542,Math.PI/2],['desk','z',.084,-.017,.585,Math.PI],['chair','y',.055,.183,.616,Math.PI*.65]];
+ const parts=new Map();
+ let loading;
+ function loadFurniture(){
+  if(!loading){
+   loading=Promise.all(specs.map(spec=>{
+    const slug=spec[0];
+    if(!parts.has(slug))parts.set(slug,asset(...spec).catch(error=>{parts.delete(slug);throw error;}));
+    return parts.get(slug);
+   })).then(items=>{
+    for(const item of items){
+     contents.add(item.placement);furniture.push(item.obstacle);
+     if(item.book)result.book=item.book;
+    }
+    root.add(contents);
+   }).catch(error=>{loading=null;throw error;});
+  }
+  return loading;
+ }
+ if(!deferFurniture)await loadFurniture();
+ return result;
 }

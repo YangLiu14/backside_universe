@@ -23,29 +23,25 @@ export function bookView({center,right,up,normal},aspect,zoom){
 // its actual curved pages; leave the GLB, lamp, paper edges and binding intact.
 // Coordinates here are in the unscaled desk GLB, before furniture placement.
 export async function printBook(desk){
- const texture=await new THREE.TextureLoader().loadAsync(INPUT_PHOTO);
+ const [texture,surface]=await Promise.all([
+  new THREE.TextureLoader().loadAsync(INPUT_PHOTO),
+  fetch(new URL('assets/bookroom/page-surfaces.json',import.meta.url)).then(response=>{
+   if(!response.ok)throw Error('书页曲面未能载入');
+   return response.json();
+  }),
+ ]);
  texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;
- desk.updateMatrixWorld(true);
- const ray=new THREE.Raycaster(),down=new THREE.Vector3(0,-1,0),inverse=desk.matrixWorld.clone().invert();
- const surfaces=[...desk.children];
- function heightAt(x,z){
-  ray.set(new THREE.Vector3(x,2,z),down);
-  const hit=ray.intersectObjects(surfaces,true)[0];
-  if(!hit)throw Error('书页表面未找到');
-  return hit.point.clone().applyMatrix4(inverse).y+.00065;
- }
- function ink(name,map,z,width,height){
-  const geometry=new THREE.PlaneGeometry(width,height,20,28),p=geometry.attributes.position;
-  for(let i=0;i<p.count;i++){
-   const x=.047+p.getY(i),depth=z+p.getX(i);
-   p.setXYZ(i,x,heightAt(x,depth),depth);
-  }
+ // These heights were sampled from this same immutable GLB at build time.
+ function ink(name,map,{z,width,height,heights}){
+  const geometry=new THREE.PlaneGeometry(width,height,surface.columns,surface.rows),p=geometry.attributes.position;
+  if(p.count!==heights.length)throw Error('书页曲面尺寸不符');
+  for(let i=0;i<p.count;i++)p.setXYZ(i,surface.centerX+p.getY(i),heights[i],z+p.getX(i));
   geometry.computeVertexNormals();
   const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({map,transparent:true,alphaTest:.01,toneMapped:false}));
   mesh.name=name;desk.add(mesh);return mesh;
  }
- const width=.125,height=width*1739/1320,z=.108;
- const photo=ink('input-photograph-on-open-book',texture,z,width,height);
+ const {width,height,z}=surface.photo;
+ const photo=ink('input-photograph-on-open-book',texture,surface.photo);
  const canvas=document.createElement('canvas');canvas.width=660;canvas.height=870;
  const ctx=canvas.getContext('2d');ctx.fillStyle='#574c3b';ctx.textAlign='center';
  ctx.font='23px Georgia, serif';ctx.fillText('A HOLIDAY BEHIND THE DESK',330,190);
@@ -54,8 +50,8 @@ export async function printBook(desk){
  for(const [i,line] of ['一张书桌，一片海。','翻过日常，','又回到日常。'].entries())ctx.fillText(line,330,420+i*52);
  ctx.fillRect(290,616,80,1);ctx.font='21px Georgia, serif';ctx.fillText('01',330,680);
  const words=new THREE.CanvasTexture(canvas);words.colorSpace=THREE.SRGBColorSpace;words.anisotropy=8;
- ink('book-dedication',words,-.065,.125,.165);
- const center=new THREE.Vector3(.047,heightAt(.047,z),z);
+ ink('book-dedication',words,surface.dedication);
+ const center=new THREE.Vector3(surface.centerX,surface.centerY,z);
  return {photo,width,height,center,
   frame(){
    photo.updateWorldMatrix(true,false);

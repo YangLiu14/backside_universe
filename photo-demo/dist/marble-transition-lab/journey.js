@@ -14,13 +14,15 @@ export function sampleJourney(value) {
     label:angle<40?'熟悉的书桌':angle<82?'沿着桌面，走向背后':angle<132?'桌面漫成海，物件成为岛':'原来，书桌是一片群岛'};
 }
 
-export function cameraPose(parameters, progress) {
+export function cameraPose(parameters, progress, aspect=2) {
   const {angle}=sampleJourney(progress);
   const pose=registeredOrbit(parameters,angle,true);
   const t=smooth(40,110,angle),a=THREE.MathUtils.degToRad(angle);
   const target=new THREE.Vector3(.04,.89,-2.36);
   const close=new THREE.Vector3(target.x+.80*Math.sin(a),1.27,target.z+.92*Math.cos(a));
-  const q=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(close,target,new THREE.Vector3(0,1,0)));
+  // On a narrow screen the new canyon sits beyond the old laptop-centred frame.
+  const aim=target.clone();aim.x-=.105*(1-smooth(.95,1.8,aspect))*t;
+  const q=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(close,aim,new THREE.Vector3(0,1,0)));
   pose.position.lerp(close,t);pose.quaternion.slerp(q,t);pose.pivot.lerp(target,t);
   return pose;
 }
@@ -35,7 +37,8 @@ export function applyProjection(camera,parameters,progress,aspect) {
   // centred perspective as the camera approaches; no projection-mode switch.
   const crop=sourceCrop(aspect);
   const start=projectionBounds(parameters,crop,1320,1739,camera.near);
-  const portraitFov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad(55)/2)/aspect));
+  const horizontalFov=55+6*smooth(85,150,progress*180)*(1-smooth(.95,1.8,aspect));
+  const portraitFov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad(horizontalFov)/2)/aspect));
   const fov=Math.max(portraitFov,THREE.MathUtils.lerp(56,39,smooth(85,150,progress*180)));
   const top=camera.near*Math.tan(THREE.MathUtils.degToRad(fov)/2),end=[-top*aspect,top*aspect,top,-top];
   const t=smooth(3,55,progress*180),bounds=start.map((v,i)=>THREE.MathUtils.lerp(v,end[i],t));

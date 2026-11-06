@@ -26,16 +26,16 @@ npm run dev
 | `/marble-lab/index.html` | Marble 1.1 完整照片真实输出，192 万 Gaussian；±12° 空间基本连续，但杯子等物件明显变形，未达到原照还原目标 |
 | `/marble-hybrid-lab/index.html` | 保留 Marble 房间，用校准电脑、蓝杯、书本/Hi3D 纸页与原照纹理替换局部；支持同机位对照、大角度和自由观察，接缝与隐藏面仍待改善 |
 | `/marble-refined-lab/index.html` | 修正杯柄、书边和连续桌面补面；同机位切换上一版，近桌±120°路径与自由移动；隐藏面仍为近似 |
-| `/marble-transition-lab/index.html` | 4.8秒连续绕行至180°，共用校准物件，从Marble实景交接到联动度假世界；可逆拖动和同机位检查 |
+| `/marble-transition-lab/index.html` | 主体验：4.8秒绕行至180°，新版洞窟与精细书屋已放在桌面电脑背后；连续靠近、推门、读书页并回到原3DGS |
 | `/holiday-assets/index.html` | 10组已生成小物件的模型审阅页；蓝杯暂停，部分形态仍需精修 |
 | `/holiday-assets/laptop-spatial.html` | 电脑背面立体小岛、独立Tripo书屋、约25°屏幕倾角；保留旧版对照 |
 | `/holiday-assets/islands-unified.html` | 蓝书、橙书、手机的整体背面展开态，三件实际GLB与旧版对照；可用`#blue-book`、`#orange-book`、`#phone`直达 |
 | `/holiday-assets/laptop-unified.html` | 整体洞窟外观，完整电脑/景观/旧版对照；已接入互动书屋入口 |
 | `/holiday-assets/bookroom.html` | 默认新版洞窟书屋；开门进入、书页原图放大回到3DGS、再次返回洞窟；`?island=v3`保留旧版 |
 
-书屋通过原图书页回到Marble实景，群岛提供再次进入洞窟的入口；新物件的展开态GLB尚未整体替换主桌面。
+主桌面电脑已接入完整洞窟与原精细书屋，从群岛到露台共用场景、相机与渲染器，书页原图再交接回Marble实景。绕行中，蓝书白崖、橙书峡谷和手机潮港从各自的桌面位置展开，正反向共用同一水位与深度遮挡。到达 180° 后自动进入群岛自由浏览。拖动可在当前位置环顾，Shift 拖动平移，滚轮沿视线推近拉远；手机可用单指环顾、双指平移或捏合。点击小岛或从右上角选择目的地即可近看，「全景」复位。按住方向键或 WASD 可连续前后左右移动，Q/E 降低或升高，IJKL 可用键盘环顾。
 
-用户已认可 `marble-refined-lab` 作为基础。独立 `marble-transition-lab` 使用原版房间与 Hi3D 资产，并以固定正面遮挡约束把景观藏在物件后方：电脑背板小镇、书后小村、杯内码头随绕行显露；桌面在68°–132°逐渐成为海水，把独立物件连成群岛。海面前版本保留在 `marble-islands-before-sea`。调整前版本保留在 `marble-transition-restored`，首版在 `marble-transition-first-pass`；原主 demo 和其他 Marble 对照页保留。外围配准和隐藏容积裁剪仍有局限，详见 `docs/MARBLE_TRANSITION.md`。
+用户已认可 `marble-refined-lab` 作为基础。独立 `marble-transition-lab` 使用原版房间与 Hi3D 资产，其中杯内码头保留固定正面遮挡约束；电脑背板小镇已由完整洞窟替换，随实景→建模交接显现；桌面在68°–132°逐渐成为海水，把独立物件连成群岛。海面前版本保留在 `marble-islands-before-sea`。调整前版本保留在 `marble-transition-restored`，首版在 `marble-transition-first-pass`；原主 demo 和其他 Marble 对照页保留。外围配准和隐藏容积裁剪仍有局限，详见 `docs/MARBLE_TRANSITION.md`。
 
 ## 文档与资产
 
@@ -75,7 +75,27 @@ PATH="$PWD/experiments/gaussian/.venv/bin:$PATH" npm run check:marble-assets
 # 完整本地资产就绪后：语法、几何、时间线和资产检查
 npm run check
 
-# 书页取景、原图哈希、重复交接与载入失败恢复
+# 主桌面洞窟配准、同一相机循环、原路退出和失败恢复
+npm run check:desktop-bookroom
+
+# 从已有的完整版洞窟重建桌面远景；进入书屋时才载入近景和家具
+blender -b -t 4 --python-exit-code 1 -P scripts/build-grotto-overview.py
+
+# 本地服务和 Playwright 就绪后，检查冷启动、书屋延迟载入与逐顶点书页配准
+npm run check:desktop-startup
+node scripts/bake-book-pages.cjs
+# 换书桌资产时，重新采样两页：node scripts/bake-book-pages.cjs --write
+
+# 从三件已有的 model-unified-v2.glb 重建两档主桌面模型
+blender -b -t 4 --python-exit-code 1 -P scripts/build-desktop-islands.py
+
+# 启动本地服务后，以 Playwright 验证三岛、弱网回退、窄屏和书屋循环
+npm run check:desktop-islands
+
+# 同一浏览器环境下验证自由浏览、触控与书屋往返
+npm run check:desk-explore
+
+# 书页取景、原图哈希、独立审阅页重复交接与载入失败恢复
 npm run check:bookroom-loop
 
 # 海风书屋完整进出、家具避让与窄屏检查（资产和本机Playwright就绪）

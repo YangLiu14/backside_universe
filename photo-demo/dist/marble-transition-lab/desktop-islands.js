@@ -1,0 +1,179 @@
+import * as THREE from '../vendor/three.module.js';
+
+const V = THREE.Vector3;
+const ease = (a, b, value) => THREE.MathUtils.smoothstep(value, a, b);
+
+// Measurements in the reviewed GLBs' Y-up coordinates. Water is sampled at
+// the open mouth of each bay, rather than at the bottom of its book/phone case.
+const designs = {
+  'blue-book': {size:[.87088,.39542,.97882], water:.015, berth:[0,.17], accessory:[.02,.97], yaw:.14,
+    coast:[[-.384,-.065],[-.201,-.427],[-.040,-.484],[.243,-.372],[.426,-.222],[.403,-.044],[-.036,.485],[-.391,.354]]},
+  'orange-book': {size:[.81833,.42667,.97995], water:.017, berth:[-.32,-.21], accessory:[0,.41], yaw:-.18,
+    coast:[[-.409,.472],[-.398,-.199],[-.125,-.479],[.360,-.480],[.401,-.464],[.409,.472],[.357,.488],[-.218,.486]]},
+  phone: {size:[.57172,.19985,.98074], water:.012, berth:[-.075,-.49], yaw:0,
+    coast:[[-.285,.374],[-.266,-.368],[.062,-.484],[.179,-.405],[.272,-.077],[.284,.355],[.227,.464],[-.185,.490]]},
+};
+
+function fittedCorners(group, fit) {
+  return [[-1,-1],[1,-1],[1,1],[-1,1]].map(([x,z]) =>
+    group.localToWorld(new V(x*fit.width/2, 0, z*fit.depth/2)));
+}
+
+function bookCorners(cover) {
+  return [0,1,2,3].map(i => cover.localToWorld(new V().fromBufferAttribute(cover.geometry.attributes.position,i)));
+}
+
+function register(corners, design, offset, surface) {
+  const center = corners.reduce((sum,p) => sum.add(p), new V()).multiplyScalar(.25);
+  const a = corners[1].clone().sub(corners[0]).add(corners[2]).sub(corners[3]).multiplyScalar(.5);
+  const b = corners[3].clone().sub(corners[0]).add(corners[2]).sub(corners[1]).multiplyScalar(.5);
+  const [long,short] = a.length()>b.length() ? [a,b] : [b,a];
+  const [w,h,d] = design.size;
+  const scale = Math.min(long.length()/d,short.length()/w);
+  const up = new V(surface(0,0)-surface(1,0),1,surface(0,0)-surface(0,1)).normalize();
+  const front = long.clone().projectOnPlane(up).normalize();
+  if (front.z>0) front.negate();
+  front.applyAxisAngle(up,design.yaw);
+  const right = up.clone().cross(front);
+  const root = new THREE.Group();
+  root.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right,up,front));
+  root.scale.setScalar(scale);
+  const port = center.clone().add(offset);
+  port.y = surface(port.x,port.z);
+  // The tiny bias preserves the scanned tide-pool surface above the desk water.
+  const seated = port.clone().addScaledVector(up,.00065-design.water*scale);
+  const shore = design.coast.map(([x,z]) => {
+    const p = port.clone().addScaledVector(right,x*scale).addScaledVector(front,z*scale);
+    return new THREE.Vector2(p.x,p.z);
+  });
+  const bounds=new THREE.Box3(new V(-w/2,0,-d/2),new V(w/2,h,d/2))
+    .applyMatrix4(new THREE.Matrix4().compose(seated,root.quaternion,root.scale));
+  return {root, up, seated, shore, bounds, length:d*scale, height:h*scale};
+}
+
+// The source meshes are shared by the GS and modeled captures. Only the
+// modeled pass moves them, and restores their exact local pose after drawing.
+function movingPart(object, worldOffset) {
+  const start = object.position.clone();
+  const inverse = object.parent.matrixWorld.clone().invert();
+  const delta = worldOffset.clone().applyMatrix4(inverse).sub(new V().applyMatrix4(inverse));
+  return {apply(amount, visible=true){
+    object.position.copy(start).addScaledVector(delta,amount);
+    object.visible=visible;
+  }};
+}
+
+// Use the mesh vertices: the bounds of a rotated book overestimate its height
+// above this slightly tilted desktop and leave a page sticking through the rim.
+function clearanceAboveDesk(object, lateral, surface, extreme) {
+  let clearance=extreme===Math.min?Infinity:-Infinity;
+  object.traverse(child=>{
+    if(!child.isMesh)return;
+    const vertices=child.geometry.attributes.position,p=new V();
+    for(let i=0;i<vertices.count;i++){
+      p.fromBufferAttribute(vertices,i).applyMatrix4(child.matrixWorld);
+      clearance=extreme(clearance,p.y-surface(p.x+lateral.x,p.z+lateral.z));
+    }
+  });
+  return clearance;
+}
+
+export function createDesktopIslands({scene, registered, details, fit, desk, surface, loader, invalidate, report}) {
+  desk.updateWorldMatrix(true,true);
+  registered.group.updateWorldMatrix(true,true);
+  const delta = ([x,z]) => new V(x,0,z).applyMatrix4(desk.matrixWorld).sub(new V().applyMatrix4(desk.matrixWorld));
+  const named = name => registered.group.getObjectByName(name);
+  const hosts = {
+    'blue-book': {corners:bookCorners(named('book-cover')), body:[named('book-cover'),named('book-pages')], accessory:named('hi3d-paper-0')},
+    'orange-book': {corners:fittedCorners(details.book,fit.orangeBook), body:[details.book], accessory:details.headphones},
+    phone: {corners:fittedCorners(details.phone,fit.phone), body:[details.phone,details.lensGroup]},
+  };
+  const entries = Object.entries(designs).map(([id,design])=>{
+    const host=hosts[id], berth=delta(design.berth);
+    const entry=register(host.corners,design,berth,surface);
+    entry.root.name='Desktop island / '+id;
+    entry.root.visible=false;
+    scene.add(entry.root);
+    const sink=berth.clone().addScaledVector(entry.up,-.055);
+    const body=host.body.map(o=>movingPart(o,sink));
+    const highest=Math.max(...host.body.map(o=>clearanceAboveDesk(o,new V(),surface,Math.max)));
+    const submergedAt=highest/(surface(sink.x,sink.z)-surface(0,0)-sink.y);
+    let accessory;
+    if(host.accessory){
+      const drift=delta(design.accessory);
+      drift.y=.001-clearanceAboveDesk(host.accessory,drift,surface,Math.min);
+      accessory=movingPart(host.accessory,drift);
+    }
+    // Static desktop shadows are baked before these ordinary pieces sail apart.
+    for(const part of [...host.body,host.accessory].filter(Boolean)){
+      part.traverse(o=>{if(o.isMesh){o.castShadow=false;o.layers.enable(3);}});
+    }
+    return {...entry,id,body,accessory,submergedAt,models:{},requests:{},failed:new Set(),level:'ordinary',amount:0};
+  });
+
+  let warming, prepared=false, currentSea=0;
+  function warn(){
+    const missing=entries.filter(e=>e.failed.has('far')).map(e=>({'blue-book':'蓝书','orange-book':'橙书',phone:'手机'})[e.id]);
+    report(missing.length ? missing.join('、')+'的景观未能载入，暂时显示原物件。' : '');
+  }
+  function load(entry,lod){
+    if(entry.requests[lod])return entry.requests[lod];
+    entry.requests[lod]=loader.loadAsync('../holiday-assets/assets/'+entry.id+'/desktop-'+lod+'.glb').then(({scene:model})=>{
+      model.traverse(o=>{if(o.isMesh){o.layers.enable(3);o.receiveShadow=true;o.castShadow=false;}});
+      model.visible=false;entry.root.add(model);entry.models[lod]=model;
+      entry.failed.delete(lod);
+      if(lod==='far'&&currentSea>.04)entry.lateArrival=performance.now();
+      invalidate();
+    }).catch(()=>{entry.failed.add(lod);if(lod==='far')warn();});
+    return entry.requests[lod];
+  }
+  function prepare(){
+    if(!warming)warming=Promise.all(entries.map(e=>load(e,'far'))).then(()=>{prepared=true;warn();invalidate();});
+    return warming;
+  }
+  const eye=new V();
+  function update(amount,view,physicalHeight,allowDetail,seaMaterial,reduced){
+    currentSea=amount;
+
+    for(const [index,e] of entries.entries()){
+      e.amount=e.models.far?ease(.04,.94,amount):0;
+      if(e.lateArrival){
+        const arrival=reduced?1:ease(0,550,performance.now()-e.lateArrival);
+        e.amount*=arrival;
+        if(arrival<1)invalidate();else e.lateArrival=0;
+      }
+      const rise=ease(.17,1,e.amount);
+      seaMaterial.setShoreBlend(index,rise);
+      e.root.visible=rise>0;
+      e.root.position.copy(e.seated).addScaledVector(e.up,-(1-rise)*(e.height+.003));
+      if(!e.root.visible){e.level='ordinary';continue;}
+      const depth=-eye.copy(e.seated).applyMatrix4(view.matrixWorldInverse).z;
+      const pixels=depth>view.near ? physicalHeight*view.projectionMatrix.elements[5]*e.length/(2*depth) : 0;
+      if(allowDetail && pixels>110 && !e.requests.near)load(e,'near');
+      const near=!!e.models.near && pixels>(e.level==='near'?85:100);
+      e.level=near?'near':'far';
+      e.models.far.visible=!near;
+      if(e.models.near)e.models.near.visible=near;
+    }
+  }
+  return {
+    prepare, get prepared(){return prepared;},
+    retryMissing(){
+      const missing=entries.filter(e=>e.failed.has('far'));
+      if(!missing.length)return;
+      for(const e of missing){delete e.requests.far;e.failed.delete('far');}
+      warming=null;prepare();
+    },
+    destinations:entries.map(({id,root,bounds})=>[id,{root,bounds}]),
+    shores:entries.map(e=>e.shore),update,
+    applyPass(modeled){
+      for(const e of entries){
+        const amount=modeled?e.amount:0;
+        const drop=ease(.15,.88,amount);
+        for(const body of e.body)body.apply(drop,amount===0||drop<e.submergedAt);
+        e.accessory?.apply(ease(0,.58,amount));
+      }
+    },
+    get state(){return entries.map(e=>({id:e.id,level:e.level,amount:e.amount,loaded:Object.keys(e.models),failed:[...e.failed],scale:e.root.scale.x,shore:e.shore.map(p=>p.toArray())}));},
+  };
+}

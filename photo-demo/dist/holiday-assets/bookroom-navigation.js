@@ -1,6 +1,17 @@
 // Visibility graph over the room, doorway and furniture corners. Every segment
 // uses the same clearance check as manual walking; animation never smooths a
 // corner through an obstacle.
+export function canStandInRoom(x,y,{room,terraceMaxY,openAngle,doorOpen,furniture=[]}){
+ const m=.007,inside=x>room.minX+m&&x<room.maxX-m&&y>room.minY+m&&y<room.maxY-m;
+ const terrace=x>-.052&&x<.100&&y>.700&&y<terraceMaxY;
+ const passage=x>room.doorMin+m&&x<room.doorMax-m&&y>.657&&y<.727;
+ if(!(inside||terrace||passage))return false;
+ if(!doorOpen&&y>.665&&y<.702)return false;
+ if(doorOpen){const ax=.011,ay=.684,bx=ax+.064*Math.cos(openAngle),by=ay+.064*Math.sin(openAngle),dx=bx-ax,dy=by-ay,t=Math.max(0,Math.min(1,((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy)));if(Math.hypot(x-ax-t*dx,y-ay-t*dy)<.008)return false;}
+ for(const f of furniture){const b=f.bounds;if(x>b.min[0]-.006&&x<b.max[0]+.006&&-y>b.min[2]-.006&&-y<b.max[2]+.006)return false;}
+ return true;
+}
+
 export function planWalk(start,end,walkable,furniture){
  const clear=(a,b)=>{const n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/.0001));for(let i=0;i<=n;i++){const t=i/n;if(!walkable(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t))return false;}return true;};
  if(!walkable(...start)||!walkable(...end))return null;

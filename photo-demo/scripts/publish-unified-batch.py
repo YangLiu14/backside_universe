@@ -39,7 +39,7 @@ for asset_id, (yaw, review) in items.items():
         'generation':submission,'source':report,'webModel':model,
         'geometryModification':'none; web compression only; no nonuniform scaling',
         'ordinaryAssetPreserved':True,'separateLandscapePartsAssembled':False,
-        'doorInteraction':False,'animatedWater':False,'mainDesktopIntegrated':False,
+        'doorInteraction':False,'animatedWater':False,'mainDesktopIntegrated':True,
         'review':review,'reviewStatus':'first whole-island model; detail refinement remains',
     }
     submission.update(status='completed-and-downloaded',sourceFile='source.glb')
@@ -64,6 +64,6 @@ for path in [web/'catalog.json', evidence/'catalog-state.json']:
         asset['study']=f'islands-unified.html#{asset_id}'
         asset['studyLabel']='查看新版背面展开态 →'
         asset['reviewStatus']='新版整体景观已生成'
-        asset['reviewNote']=record['note']+' 新版为背面展开态；原物件与旧版薄边模型保留作对照，收展及桌面接入待完成。'
+        asset['reviewNote']=record['note']+' 新版展开态已接入主桌面，原物件与旧版薄边模型保留作对照。'
     path.write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+'\n')
 print(json.dumps({k:{'triangles':v['model']['triangles'],'bytes':v['model']['bytes']} for k,v in records.items()},indent=2))
