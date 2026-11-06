@@ -4,6 +4,8 @@ import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
 import {createDesktopIslands} from './desktop-islands.js';
 import {createRoom} from '../room.js';
 import {createHiddenWorld} from './hidden-world.js';
+import {createUnderDeskOcean} from './under-desk-ocean.js';
+import {waterCap} from './ocean-surface.js';
 import {createDesktopSea} from './desktop-sea.js';
 
 // The original art direction and complete Hi3D island, registered to Marble.
@@ -62,14 +64,21 @@ export async function createHoliday(scene,meta,registeredObjects,renderer,{inval
   const corners=calibration.corners.map(([u,v])=>{const ray=new THREE.Vector3((u-K[2])/K[0],(v-K[3])/K[1],1);return ray.multiplyScalar(1/plane.dot(ray)).applyMatrix3(R).add(C);});
   const shape=new THREE.Shape();corners.forEach((p,i)=>{const enter=p.clone().lerp(corners[(i+3)%4],.035),leave=p.clone().lerp(corners[(i+1)%4],.035);if(!i)shape.moveTo(enter.x,-enter.z);else shape.lineTo(enter.x,-enter.z);shape.quadraticCurveTo(p.x,-p.z,leave.x,-leave.z);});shape.closePath();
   const geo=new THREE.ExtrudeGeometry(shape,{depth:.026,bevelSize:.004,bevelThickness:.004,bevelEnabled:true,bevelSegments:4,curveSegments:16});geo.rotateX(-Math.PI/2);
-  const pos=geo.attributes.position,uv=geo.attributes.uv;
+  const pos=geo.attributes.position,uv=geo.attributes.uv,retained=[];
+  // Replace only the flat top triangles with a finely sampled wave surface.
+  for(let i=0;i<pos.count;i+=3)if(geo.attributes.normal.getY(i)<.99999)retained.push(i,i+1,i+2);
+  geo.setIndex(retained);
   for(let i=0;i<pos.count;i++){
     const x=pos.getX(i),z=pos.getZ(i),local=new THREE.Vector3(x,surface(x,z),z).applyMatrix4(inverse);
     pos.setY(i,pos.getY(i)+surface(x,z)-.030);uv.setXY(i,(local.x+2.1)/4.2,1-(local.z+.85)/1.7);
-  }geo.computeVertexNormals();
+  }
+  geo.computeVertexNormals();geo.setAttribute('waveWeight',new THREE.Float32BufferAttribute(new Float32Array(pos.count).fill(-1),1));
   const sea=createDesktopSea(assets.desk,registeredObjects.group,islands.shores);
-  const table=new THREE.Mesh(geo,sea.material);table.name='Original tabletop becoming a single sea';table.receiveShadow=true;scene.add(table);
-  const seaPlane=new THREE.Vector4(normal.x,normal.y,normal.z,-constant+normal.y*.004).multiplyScalar(1/normal.length());
+  const table=new THREE.Mesh(waterCap(shape,surface,inverse,sea.coasts),sea.material);
+  table.name='Original tabletop becoming a single sea';table.receiveShadow=true;scene.add(table);
+  const rim=new THREE.Mesh(geo,sea.material);rim.receiveShadow=true;table.add(rim);
+  const ocean=createUnderDeskOcean(scene,corners,surface,sea.clock);
+  const seaPlane=new THREE.Vector4(normal.x,normal.y,normal.z,-constant).multiplyScalar(1/normal.length());
 
   const studio=new THREE.Scene();studio.background=new THREE.Color('#8e9695');
   for(const [position,size,color,intensity] of [[[-3,4,-3],[8,5],'#eef4f4',2.6],[[4,1,4],[5,5],'#c8c3b7',1]]){
@@ -82,9 +91,17 @@ export async function createHoliday(scene,meta,registeredObjects,renderer,{inval
   // Scale physical light power to the new metric dimensions.
   room.lampLight.intensity=.20;room.lampLight.distance=1.5;
   let previousTime;
-  return {islands,sea,corners,group:coast.group,grotto:coast.grotto,table,seaPlane,houseReady:coast.cottageReady,islandSource:coast.islandSource,maskMaterial:coast.maskMaterial,surface,environment,sun,legacy,
+  return {islands,sea,ocean,corners,group:coast.group,grotto:coast.grotto,table,seaPlane,houseReady:coast.cottageReady,islandSource:coast.islandSource,maskMaterial:coast.maskMaterial,surface,environment,sun,legacy,
+    animateOcean(time,amount){
+      sea.clock.value=time;ocean.update(amount,time);
+      const height=1-ocean.extent;
+      room.deskSupports.visible=height>.005;room.deskSupports.scale.y=height;room.deskSupports.position.y=-1.56*(1-height);
+    },
     update(time,view,seaAmount=0){
-      if(time!==previousTime){coast.update(time);previousTime=time;}sea.update(time,seaAmount);room.lampLight.intensity=.22;room.lampLight.distance=1.5;
-      if(view){const local=view.position.clone().applyMatrix4(inverse);for(const wall of room.windowObjects)wall.visible=local.z>-1.15;room.sideWall.visible=local.x<3.65;room.poster.visible=room.sideWall.visible;}
+      if(time!==previousTime){coast.update(time);previousTime=time;}sea.setAmount(seaAmount);room.lampLight.intensity=.22;room.lampLight.distance=1.5;
+      if(view){
+        // Once inside the water, the miniature ocean supplies the distant view.
+        legacy.visible=!(seaAmount>.95 && view.position.y<surface(view.position.x,view.position.z)-.015 && ocean.contains(view.position));
+        const local=view.position.clone().applyMatrix4(inverse);for(const wall of room.windowObjects)wall.visible=local.z>-1.15;room.sideWall.visible=local.x<3.65;room.poster.visible=room.sideWall.visible;}
     }};
 }

@@ -24,8 +24,9 @@ export function createRoom(scene,photoCamera,photoTexture,assets={}){
   const deskUV=desktopGeo.attributes.uv,deskPos=desktopGeo.attributes.position;
   for(let i=0;i<deskUV.count;i++)deskUV.setXY(i,(deskPos.getX(i)+hw)/(hw*2),1-(deskPos.getZ(i)+hd)/(hd*2));
   const desktop=add(desktopGeo,[photographicMaterial(assets.desk,{roughness:.8,retention:.92}),white],[0,-.078,0]);
-  box(2.45,1.4,.15,edge,[0,-.78,.2]);
-  for(const x of [-1.48,1.48]){box(.2,1.5,.16,white,[x,-.83,.18]);box(.32,.1,1.28,white,[x,-1.56,.35]);}
+  const deskSupports=new THREE.Group();root.add(deskSupports);
+  box(2.45,1.4,.15,edge,[0,-.78,.2],deskSupports);
+  for(const x of [-1.48,1.48]){box(.2,1.5,.16,white,[x,-.83,.18],deskSupports);box(.32,.1,1.28,white,[x,-1.56,.35],deskSupports);}
   const floor=box(14,.1,14,material('#8a745c',.88),[0,-1.68,0]);
   const rug=box(5.6,.015,4.7,material('#334752',.95),[.3,-1.617,1]);
   for(let j=0;j<24;j++)box(5.6,.001,.07,material(j%2?'#465b68':'#223847',.96),[.3,-1.608,-1.25+j*.19]);
@@ -113,6 +114,6 @@ export function createRoom(scene,photoCamera,photoTexture,assets={}){
   const distance=cupPosition.clone().add(new THREE.Vector3(0,.13,0)).sub(photoCamera.position).dot(forward),planeHeight=2*distance*Math.tan(THREE.MathUtils.degToRad(photoCamera.fov/2));
   const photoPlane=new THREE.Mesh(new THREE.PlaneGeometry(planeHeight*W/H,planeHeight),new THREE.MeshBasicMaterial({map:photoTexture,transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));
   photoPlane.position.copy(photoCamera.position).addScaledVector(forward,distance);photoPlane.quaternion.copy(photoCamera.quaternion);photoBack.add(photoPlane);photoPlane.renderOrder=100;
-  return {root,cup,cupPosition,frontAngle,worldParent,lampLight,lamp,lampBase,books,note,screen,screenBack,screenNormal:normal,screenPoints,laptopPoints,lapCentre,laptopObjects,point,photoPlane,desktop,windowObjects,sideWall,poster,armObjects,chair,sideboard,details,
+  return {root,deskSupports,cup,cupPosition,frontAngle,worldParent,lampLight,lamp,lampBase,books,note,screen,screenBack,screenNormal:normal,screenPoints,laptopPoints,lapCentre,laptopObjects,point,photoPlane,desktop,windowObjects,sideWall,poster,armObjects,chair,sideboard,details,
   };
 }

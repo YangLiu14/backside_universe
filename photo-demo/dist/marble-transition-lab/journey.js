@@ -21,7 +21,7 @@ export function cameraPose(parameters, progress, aspect=2) {
   const target=new THREE.Vector3(.04,.89,-2.36);
   const close=new THREE.Vector3(target.x+.80*Math.sin(a),1.27,target.z+.92*Math.cos(a));
   // On a narrow screen the new canyon sits beyond the old laptop-centred frame.
-  const aim=target.clone();aim.x-=.105*(1-smooth(.95,1.8,aspect))*t;
+  const aim=target.clone();aim.y-=.14*smooth(108,172,angle);aim.x-=.105*(1-smooth(.95,1.8,aspect))*t;
   const q=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(close,aim,new THREE.Vector3(0,1,0)));
   pose.position.lerp(close,t);pose.quaternion.slerp(q,t);pose.pivot.lerp(target,t);
   return pose;
@@ -39,7 +39,7 @@ export function applyProjection(camera,parameters,progress,aspect) {
   const start=projectionBounds(parameters,crop,1320,1739,camera.near);
   const horizontalFov=55+6*smooth(85,150,progress*180)*(1-smooth(.95,1.8,aspect));
   const portraitFov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad(horizontalFov)/2)/aspect));
-  const fov=Math.max(portraitFov,THREE.MathUtils.lerp(56,39,smooth(85,150,progress*180)));
+  const fov=Math.max(portraitFov,THREE.MathUtils.lerp(56,46,smooth(85,150,progress*180)));
   const top=camera.near*Math.tan(THREE.MathUtils.degToRad(fov)/2),end=[-top*aspect,top*aspect,top,-top];
   const t=smooth(3,55,progress*180),bounds=start.map((v,i)=>THREE.MathUtils.lerp(v,end[i],t));
   camera.projectionMatrix.makePerspective(...bounds,camera.near,camera.far);

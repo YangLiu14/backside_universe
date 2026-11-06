@@ -6,7 +6,7 @@ const copy = view => ({...view,position:view.position.clone(),rotation:view.rota
 const travelKeys=new Set(['arrowleft','arrowright','arrowup','arrowdown','a','d','w','s','q','e','i','j','k','l']);
 export const isTravelKey=key=>travelKeys.has(key);
 
-// Work in desk coordinates, above the same tilted water plane as the islands.
+// Work in desk coordinates on both sides of the islands' tilted waterline.
 export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,reduced}){
   const {surface,corners}=holiday;
   const limits=new THREE.Box3().setFromPoints(corners).expandByScalar(1.35);
@@ -30,16 +30,21 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
   const keys=new Set(),velocity=new THREE.Vector3(),desired=new THREE.Vector3(),step=new THREE.Vector3();
   let overview,view,motion,lastKeyTime=0;
 
-  function constrain(eye){
+  function constrain(eye,previousY=eye.y){
     eye.clamp(limits.min,limits.max);
     const water=surface(eye.x,eye.z)+.035;
-    let floor=water;
+    const overReef=holiday.ocean.contains(eye);
+    const bed=overReef?holiday.ocean.floor(eye.x,eye.z)+.023:water-.54;
+    let floor=bed,ceiling=Infinity;
     for(const {min,max} of obstacles){
       const dx=Math.max(min.x-eye.x,eye.x-max.x,0),dz=Math.max(min.z-eye.z,eye.z-max.z,0);
       const weight=1-smoothstep(Math.hypot(dx,dz),0,.06);
-      floor=Math.max(floor,lerp(water,max.y+.025,weight));
+      if(weight>0 && eye.y>min.y-.025){
+        if(previousY<=min.y-.025 && dx===0 && dz===0)ceiling=Math.min(ceiling,min.y-.025);
+        else floor=Math.max(floor,lerp(bed,max.y+.025,weight));
+      }
     }
-    eye.y=Math.max(eye.y,floor);
+    eye.y=clamp(eye.y,floor,ceiling);
     return eye;
   }
   function apply(){
@@ -58,17 +63,28 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     if(reduced() || (!to.modified&&!view.modified)){
       view=copy(to);apply();return Promise.resolve(true);
     }
-    return new Promise(done=>{motion={from:copy(view),to:copy(to),time:0,done};});
+    const below=p=>holiday.ocean.contains(p)&&p.y<surface(p.x,p.z)-.025;
+    const diving=to.focus==='reef'&&!below(view.position),surfacing=view.focus==='reef'&&!below(to.position);
+    let waypoint;
+    if(diving||surfacing){
+      waypoint=(diving?to:view).position.clone();
+      waypoint.y=Math.max(view.position.y,to.position.y,surface(waypoint.x,waypoint.z)+.17);
+    }
+    return new Promise(done=>{motion={from:copy(view),to:copy(to),waypoint,time:0,done};});
   }
   function tick(dt,now){
     if(keys.size)advanceKeys(now);
     if(!motion)return;
     const m=motion;
     m.time+=dt;
-    const t=reduced()?1:smoothstep(m.time,0,.55);
+    const t=reduced()?1:smoothstep(m.time,0,m.waypoint?1.05:.55);
     if(t===1){view=copy(m.to);motion=null;}
     else{
-      constrain(view.position.lerpVectors(m.from.position,m.to.position,t));
+      if(m.waypoint){
+        view.position.copy(m.from.position).multiplyScalar((1-t)**2)
+          .addScaledVector(m.waypoint,2*t*(1-t)).addScaledVector(m.to.position,t*t);
+      }else view.position.lerpVectors(m.from.position,m.to.position,t);
+      constrain(view.position);
       view.rotation.slerpQuaternions(m.from.rotation,m.to.rotation,t);
       view.distance=lerp(m.from.distance,m.to.distance,t);view.modified=true;view.focus=m.to.focus;
     }
@@ -96,13 +112,13 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     cancelMotion();
     const distance=view.distance*factor;
     step.set(0,0,distance-view.distance).applyQuaternion(view.rotation);
-    constrain(view.position.add(step));
+    const previousY=view.position.y;constrain(view.position.add(step),previousY);
     view.distance=clamp(distance,.065,1.65);manualChange();
   }
   function pan(right,screenUp){
     cancelMotion();
     step.set(right,screenUp,0).applyQuaternion(view.rotation);
-    constrain(view.position.add(step));manualChange();
+    const previousY=view.position.y;constrain(view.position.add(step),previousY);manualChange();
   }
 
   function advanceKeys(now){
@@ -123,7 +139,8 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     const ramp=-Math.expm1(-18*dt);
     step.copy(desired).multiplyScalar(dt-ramp/18).addScaledVector(velocity,ramp/18);
     velocity.lerp(desired,ramp);
-    if(step.lengthSq()>0)constrain(view.position.add(step));
+    const previousY=view.position.y;
+    if(step.lengthSq()>0)constrain(view.position.add(step),previousY);
     manualChange();
   }
   function key(key,down){
@@ -134,6 +151,7 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     else{keys.delete(key);if(!keys.size)clearKeys();}
   }
   function focus(id){
+    if(id==='reef')return move(holiday.ocean.diveView());
     const item=destinations.get(id);
     if(!item)return;
     const target=item.bounds.getCenter(new THREE.Vector3());

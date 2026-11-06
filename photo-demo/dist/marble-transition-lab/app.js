@@ -22,6 +22,7 @@ const islandGate=.33;
 let pendingIslandSeek=null,waitingForIslands=false,islandGateReleased=false;
 let ready=false,progress=0,playing=null,variant='transition',meta,renderer,camera,compositor,objects,desktop,holiday,realScene,dreamScene;
 let width=1,height=1,frameTimes=[],visitFrames=[],lastFrame=0,settleUntil=0;
+let oceanTime=0;
 let reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function status(message){$('status').textContent=message;}
 function fitBookPhoto(){const [x,y,w,h]=sourceCrop(width/height);Object.assign($('book-photo').style,{width:`${100/w}%`,height:`${100/h}%`,left:`${-x/w*100}%`,top:`${-y/h*100}%`});}
@@ -112,6 +113,10 @@ function updateIslands(amount,allowDetail){
     if(option.disabled===root.visible)option.disabled=!root.visible;
   }
 }
+function animateOcean(dt,amount){
+  if(amount>0&&!reduce)oceanTime+=dt;
+  holiday.animateOcean(oceanTime,amount);
+}
 function frame(now){
   const frameMs=now-lastTick,dt=Math.min(frameMs/1000,.05);lastTick=now;
   if(document.hidden||!embedActive)return;
@@ -119,22 +124,25 @@ function frame(now){
   if(visit?.active){
     const phase=visit.state.stage;holiday.update(sampleJourney(progress).time,camera,phase==='returning'?0:1);
     updateIslands(phase==='returning'?0:1,false);
+    animateOcean(dt,phase==='returning'?0:1);
     renderer.info.reset();
     if(phase==='returning')compositor.render(camera,sampleJourney(0),'transition',false);
-    else if(['approaching','departing'].includes(phase))compositor.render(camera,sampleJourney(1),'dream',false);
+    else if(['approaching','departing','terrace'].includes(phase))compositor.render(camera,sampleJourney(1),'dream',false);
     else compositor.renderVisit(camera);
     canvas.dataset.camera=JSON.stringify(camera.matrixWorld.toArray());canvas.dataset.localCamera=JSON.stringify(visit.state.localCamera);
     visitFrames.push(frameMs);if(visitFrames.length>180)visitFrames.shift();canvas.dataset.visitFrames=JSON.stringify(visitFrames);return;
   }
   const wasPlaying=!!playing;
   if(playing&&pendingIslandSeek===null){const t=clamp01((now-playing.start)/playing.duration),{from,to}=playing;setProgress(THREE.MathUtils.lerp(from,to,smooth(0,1,t)),false);if(t===1&&pendingIslandSeek===null)stop();}
-  if(!ready||(!playing&&now>settleUntil))return;
-  // Keep Spark updated after camera changes; water/palms use progress time, so
-  // a paused or reversed frame has exactly the same scene state.
-  updateIslands(sampleJourney(progress).sea,!playing&&variant!=='real'&&now>settleUntil-300);
-  renderer.info.reset();compositor.render(camera,sampleJourney(progress),variant,$('softness').checked&&!reduce);
+  if(!ready)return;
+  const journey=sampleJourney(progress),live=journey.sea>0&&!reduce&&variant!=='real';
+  if(!playing&&!live&&now>settleUntil)return;
+  animateOcean(variant==='real'?0:dt,journey.sea);
+  // Moving water alone does not change screen-space LOD or the island poses.
+  if(wasPlaying || now<=settleUntil)updateIslands(journey.sea,!playing&&variant!=='real'&&now>settleUntil-300);
+  renderer.info.reset();compositor.render(camera,journey,variant,$('softness').checked&&!reduce);
   if(wasPlaying&&lastFrame){frameTimes.push(now-lastFrame);if(frameTimes.length>1000)frameTimes.shift();}lastFrame=now;
-  canvas.dataset.frameTimes=JSON.stringify(frameTimes);
+  if(wasPlaying)canvas.dataset.frameTimes=JSON.stringify(frameTimes);
 }
 async function boot(){
   meta=await fetch('../marble-refined-lab/assets/scene.json').then(r=>{if(!r.ok)throw Error('未找到保留的 Marble 场景记录');return r.json();});
@@ -294,6 +302,6 @@ window.addEventListener('keyup',event=>{
 });
 canvas.addEventListener('blur',()=>explore?.clearKeys());
 window.addEventListener('blur',()=>{drag=null;gestures?.clear();explore?.clearKeys();visit?.clearKeys();});
-new ResizeObserver(resize).observe(stage);document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();visit?.clearKeys();}else{settleUntil=performance.now()+450;}});
+new ResizeObserver(resize).observe(stage);document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();visit?.clearKeys();}else{lastTick=performance.now();settleUntil=lastTick+450;}});
 window.__marbleTransition={setProgress,setVariant,stop,get visit(){return visit;},get grotto(){return holiday?.grotto;},get state(){return{ready,progress,variant,browsing:browsing(),playing:!!playing,...sampleJourney(progress),visit:visit?.state,camera:camera?.matrixWorld.toArray(),projection:camera?.projectionMatrix.toArray(),compositor:compositor?.stats,houseReady:holiday?.houseReady,frames:frameTimes.slice()};},get islands(){return holiday?.islands.state;},get renderer(){return renderer;},get scene(){return realScene;},get dreamScene(){return dreamScene;},get camera(){return camera;},get objects(){return objects;}};
 boot().catch(error=>{console.error(error);status(`加载未完成：${error.message}。请恢复本地资产后刷新。`);$('loading').dataset.error='true';tellParent('book-world:error');});

@@ -75,8 +75,13 @@ async function checkSubmergedCover(page){
     // Put a copy of the real cover fully under the sea and compare beauty
     // frames. An occluded solid must not leave a sharp rectangle in the mask.
     const cover=t.objects.group.getObjectByName('book-cover').clone();
-    cover.position.set(.018,-.042,.085);cover.visible=true;t.objects.group.add(cover);
     const table=t.dreamScene.getObjectByName('Original tabletop becoming a single sea');
+    // The cutaway now exposes objects seen from the side. Put the entire
+    // probe under the cap, away from the visible edge and its AA footprint.
+    const mid=new T.Box3().setFromObject(table).getCenter(new T.Vector3());
+    const old=new T.Box3().setFromObject(cover).getCenter(new T.Vector3());
+    cover.position.set(mid.x-old.x,-.05,mid.z-old.z);
+    cover.visible=true;t.objects.group.add(cover);
     const tmp=document.createElement('canvas');tmp.width=canvas.width;tmp.height=canvas.height;
     const ctx=tmp.getContext('2d',{willReadFrequently:true});
     const render=async()=>{
@@ -121,6 +126,8 @@ async function checkViewport(browser, mobile){
     }
     await page.click('[data-progress="1"]');
     await settled(page);
+    // Freeze the independent ocean clock for same-frame occlusion comparisons.
+    if(!mobile)await page.click('#reduce-motion');
     const pixels=await imageStats(page);
     for(const item of pixels){
       assert(item.visiblePixels>150,item.id+' must visibly change the rendered frame');
@@ -140,6 +147,7 @@ async function checkViewport(browser, mobile){
     assert(endpoint.equals(await page.locator('#world').screenshot()),'endpoint must be pixel-reversible');
     let frameTimes;
     if(!mobile){
+      await page.click('#reduce-motion');
       await page.click('#home');await page.click('#play');
       await page.waitForFunction(()=>window.__marbleTransition.state.progress===1&&!window.__marbleTransition.state.playing);
       frameTimes=await page.evaluate(()=>{const f=window.__marbleTransition.state.frames.sort((a,b)=>a-b);return {samples:f.length,median:f[f.length>>1],p95:f[Math.floor(f.length*.95)]};});
