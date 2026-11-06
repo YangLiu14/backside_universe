@@ -1,4 +1,5 @@
 import * as THREE from '../vendor/three.module.js';
+import {grottoDraft} from './harbor-waterline.js';
 
 // Rigid registration to the photographed lid: preserve every generated rock,
 // the room proportions and the retained hardware's measured opening angle.
@@ -26,7 +27,7 @@ export function roomFrame(layout){
 // the generated diorama's lower harbor, whose base extends below that hinge.
 export function seatGrotto(registration,surface){
  const shore=new THREE.Vector3(0,-.36,-1).applyMatrix4(registration.matrix);
- const lift=surface(shore.x,shore.z)-.005-shore.y;
+ const lift=surface(shore.x,shore.z)-.005-grottoDraft-shore.y;
  registration.matrix.elements[13]+=lift;
  registration.shoreLift=lift;
  return registration;

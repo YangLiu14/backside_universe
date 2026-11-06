@@ -26,7 +26,23 @@ export async function createObjects(renderer,scene,meta,sourceCamera){
   group.traverse(o=>{if(!o.isMesh)return;meshes.push(o);const old=Array.isArray(o.material)?o.material[0]:o.material;
     const map=old?.map;if(map){map.colorSpace=THREE.NoColorSpace;map.needsUpdate=true;}
     const kind=o.userData.kind;
-    const photoVertex=['book','note'].includes(kind)?vertex.replace('sourceView*world','sourceView*vec4(position,1.)'):vertex;
+    // These vertices are stored in the original calibrated frame. Keep their
+    // photographed pixels attached as the modeled bodies settle into the sea.
+    let photoVertex=vertex.replace('sourceView*world','sourceView*vec4(position,1.)');
+    const inlet=o.name==='saucer'||o.name==='cup-wall';
+    if(inlet){
+      photoVertex='varying vec2 glazeLine;uniform vec3 cupSea;\n#include <morphtarget_pars_vertex>\n'+photoVertex.replace('vec4 world=modelMatrix*vec4(position,1.);',`
+        #include <begin_vertex>
+        #include <morphtarget_vertex>
+        #include <beginnormal_vertex>
+        #include <morphnormal_vertex>
+        vec4 world=modelMatrix*vec4(transformed,1.);
+        glazeLine=vec2(world.y-dot(cupSea,vec3(world.xz,1.)),0.);
+        #ifdef USE_MORPHTARGETS
+          glazeLine.y=morphTargetInfluences[0];
+        #endif
+        `).replace('mat3(modelMatrix)*normal','mat3(modelMatrix)*objectNormal');
+    }
     const material=new THREE.ShaderMaterial({uniforms:{
       sourceView:{value:view},sourceDepth:{value:target.texture},sourcePhoto:{value:o.name==='book-cover'?bookPhoto:photo},glazePhoto:{value:glaze},handle:{value:o.name==='cup-handle'?1:0},cover:{value:o.name==='book-cover'?1:0},
       sourceMask:{value:kind==='cup'?cupMask:kind==='note'?noteMask:laptopMask},K:{value:K},imageSize:{value:size},
@@ -60,6 +76,13 @@ export async function createObjects(renderer,scene,meta,sourceCamera){
         color=mix(color/12.92,pow((color+.055)/1.055,vec3(2.4)),step(vec3(.04045),color));
         gl_FragColor=vec4(color,1.);
       }`,side:THREE.DoubleSide,depthWrite:true,depthTest:true});
+    if(inlet){
+      material.uniforms.cupSea={value:new THREE.Vector3()};
+      material.fragmentShader='varying vec2 glazeLine;\n'+material.fragmentShader.replace('color=mix(color/12.92',`
+        float wash=glazeLine.y*(1.-smoothstep(.001,.008,glazeLine.x));
+        color=mix(color,vec3(.18,.42,.47),.47*wash);
+        color=mix(color/12.92`);
+    }
     o.material=material;materials.push(material);
   });
   const temp=new THREE.Scene();temp.add(group);temp.overrideMaterial=depth;
@@ -91,8 +114,11 @@ export async function createObjects(renderer,scene,meta,sourceCamera){
   const front=sourceCamera.position.clone().sub(center).setY(0).normalize();
   wall.material.uniforms.cupOpening={value:new THREE.Vector4(center.x,center.z,bounds.min.y+.009,bounds.max.y-.012)};
   wall.material.uniforms.cupRear={value:new THREE.Vector2(-front.x,-front.z)};
-  wall.material.vertexShader='varying vec3 cupPoint;\n'+wall.material.vertexShader.replace('vec3 p=(sourceView*world).xyz;','cupPoint=world.xyz;vec3 p=(sourceView*world).xyz;');
-  wall.material.fragmentShader='varying vec3 cupPoint;uniform vec4 cupOpening;uniform vec2 cupRear;\n'+wall.material.fragmentShader.replace('void main(){','void main(){\n if(cupPoint.y>cupOpening.z&&cupPoint.y<cupOpening.w&&dot(normalize(cupPoint.xz-cupOpening.xy),cupRear)>.48)discard;');
+  wall.material.vertexShader='varying vec3 cupPoint;\n'+wall.material.vertexShader.replace('void main(){','void main(){cupPoint=position;');
+  wall.material.fragmentShader='varying vec3 cupPoint;uniform vec4 cupOpening;uniform vec2 cupRear;\n'+wall.material.fragmentShader.replace('void main(){',`void main(){
+    float rear=dot(normalize(cupPoint.xz-cupOpening.xy),cupRear);
+    float sill=cupOpening.z-.019*glazeLine.y*smoothstep(.57,.93,rear);
+    if(cupPoint.y>sill && cupPoint.y<cupOpening.w && rear>.48)discard;`);
   wall.material.needsUpdate=true;
   const coffee=group.getObjectByName('coffee');
   coffee.material=new THREE.MeshStandardMaterial({color:'#8c7b5c',roughness:.28,metalness:0,envMapIntensity:.3,side:THREE.DoubleSide});

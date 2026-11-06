@@ -1,4 +1,5 @@
 import * as THREE from '../vendor/three.module.js';
+import {cupDraft,grottoDraft} from './harbor-waterline.js';
 
 const {clamp, lerp, smoothstep} = THREE.MathUtils;
 const up = new THREE.Vector3(0,1,0);
@@ -11,11 +12,15 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
   const {surface,corners}=holiday;
   const limits=new THREE.Box3().setFromPoints(corners).expandByScalar(1.35);
   const cup=objects.group.getObjectByName('cup-wall');
+  const cupBounds=new THREE.Box3().setFromObject(cup,true)
+    .expandByObject(objects.group.getObjectByName('cup-handle'),true)
+    .expandByObject(objects.group.getObjectByName('saucer'),true);
   const grotto=holiday.grotto.environment;
+  const wetBounds=(box,draft)=>box.translate(new THREE.Vector3(0,-draft,0));
   const destinations=new Map([
     ...holiday.islands.destinations,
     ['grotto',{root:grotto,bounds:new THREE.Box3().setFromObject(grotto)}],
-    ['cup',{root:cup,bounds:new THREE.Box3().setFromObject(objects.group.getObjectByName('saucer')).expandByObject(cup)}],
+    ['cup',{root:cup,bounds:wetBounds(cupBounds,cupDraft)}],
   ]);
   const roots=new Map([...destinations].map(([id,d])=>[d.root,id]));
   roots.set(holiday.grotto.root,'grotto');roots.set(holiday.group,'cup');
@@ -24,7 +29,7 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     if(mesh.userData.kind==='laptop')roots.set(mesh,'grotto');
   }
   const obstacles=[...destinations.values()].map(d=>d.bounds);
-  obstacles.push(new THREE.Box3().setFromObject(objects.group.getObjectByName('laptop-lid')));
+  obstacles.push(wetBounds(new THREE.Box3().setFromObject(objects.group.getObjectByName('laptop-lid')),grottoDraft));
   const ray=new THREE.Raycaster();
   const angles=new THREE.Euler(0,0,0,'YXZ');
   const keys=new Set(),velocity=new THREE.Vector3(),desired=new THREE.Vector3(),step=new THREE.Vector3();
@@ -178,14 +183,14 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     const collect=o=>{if(o.isMesh&&o.layers.test(camera.layers))meshes.push(o);};
     // Test the displayed island poses and the intervening furniture. The
     // compositor normally restores the calibrated source objects after drawing.
-    holiday.islands.applyPass(true);
+    holiday.applyPass(true);
     let hit;
     try{
       for(const group of [dreamScene,objects.group]){
         group.updateWorldMatrix(true,true);group.traverseVisible(collect);
       }
       hit=ray.intersectObjects(meshes,false)[0]?.object;
-    }finally{holiday.islands.applyPass(false);objects.group.updateWorldMatrix(true,true);}
+    }finally{holiday.applyPass(false);objects.group.updateWorldMatrix(true,true);}
     while(hit&&!roots.has(hit))hit=hit.parent;
     if(hit)focus(roots.get(hit));
   }

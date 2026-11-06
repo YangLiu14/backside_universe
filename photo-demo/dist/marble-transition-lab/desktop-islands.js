@@ -1,4 +1,5 @@
 import * as THREE from '../vendor/three.module.js';
+import {harborFits,seatHarborBase} from './harbor-waterline.js';
 
 const V = THREE.Vector3;
 const ease = (a, b, value) => THREE.MathUtils.smoothstep(value, a, b);
@@ -6,11 +7,11 @@ const ease = (a, b, value) => THREE.MathUtils.smoothstep(value, a, b);
 // Measurements in the reviewed GLBs' Y-up coordinates. Water is sampled at
 // the open mouth of each bay, rather than at the bottom of its book/phone case.
 const designs = {
-  'blue-book': {size:[.87088,.39542,.97882], water:.015, berth:[0,.17], accessory:[.02,.97], yaw:.14,
+  'blue-book': {size:[.87088,.39542,.97882], water:.015, draft:.008, berth:[0,.17], accessory:[.02,.97], yaw:.14,
     coast:[[-.384,-.065],[-.201,-.427],[-.040,-.484],[.243,-.372],[.426,-.222],[.403,-.044],[-.036,.485],[-.391,.354]]},
-  'orange-book': {size:[.81833,.42667,.97995], water:.017, berth:[-.32,-.21], accessory:[0,.41], yaw:-.18,
+  'orange-book': {size:[.81833,.42667,.97995], water:.017, draft:.006, berth:[-.32,-.21], accessory:[0,.41], yaw:-.18,
     coast:[[-.409,.472],[-.398,-.199],[-.125,-.479],[.360,-.480],[.401,-.464],[.409,.472],[.357,.488],[-.218,.486]]},
-  phone: {size:[.57172,.19985,.98074], water:.012, berth:[-.075,-.49], yaw:0,
+  phone: {size:[.57172,.19985,.98074], water:.012, draft:.0035, berth:[-.075,-.49], yaw:0,
     coast:[[-.285,.374],[-.266,-.368],[.062,-.484],[.179,-.405],[.272,-.077],[.284,.355],[.227,.464],[-.185,.490]]},
 };
 
@@ -40,15 +41,16 @@ function register(corners, design, offset, surface) {
   root.scale.setScalar(scale);
   const port = center.clone().add(offset);
   port.y = surface(port.x,port.z);
-  // The tiny bias preserves the scanned tide-pool surface above the desk water.
-  const seated = port.clone().addScaledVector(up,.00065-design.water*scale);
+  // Give each inlet enough draft for moving water to pass over its baked base.
+  const seated = port.clone().addScaledVector(up,-design.draft-design.water*scale);
   const shore = design.coast.map(([x,z]) => {
     const p = port.clone().addScaledVector(right,x*scale).addScaledVector(front,z*scale);
     return new THREE.Vector2(p.x,p.z);
   });
+  const berthMatrix=new THREE.Matrix4().compose(seated,root.quaternion,root.scale);
   const bounds=new THREE.Box3(new V(-w/2,0,-d/2),new V(w/2,h,d/2))
-    .applyMatrix4(new THREE.Matrix4().compose(seated,root.quaternion,root.scale));
-  return {root, up, seated, shore, bounds, length:d*scale, height:h*scale};
+    .applyMatrix4(berthMatrix);
+  return {root, up, seated, shore, bounds, berthMatrix, length:d*scale, height:h*scale};
 }
 
 // The source meshes are shared by the GS and modeled captures. Only the
@@ -119,6 +121,7 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
   function load(entry,lod){
     if(entry.requests[lod])return entry.requests[lod];
     entry.requests[lod]=loader.loadAsync('../holiday-assets/assets/'+entry.id+'/desktop-'+lod+'.glb').then(({scene:model})=>{
+      if(harborFits[entry.id])seatHarborBase(model,entry.berthMatrix,surface,harborFits[entry.id]);
       model.traverse(o=>{if(o.isMesh){o.layers.enable(3);o.receiveShadow=true;o.castShadow=false;}});
       model.visible=false;entry.root.add(model);entry.models[lod]=model;
       entry.failed.delete(lod);

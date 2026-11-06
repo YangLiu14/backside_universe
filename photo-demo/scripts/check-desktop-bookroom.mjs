@@ -32,7 +32,9 @@ test('grotto registration preserves shape and aligns the lid hinge and width',()
  const {registration:r,worldFromRoom,toWorld,toRoom}=fixture(),a=new T.Vector3(),q=new T.Quaternion(),s=new T.Vector3();r.matrix.decompose(a,q,s);
  assert(Math.abs(s.x-s.y)<1e-12&&Math.abs(s.x-s.z)<1e-12);assert(r.matrix.determinant()>0);
  assert(new T.Vector3(0,-.2926877737,-.2559156716).applyMatrix4(r.matrix).distanceTo(r.lower.clone().add(new T.Vector3(0,r.shoreLift,0)))<1e-10);
- const shore=new T.Vector3(0,-.36,-1).applyMatrix4(r.matrix);assert(Math.abs(shore.y-surface(shore.x,shore.z)+.005)<1e-12);
+ const shore=new T.Vector3(0,-.36,-1).applyMatrix4(r.matrix);
+ const depth=surface(shore.x,shore.z)-shore.y;
+ assert(depth>.010 && depth<.012,'front base should sit just under the live water');
  assert(Math.abs(.93*s.x-new T.Vector3().fromArray(positions,15).distanceTo(new T.Vector3().fromArray(positions,12)))<1e-10);
  for(const p of [P(.043,.724,.1275),P(.030,.610,.100),P(.200,.530,.045)])assert(toRoom(toWorld(p)).distanceTo(p)<1e-12);
  assert(worldFromRoom.determinant()>0);

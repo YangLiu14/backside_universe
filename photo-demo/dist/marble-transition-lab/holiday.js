@@ -92,13 +92,14 @@ export async function createHoliday(scene,meta,registeredObjects,renderer,{inval
   room.lampLight.intensity=.20;room.lampLight.distance=1.5;
   let previousTime;
   return {islands,sea,ocean,corners,group:coast.group,grotto:coast.grotto,table,seaPlane,houseReady:coast.cottageReady,islandSource:coast.islandSource,maskMaterial:coast.maskMaterial,surface,environment,sun,legacy,
+    applyPass(modeled){coast.applyPass(modeled);islands.applyPass(modeled);},
     animateOcean(time,amount){
       sea.clock.value=time;ocean.update(amount,time);
       const height=1-ocean.extent;
       room.deskSupports.visible=height>.005;room.deskSupports.scale.y=height;room.deskSupports.position.y=-1.56*(1-height);
     },
     update(time,view,seaAmount=0){
-      if(time!==previousTime){coast.update(time);previousTime=time;}sea.setAmount(seaAmount);room.lampLight.intensity=.22;room.lampLight.distance=1.5;
+      if(time!==previousTime){coast.update(time);previousTime=time;}coast.setTide(seaAmount);sea.setAmount(seaAmount);room.lampLight.intensity=.22;room.lampLight.distance=1.5;
       if(view){
         // Once inside the water, the miniature ocean supplies the distant view.
         legacy.visible=!(seaAmount>.95 && view.position.y<surface(view.position.x,view.position.z)-.015 && ocean.contains(view.position));

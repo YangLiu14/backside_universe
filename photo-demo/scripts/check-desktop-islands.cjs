@@ -36,11 +36,22 @@ async function imageStats(page) {
     for(const island of t.islands){
       const root=t.dreamScene.getObjectByName('Desktop island / '+island.id);
       const table=t.dreamScene.getObjectByName('Original tabletop becoming a single sea');
-      const waterY={'blue-book':.015,'orange-book':.017,phone:.012}[island.id];
-      const mouth=root.localToWorld(new T.Vector3(0,waterY,.4));
-      const sample=(x,z)=>new T.Raycaster(new T.Vector3(x,2,z),new T.Vector3(0,-1,0)).intersectObject(table,false)[0];
-      const top=sample(mouth.x,mouth.z);
-      const mouthGap=top?mouth.y-top.point.y:null;
+      // Raycast the visible GLB, at both ends of its inlet. The original
+      // mouth marker alone missed generated water sloping up inside each bay.
+      const sites={
+        'blue-book':[[.075,.015,.333],[.145,.021,-.009]],
+        'orange-book':[[-.093,.017,.371],[-.005,.018,-.149]],
+        phone:[[-.15,.011,.272],[.087,.008,-.111]],
+      };
+      const rayAt=(x,z)=>new T.Raycaster(new T.Vector3(x,2,z),new T.Vector3(0,-1,0));
+      const sample=(x,z)=>rayAt(x,z).intersectObject(table,false)[0];
+      const displayed=[];root.traverseVisible(o=>{if(o.isMesh)displayed.push(o);});
+      const bayGaps=sites[island.id].map(site=>{
+        const p=root.localToWorld(new T.Vector3(...site)),ray=rayAt(p.x,p.z);
+        const bed=ray.intersectObjects(displayed,false)[0],sea=sample(p.x,p.z);
+        if(!bed||!sea)throw Error(island.id+' missing harbor sample');
+        return bed.point.y-sea.point.y;
+      });
       const coastInside=island.shore.every(([x,z])=>sample(x,z));
       const meshes=[],textures=new Set();let loadedGeometryBytes=0,triangles=0;
       root.traverse(o=>{
@@ -60,12 +71,79 @@ async function imageStats(page) {
         xMin=Math.min(x,xMin);xMax=Math.max(x,xMax);yMin=Math.min(y,yMin);yMax=Math.max(y,yMax);changed++;
       }
       const textureMiB=[...textures].reduce((n,t)=>n+t.image.width*t.image.height*4*4/3/1048576,0);
-      result.push({id:island.id,level:island.level,loaded:island.loaded,triangles,mouthGap,coastInside,visiblePixels:changed,
+      result.push({id:island.id,level:island.level,loaded:island.loaded,triangles,bayGaps,coastInside,visiblePixels:changed,
         xMin,xMax,yMin,yMax,width:helper.width,height:helper.height,loadedGeometryBytes,textureMiB});
     }
     await snapshot();
     return result;
   });
+}
+
+async function checkHarborWaterlines(page){
+  const gaps=await page.evaluate(async()=>{
+    const T=await import('/vendor/three.module.js'),t=window.__marbleTransition;
+    const table=t.dreamScene.getObjectByName('Original tabletop becoming a single sea');
+    const shell=t.grotto.environment;
+    const cup=t.dreamScene.getObjectByName('Hi3D miniature holiday island');
+    const sample=(model,p)=>{
+      model.updateWorldMatrix(true,true);
+      const ray=new T.Raycaster(new T.Vector3(p.x,2,p.z),new T.Vector3(0,-1,0));
+      return ray.intersectObject(model,true)[0].point.y-ray.intersectObject(table,false)[0].point.y;
+    };
+    return {
+      grotto:[[-.138,-.351,-.907],[-.087,-.358,-.836],[-.256,-.319,-.842]]
+        .map(site=>sample(shell,t.grotto.islandToWorld(new T.Vector3(...site)))),
+      cup:sample(cup,cup.localToWorld(new T.Vector3(0,.04,.44))),
+    };
+  });
+  const [mouth,basin,pier]=gaps.grotto;
+  assert(mouth<-.005 && basin<-.005 && pier>.003,'pool mouth, inner pool, pier deck: '+gaps.grotto);
+  assert(gaps.cup<-.002 && gaps.cup>-.006,'cup shoreline: '+gaps.cup);
+}
+
+// Sample the shared cup during its actual modeled draw, before the compositor
+// restores the dry geometry for the 3DGS pass. Include the crest allowance.
+async function checkCupExposure(page){
+  const result=await page.evaluate(async()=>{
+    const T=await import('/vendor/three.module.js'),t=window.__marbleTransition;
+    const scene=t.dreamScene,table=scene.getObjectByName('Original tabletop becoming a single sea');
+    const previous=scene.onBeforeRender;
+    const sampled=new Promise(resolve=>{
+      scene.onBeforeRender=function(...args){
+        previous.apply(this,args);
+        if(this.overrideMaterial || !this.getObjectByName('saucer'))return;
+        scene.onBeforeRender=previous;
+        const wall=this.getObjectByName('cup-wall'),saucer=this.getObjectByName('saucer');
+        const handle=this.getObjectByName('cup-handle'),{cupOpening,cupRear}=wall.material.uniforms;
+        const {x:cx,y:cz}=cupOpening.value,rear=cupRear.value,point=new T.Vector3();
+        const rayAt=(x,z)=>new T.Raycaster(new T.Vector3(x,2,z),new T.Vector3(0,-1,0));
+        const seaY=(x,z)=>rayAt(x,z).intersectObject(table,false)[0].point.y;
+        const h=seaY(cx,cz),sx=(seaY(cx+.03,cz)-h)/.03,sz=(seaY(cx,cz+.03)-h)/.03;
+        const clearance=p=>p.y-h-sx*(p.x-cx)-sz*(p.z-cz);
+        let rim=0,dry=0,handleGap=Infinity;
+        for(let i=0;i<saucer.geometry.attributes.position.count;i++){
+          saucer.getVertexPosition(i,point).applyMatrix4(saucer.matrixWorld);
+          if(Math.hypot(point.x-cx,point.z-cz)<.052)continue;
+          rim++;if(clearance(point)>.005)dry++;
+        }
+        for(let i=0;i<handle.geometry.attributes.position.count;i++){
+          handle.getVertexPosition(i,point).applyMatrix4(handle.matrixWorld);
+          handleGap=Math.min(handleGap,clearance(point));
+        }
+        const channel=[.026,.037,.050,.055].map(u=>{
+          const hit=rayAt(cx+rear.x*u,cz+rear.y*u).intersectObject(saucer,false)[0];
+          return hit ? clearance(hit.point) : null;
+        });
+        resolve({rim,dry,handleGap,channel,draft:-wall.position.y});
+      };
+    });
+    t.setProgress(1);
+    return sampled;
+  });
+  assert(result.draft<.006 && result.handleGap>.018,JSON.stringify(result));
+  assert(result.rim>50 && result.dry/result.rim>.60,JSON.stringify(result));
+  assert(result.channel[0]!==null && result.channel.every(h=>h===null || h<-.0045),JSON.stringify(result));
+  return result;
 }
 
 async function checkSubmergedCover(page){
@@ -128,12 +206,14 @@ async function checkViewport(browser, mobile){
     await settled(page);
     // Freeze the independent ocean clock for same-frame occlusion comparisons.
     if(!mobile)await page.click('#reduce-motion');
+    await checkHarborWaterlines(page);
+    const cupExposure=await checkCupExposure(page);
     const pixels=await imageStats(page);
     for(const item of pixels){
       assert(item.visiblePixels>150,item.id+' must visibly change the rendered frame');
       assert(item.xMin>1&&item.xMax<item.width-2&&item.yMin>1&&item.yMax<item.height-2,item.id+' cropped');
       assert(item.triangles<=42500);
-      assert(item.coastInside&&Math.abs(item.mouthGap-.00065)<.0002,item.id+' waterline');
+      assert(item.coastInside&&item.bayGaps.every(gap=>gap<-.002&&gap>-.012),item.id+' waterline '+item.bayGaps);
     }
     const endpoint=await page.locator('#world').screenshot({path:path.join(out,mobile?'mobile-back.png':'desktop-back.png')});
     await page.evaluate(()=>window.__marbleTransition.setProgress(.56));
@@ -155,6 +235,7 @@ async function checkViewport(browser, mobile){
     }
     await page.click('#enter-bookroom');
     await page.waitForSelector('[data-visit=terrace][data-visit-busy=false]');
+    await checkHarborWaterlines(page);
     for(const [action,stage] of [['enter','inside'],['read','book'],['photo','desk']]){
       await page.click('[data-visit-action='+action+']');
       await page.waitForSelector('[data-visit='+stage+'][data-visit-busy=false]');
@@ -165,7 +246,7 @@ async function checkViewport(browser, mobile){
     if(mobile)assert.equal(restored.scrollWidth,390);
     assert.equal(new Set(requests).size,requests.length,'cycles must reuse loaded LODs');
     assert.deepEqual(errors,[]);
-    return {pixels,submerged,requests,frameTimes,sourcePasses:await page.evaluate(()=>window.__marbleTransition.state.compositor.passes),cycles:restored.cycles};
+    return {cupExposure,pixels,submerged,requests,frameTimes,sourcePasses:await page.evaluate(()=>window.__marbleTransition.state.compositor.passes),cycles:restored.cycles};
   }finally{await page.close();}
 }
 

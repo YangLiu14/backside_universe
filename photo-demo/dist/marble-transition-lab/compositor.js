@@ -92,18 +92,6 @@ export function createCompositor(renderer,shared,realScene,dreamScene,holiday){
         // Photo-textured shared surfaces already contain exposure. Do not apply
         // the model's highlight rolloff to those same pixels a second time.
         modeled=mix(modeled,filtered(dream,0.),smoothstep(.4,.95,core));
-        // The GLBs bake the coves into their colour maps. Catch the same swell
-        // on upward, turquoise texels at the waterline; preserve stone and book covers.
-        vec3 facet=cross(dFdx(world.xyz),dFdy(world.xyz));
-        float facing=abs(dot(facet,seaPlane.xyz))/max(length(facet),1.e-12);
-        float teal=min(modeled.g-modeled.r,modeled.b-modeled.r);
-        float bay=max(island,destination)*smoothstep(.70,.94,facing)*smoothstep(.018,.073,teal)
-          *(1.-smoothstep(.009,.028,abs(dot(seaPlane,world))))*smoothstep(.80,1.,seaAmount);
-        if(bay>.001){
-          vec2 s=swell(world.xz,oceanTime).yz;
-          float glimmer=smoothstep(.025,.165,dot(s,vec2(.71,.71)));
-          modeled+=bay*(vec3(.080,.125,.105)*glimmer-modeled*.055);
-        }
         float waterPixel=onSea*smoothstep(.80,1.,seaAmount)*(1.-max(core,max(island,destination)));
         for(int i=0;i<4;i++)waterPixel*=smoothstep(-.0008,.0008,dot(oceanPlanes[i],vec4(world.xyz,1.)));
         if(waterPixel>.05 && dot(oceanPlanes[4],vec4(oceanEye,1.))<0.)
@@ -114,7 +102,7 @@ export function createCompositor(renderer,shared,realScene,dreamScene,holiday){
         gl_FragColor=vec4(color,1.);#include <colorspace_fragment>
       }`.replace(';#include',';\n#include')});
   const screen=new THREE.Scene();screen.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),material));const screenCamera=new THREE.Camera();let passes=0;
-  function attach(parent){holiday.islands.applyPass(parent===dreamScene);parent.add(shared.objects);realScene.add(shared.desktop);}
+  function attach(parent){holiday.applyPass(parent===dreamScene);parent.add(shared.objects);realScene.add(shared.desktop);}
   function capture(target,parent,view){attach(parent);renderer.setRenderTarget(target);renderer.render(parent,view);passes++;}
   const focal=new THREE.Vector3();
   return{resize(w,h){const ratio=renderer.getPixelRatio(),W=Math.round(w*ratio),H=Math.round(h*ratio);for(const t of [real,dream,mask,discovery])t.setSize(W,H);uniforms.resolution.value.set(W,H);uniforms.ratio.value=ratio;},

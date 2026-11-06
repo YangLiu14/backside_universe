@@ -1,14 +1,19 @@
 import * as THREE from 'three';
+import {harborFits,seatHarborBase} from './harbor-waterline.js';
 import {buildInterior,P} from '../holiday-assets/bookroom-interior.js';
 import {registerGrotto,roomFrame,seatGrotto} from './grotto-registration.js';
 
 export async function createGrotto(registered,surface,loader){
  const root=new THREE.Group();root.name='Unified grotto and enterable bookroom on the registered laptop';
+ const lid=registered.group.getObjectByName('laptop-lid');
+ const registration=seatGrotto(registerGrotto(lid.geometry.attributes.position.array),surface);
  async function shell(path){
   const asset=await loader.loadAsync('../holiday-assets/assets/'+path);
   const environment=asset.scene.getObjectByName('tripo-unified-grotto-bookhouse-harbor');
   if(!environment)throw Error('未找到新版洞窟外壳');
-  return environment.removeFromParent();
+  environment.removeFromParent();
+  seatHarborBase(environment,registration.matrix,surface,harborFits.grotto);
+  return environment;
  }
  const [overview,layout,interior]=await Promise.all([
   shell('laptop/desktop-grotto.glb'),
@@ -16,8 +21,6 @@ export async function createGrotto(registered,surface,loader){
   buildInterior(root,loader,{furnitureWidthScale:.75,grotto:true,deferFurniture:true}),
  ]);
  root.add(overview);
- const lid=registered.group.getObjectByName('laptop-lid');
- const registration=seatGrotto(registerGrotto(lid.geometry.attributes.position.array),surface);
  const localRoom=roomFrame(layout),worldFromRoom=registration.matrix.clone().multiply(localRoom),roomFromWorld=worldFromRoom.clone().invert();
  interior.root.applyMatrix4(localRoom);root.applyMatrix4(registration.matrix);root.updateMatrixWorld(true);
  interior.root.traverse(o=>{if(o.isPointLight){const s=.75*registration.scale;o.intensity*=s*s;o.distance*=s;}});

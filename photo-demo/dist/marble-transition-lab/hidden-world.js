@@ -1,15 +1,16 @@
 import * as THREE from 'three';
+import {cupDraft,cupCottageDraft,cupHarborDraft,fitCupInlet,grottoDraft,harborFits,seatHarborBase} from './harbor-waterline.js';
 import {createHolidayWorld} from '../island.js';
 import {createGrotto} from './grotto.js';
 
 // A permanent source-camera shadow volume, NOT a progress-dependent reveal.
 // Every fragment must project behind an opaque photographed object, with a
 // small silhouette inset. The same constraint is used by beauty and mask passes.
-export function createHiddenVolume({depth,view,K,size}){
-  const uniforms={hiddenDepth:{value:depth},hiddenView:{value:view},hiddenK:{value:K},hiddenSize:{value:size}};
-  const header=`varying vec3 hiddenWorldPoint;uniform sampler2D hiddenDepth;uniform mat4 hiddenView;uniform vec4 hiddenK;uniform vec2 hiddenSize;
+export function createHiddenVolume({depth,view,K,size},offset=new THREE.Vector3()){
+  const uniforms={hiddenOffset:{value:offset},hiddenDepth:{value:depth},hiddenView:{value:view},hiddenK:{value:K},hiddenSize:{value:size}};
+  const header=`varying vec3 hiddenWorldPoint;uniform vec3 hiddenOffset;uniform sampler2D hiddenDepth;uniform mat4 hiddenView;uniform vec4 hiddenK;uniform vec2 hiddenSize;
     bool outsideHiddenVolume(){
-      vec3 p=(hiddenView*vec4(hiddenWorldPoint,1.)).xyz; p=vec3(p.x,-p.y,-p.z);
+      vec3 p=(hiddenView*vec4(hiddenWorldPoint-hiddenOffset,1.)).xyz; p=vec3(p.x,-p.y,-p.z);
       vec2 q=p.xy/p.z*hiddenK.xy+hiddenK.zw;vec2 uv=vec2(q.x/hiddenSize.x,1.-q.y/hiddenSize.y);
       if(p.z<=0.||any(lessThan(uv,vec2(0.)))||any(greaterThan(uv,vec2(1.))))return true;
       vec2 px=1.5/hiddenSize;
@@ -40,17 +41,41 @@ export function createHiddenVolume({depth,view,K,size}){
 // Only the retained cup harbour uses the permanent source silhouette.
 export async function createHiddenWorld(scene,registered,surface,loader){
   const root=new THREE.Group();root.name='Cup harbour behind the photographed ceramic';scene.add(root);
-  const volume=createHiddenVolume(registered.sourceOcclusion);
+  const volume=createHiddenVolume(registered.sourceOcclusion,root.position);
   const grottoPromise=createGrotto(registered,surface,loader);
   const cup=registered.group.getObjectByName('cup-wall'),bounds=new THREE.Box3().setFromObject(cup),center=bounds.getCenter(new THREE.Vector3());
+  const saucer=registered.group.getObjectByName('saucer'),rear=cup.material.uniforms.cupRear.value;
+  for(const mesh of [cup,saucer])fitCupInlet(mesh,center,rear,surface);
   const cupSlot=new THREE.Group();cupSlot.name='Cup harbour behind ceramic wall';cupSlot.position.set(center.x,bounds.min.y+.008,center.z);cupSlot.rotation.y=Math.PI;cupSlot.scale.setScalar(.039);root.add(cupSlot);
   const [grotto,island]=await Promise.all([grottoPromise,createHolidayWorld(THREE,cupSlot,{islandUrl:'../assets/holiday-island.glb',houseUrl:'../assets/holiday-house.glb'})]);await island.ready;
   if(island.source!=='hi3d-island')throw Error('完整 Hi3D 海岛未加载');
+  // The cottage sits on a shelf inside the raised ceramic. Its beach slopes
+  // down to the lower berth shared by the boat and the open sea.
+  const headland=island.group.getObjectByName('Hi3D miniature holiday island');
+  cupSlot.attach(headland);
+  headland.updateWorldMatrix(true,true);
+  const berth=headland.matrixWorld.clone();berth.elements[13]-=cupCottageDraft;
+  for(const model of headland.children)seatHarborBase(model,berth,surface,harborFits.cup);
   volume.apply(root);
   // The complete generated cavern is revealed with the modeled world. It
   // must not be cut into the old tiny silhouette-constrained shelf geometry.
   scene.add(grotto.root);
-  return{group:root,grotto,maskMaterial:volume.mask,islandSource:island.source,cottageReady:true,update(t){island.update(t);island.setLight(.65);}};
+  const settledY=grotto.root.position.y;
+  const hardware=registered.meshes.filter(o=>['laptop','cup'].includes(o.userData.kind))
+    .map(mesh=>({mesh,y:mesh.position.y,draft:mesh.userData.kind==='cup'?cupDraft:grottoDraft}));
+  let wet=0;
+  return{group:root,grotto,
+    setTide(amount){
+      wet=THREE.MathUtils.smoothstep(amount,0,1);
+      root.position.y=-cupCottageDraft*wet;
+      island.group.position.y=-(cupHarborDraft-cupCottageDraft)*wet/cupSlot.scale.y;
+      grotto.root.position.y=settledY+grottoDraft*(1-wet);
+    },
+    applyPass(modeled){
+      for(const {mesh,y,draft} of hardware)mesh.position.y=y-(modeled?wet*draft:0);
+      cup.morphTargetInfluences[0]=saucer.morphTargetInfluences[0]=modeled?wet:0;
+    },
+    maskMaterial:volume.mask,islandSource:island.source,cottageReady:true,update(t){island.update(t);island.setLight(.65);}};
 }
 
 // A beauty-pass regression check, including the source silhouette and its
