@@ -12,6 +12,8 @@ import bpy
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from register_hd_paper import register_paper
+from refine_canyon import refine_canyon
+from refine_quays import beach_steps, moorings
 
 project = Path(__file__).resolve().parents[1]
 web = project / "dist"
@@ -73,6 +75,12 @@ for asset in args.assets or (sources if args.hd else islands):
                 factor = limit / max(image.size)
                 image.scale(max(1, round(image.size[0]*factor)), max(1, round(image.size[1]*factor)))
                 image.pack()
+        if args.hd and asset == "orange-book":
+            refine_canyon(obj)
+        elif args.hd and asset == "holiday-island":
+            beach_steps()
+        elif args.hd and asset in ("blue-book", "phone"):
+            moorings(asset)
         bpy.ops.export_scene.gltf(filepath=str(path), export_format="GLB",
             export_image_format="JPEG", export_jpeg_quality=94 if args.hd else 86, export_animations=False,
             export_draco_mesh_compression_enable=True, export_draco_mesh_compression_level=6,

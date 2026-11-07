@@ -1,3 +1,4 @@
+import {dressCoast} from './coastal-surfaces.js';
 import * as THREE from '../vendor/three.module.js';
 import {createPhoneCase,fitCoastToCase,handset,handsetShore} from './phone-case.js';
 import {harborFits,seatHarborBase} from './harbor-waterline.js';
@@ -135,6 +136,7 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
           }
         }
       });
+      if(level==='hd')dressCoast(model,entry.id);
       const first=!entry.models.hd&&!entry.models.near;
       if(first&&entry.id==='phone')entry.root.add(createPhoneCase());
       model.visible=false;entry.root.add(model);entry.models[level]=model;
@@ -193,7 +195,7 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
     retryMissing(){
       for(const entry of entries)if(entry.failed.has('hd'))prepareModel(entry,true);
     },
-    destinations:entries.map(e=>[e.id,{root:e.root,bounds:e.bounds,get landed(){return e.amount===1;}}]),
+    destinations:entries.map(e=>[e.id,{root:e.root,bounds:e.bounds,get exterior(){return e.models.hd||e.models.near;},get landed(){return e.amount===1;}}]),
     shores:entries.map(e=>e.shore),update,
     applyPass(modeled){
       for(const e of entries){

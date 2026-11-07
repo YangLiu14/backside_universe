@@ -1,3 +1,4 @@
+import {dressCoast} from './coastal-surfaces.js';
 import * as THREE from 'three';
 import {cupDraft,cupCottageDraft,cupHarborDraft,fitCupInlet,grottoDraft,harborFits,seatHarborBase} from './harbor-waterline.js';
 import {createHolidayWorld} from '../island.js';
@@ -56,7 +57,7 @@ export async function createHiddenWorld(scene,registered,surface,loader){
   headland.updateWorldMatrix(true,true);
   const berth=headland.matrixWorld.clone();berth.elements[13]-=cupCottageDraft;
   for(const model of headland.children)seatHarborBase(model,berth,surface,harborFits.cup);
-  volume.apply(root);
+  volume.apply(root);dressCoast(headland,'cup');
   // The complete generated cavern is revealed with the modeled world. It
   // must not be cut into the old tiny silhouette-constrained shelf geometry.
   scene.add(grotto.root);

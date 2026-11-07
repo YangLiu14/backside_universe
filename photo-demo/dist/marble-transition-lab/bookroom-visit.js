@@ -90,7 +90,7 @@ export function createBookroomVisit(grotto,camera,{aspect,reduced,onChange,onSta
    if(!pendingEntry)return;
    pendingEntry=null;onStatus('可以继续绕行，回到电脑背后时再进入书屋。');changed();
   },
-  async start(landedFrom=null){
+  async start(landedFrom=null,fromWalk=false){
    if(stage!=='desk'||busy||pendingEntry)return;
    if(grotto.prepareVisit){
     const request={};pendingEntry=request;changed();onStatus('正在准备书屋近景，可以继续绕行。');
@@ -104,11 +104,14 @@ export function createBookroomVisit(grotto,camera,{aspect,reduced,onChange,onSta
    }
    return perform(async()=>{
     stage='approaching';changed();
-    if(beforeApproach)await beforeApproach();
+    if(beforeApproach)await beforeApproach(fromWalk);
     returnPose=landedFrom||pose();onStatus('沿着电脑背后的海湾，靠近二层绿门。');
     approachPoints=approachPath(grotto,returnPose.position);
     if(landedFrom)angles();
-    else await fly(approachPoints.slice(1),toWorld(grotto.entryTarget),4200,false,88);
+    else{
+     const terrace=approachPoints.at(-1),nearDoor=fromWalk&&camera.position.distanceTo(terrace)<grotto.registration.scale*.24;
+     await fly(nearDoor?[terrace]:approachPoints.slice(1),toWorld(grotto.entryTarget),nearDoor?600:4200,false,88);
+    }
     stage='terrace';onStatus('来到电脑背后的露台。推开绿门，走进书屋。');
    });
   },

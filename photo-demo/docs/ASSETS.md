@@ -28,6 +28,8 @@ Git 保存源码、校准参数、小型来源元数据、许可证与文字结�
 
 从原模重建时，恢复 `evidence/` 下的 Hi3D 原件、三岛的 Tripo 原件和书屋家具原件，再从 `photo-demo/` 运行高清构建脚本。更换书桌模型后，在本地服务运行时重新采样弯曲书页，并用校验命令确认照片与新桌面吻合。[构建与验证命令](../README.md)
 
+五座岛共用一张 1K 岩石近景细节图。可在 `photo-demo/` 运行 `python3 scripts/build-rock-detail.py`，脚本需要 FFmpeg，会核对原图并将明度、高度和粗糙度打包成 JPEG。应用只请求本地成品。原扫描由 Greg Zaal 摄影、Dario Barresi 处理，采用 CC0 许可。[Poly Haven · Rock Face](https://polyhaven.com/a/rock_face)
+
 ## Spark 运行依赖
 
 版本固定为 `@sparkjsdev/spark@2.4.0`。本地运行文件等同官方包的 `dist/spark.module.min.js`，重命名为 `spark.module.js`。其 SHA256 为：

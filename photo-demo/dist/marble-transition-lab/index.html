@@ -22,18 +22,24 @@
       <div class="scene-caption"><span id="phase">熟悉的书桌</span><small id="angle">0°</small></div>
       <div id="explore-tools" aria-label="群岛自由浏览" hidden>
         <select id="explore-island" aria-label="浏览群岛或潜入海底"><option value="" disabled selected>选择目的地</option><option value="reef">桌下 · 潜入海底</option><option value="blue-book">蓝书 · 白崖</option><option value="orange-book">橙书 · 峡谷</option><option value="phone">手机 · 潮港</option><option value="grotto">电脑 · 洞窟</option><option value="cup">蓝杯 · 走到海滩</option></select>
+        <button id="walk-start">上岛漫步</button>
         <button id="explore-overview" aria-label="回到群岛全景">全景</button>
       </div>
       <p class="gesture" id="gesture">向左拖动，绕到背面 <span>↔</span></p>
       <button id="enter-bookroom" class="bookroom-entry" hidden>走进洞窟书屋 ↗</button>
       <div id="visit-caption" hidden><p id="visit-hint">拖动环顾</p></div>
-      <div id="visit-move-pad" aria-label="在书屋中移动" hidden><button data-walk="w" aria-label="向前移动">↑</button><div><button data-walk="a" aria-label="向左移动">←</button><button data-walk="s" aria-label="向后移动">↓</button><button data-walk="d" aria-label="向右移动">→</button></div></div>
+      <div id="visit-move-pad" aria-label="步行方向" hidden><button data-walk="w" aria-label="向前移动">↑</button><div><button data-walk="a" aria-label="向左移动">←</button><button data-walk="s" aria-label="向后移动">↓</button><button data-walk="d" aria-label="向右移动">→</button></div></div>
       <button id="enter-island-story" class="bookroom-entry" hidden></button>
       <div id="scope-lens" class="scope-lens" aria-hidden="true" hidden></div>
       <p id="harbor-ending" aria-live="polite" hidden>至少在这里，你可以下班了。</p>
       <div id="crossing-veil" aria-hidden="true"></div>
       <div id="loading" role="status"><span class="loading-dot"></span><p id="status">正在准备房间与桌上的假期…</p></div>
     </div>
+    <nav id="walk-tools" aria-label="第一人称漫步" hidden>
+      <select id="walk-place" aria-label="步行地点"><option value="office">3DGS 工位</option><option value="reef">桌下海底</option><option value="cup">蓝杯港湾</option><option value="blue-book">蓝书白崖</option><option value="orange-book">橙书峡谷</option><option value="phone">手机潮港</option><option value="grotto">电脑洞窟</option></select>
+      <span id="walk-hint" role="status"></span>
+      <button id="walk-story">体验本站故事</button><button id="walk-exit">返回群岛</button>
+    </nav>
     <div id="daylight-tools" hidden>
       <label for="lamp-position">长臂台灯</label><span>日出</span>
       <input id="lamp-position" type="range" min="0" max="1000" step="1" value="260" aria-label="移动灯头，调节群岛日照">
@@ -42,7 +48,7 @@
     <div class="transport" id="desk-transport">
       <button id="play" disabled aria-label="播放转场" aria-pressed="false"><span id="play-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></svg></span><span id="play-label">播放转场</span></button>
       <div class="timeline"><div class="ticks"><button data-progress="0" disabled>实景</button><button data-progress="0.32" disabled>交界</button><button data-progress="1" disabled>背面的假期</button></div><input id="progress" type="range" min="0" max="1000" step="1" value="0" disabled aria-label="转场进度"></div>
-      <output id="elapsed">0.0 / 4.8 s</output><button id="home" disabled aria-label="回到实景"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/></svg><span>回到实景</span></button>
+      <output id="elapsed">0.0 / 4.8 s</output><button id="office-walk" hidden>工位漫步</button><button id="home" disabled aria-label="回到实景"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/></svg><span>回到实景</span></button>
     </div>
     <nav id="harbor-controls" aria-label="蓝杯港湾" hidden>
       <p id="harbor-hint" role="status"></p>
@@ -53,6 +59,7 @@
       </div>
       <button id="harbor-action" hidden>折成纸船</button>
       <button id="port-sound" aria-pressed="false" hidden>开启港湾环境声</button>
+      <button id="harbor-walk">在岛上漫步</button>
       <button id="harbor-exit">返回群岛</button>
     </nav>
     <nav id="visit-transport" class="visit-transport" aria-label="书屋参观" hidden>

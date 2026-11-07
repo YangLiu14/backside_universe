@@ -1,3 +1,5 @@
+import {createCoastStair} from './grotto-access.js';
+import {dressCoast} from './coastal-surfaces.js';
 import * as THREE from 'three';
 import {harborFits,seatHarborBase} from './harbor-waterline.js';
 import {buildInterior,P} from '../holiday-assets/bookroom-interior.js';
@@ -13,7 +15,7 @@ export async function createGrotto(registered,surface,loader){
   if(!environment)throw Error('未找到新版洞窟外壳');
   environment.removeFromParent();
   seatHarborBase(environment,registration.matrix,surface,harborFits.grotto);
-  return environment;
+  dressCoast(environment,'grotto');return environment;
  }
  const fullShell='bookroom/shell-grotto-v6.glb';
  let fallback=false,retry;
@@ -22,7 +24,7 @@ export async function createGrotto(registered,surface,loader){
   fetch('../holiday-assets/assets/bookroom/grotto-layout.json').then(r=>{if(!r.ok)throw Error('洞窟布局未能载入');return r.json();}),
   buildInterior(root,loader,{furnitureWidthScale:.75,grotto:true,deferFurniture:true}),
  ]);
- let environment=initial;root.add(environment);
+ let environment=initial;root.add(environment,createCoastStair());
  const localRoom=roomFrame(layout),worldFromRoom=registration.matrix.clone().multiply(localRoom),roomFromWorld=worldFromRoom.clone().invert();
  interior.root.applyMatrix4(localRoom);root.applyMatrix4(registration.matrix);root.updateMatrixWorld(true);
  interior.root.traverse(o=>{if(o.isPointLight){const s=.75*registration.scale;o.intensity*=s*s;o.distance*=s;}});
@@ -42,7 +44,7 @@ export async function createGrotto(registered,surface,loader){
    }).finally(()=>{retry=null;});
   }
   await Promise.all([retry,interior.loadFurniture()]);
-  prepareMeshes(interior.contents);
+  prepareMeshes(interior.contents);dressCoast(interior.contents,'joinery');
  }
  function closeView(on){interior.contents.visible=on;}
  return {root,interior,get environment(){return environment;},prepareVisit,closeView,

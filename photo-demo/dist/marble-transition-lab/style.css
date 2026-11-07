@@ -115,3 +115,12 @@ body.book-portal{height:100vh;overflow:hidden}
 #crossing-veil{position:absolute;inset:0;opacity:0;pointer-events:none}
 #crossing-veil canvas{display:block;width:100%;height:100%}
 #stage[data-crossing] #harbor-ending,.guided-tour:has(#stage[data-crossing]) #harbor-controls{visibility:hidden}
+
+#walk-tools{display:flex;align-items:center;gap:12px;padding:12px 18px;flex-wrap:wrap}
+#walk-tools button,#walk-place,#harbor-walk{font:inherit;font-size:12px;border:1px solid #667b6c;border-radius:4px;background:#283b32;color:#f1ebda;min-height:44px;padding:0 12px}
+#walk-hint{flex:1;color:#c1cbbd;font-size:12px}
+.guided-tour #harbor-walk,.book-portal :is(#harbor-walk,#walk-start),.experience:has(#stage[data-walk]) :is(#story-tour,#explore-tools,#enter-bookroom,#enter-island-story,#gesture,#desk-transport,#harbor-controls,#daylight-tools){display:none}
+main:has(#stage[data-walk]) .inspection{display:none}
+@media(max-width:700px){#explore-tools{max-width:calc(100% - 24px);flex-wrap:wrap;justify-content:flex-end}#walk-tools{gap:6px;padding:8px}#walk-hint{order:1;flex-basis:100%}.stage[data-browsing=true] .scene-caption{display:none}}
+
+@media(pointer:fine){#stage[data-walk] #visit-move-pad{display:none}}

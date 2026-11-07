@@ -1,3 +1,4 @@
+import {dressCoast} from './coastal-surfaces.js';
 import * as THREE from 'three';
 import {createDesktopIslands} from './desktop-islands.js';
 import {createRoom} from '../room.js';
@@ -43,7 +44,7 @@ export async function createHoliday(scene,meta,registeredObjects,renderer,modelL
   // Keep the original well-developed furniture, including the photographed lamp.
   await Promise.all(['chair','lamp'].map(async name=>{
     const fit=generatedFit[name],{scene:model}=await modelLoader.loadAsync('../assets/'+name+'-hd.glb').catch(()=>modelLoader.loadAsync('../assets/'+fit.file));
-    model.scale.setScalar(fit.scale);model.position.fromArray(fit.sourceOrigin).multiplyScalar(-fit.scale);
+    dressCoast(model,name);model.scale.setScalar(fit.scale);model.position.fromArray(fit.sourceOrigin).multiplyScalar(-fit.scale);
     const object=new THREE.Group();object.name='Original Hi3D '+name;object.position.fromArray(fit.position);object.rotation.y=fit.yaw;object.add(model);room.root.add(object);room[name].visible=false;
     model.traverse(o=>{if(!o.isMesh)return;o.castShadow=o.receiveShadow=true;for(const m of Array.isArray(o.material)?o.material:[o.material]){
       m.envMapIntensity=name==='lamp'?1.2:.65;if(m.map)m.map.anisotropy=8;
