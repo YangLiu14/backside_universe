@@ -2,12 +2,12 @@ import * as T from 'three';
 
 // Clip just the surveyed opening out of the scanned balustrade. Keep the
 // outside fragments of crossing triangles, including their original UVs.
-function openGate(mesh,assetFromMesh,box){
+function openGate(mesh,gateFromMesh,box){
   const g=mesh.geometry,position=g.attributes.position,mask=new Uint8Array(position.count);
   const point=new T.Vector3(),cuts=[];
   for(const axis of ['x','y','z'])cuts.push([axis,box.min[axis],1],[axis,box.max[axis],-1]);
   for(let i=0;i<position.count;i++){
-    point.fromBufferAttribute(position,i).applyMatrix4(assetFromMesh);
+    point.fromBufferAttribute(position,i).applyMatrix4(gateFromMesh);
     mask[i]=(point.x<box.min.x)|((point.x>box.max.x)<<1)|((point.y<box.min.y)<<2)|
       ((point.y>box.max.y)<<3)|((point.z<box.min.z)<<4)|((point.z>box.max.z)<<5);
   }
@@ -27,7 +27,7 @@ function openGate(mesh,assetFromMesh,box){
       for(let k=0;k<3;k++)face[k]=index?index.getX(i+k):i+k;
       if(mask[face[0]]&mask[face[1]]&mask[face[2]]){out.push(...face);continue;}
       changed=true;
-      let inside=face.map((i,k)=>({index:i,p:new T.Vector3().fromBufferAttribute(position,i).applyMatrix4(assetFromMesh),
+      let inside=face.map((i,k)=>({index:i,p:new T.Vector3().fromBufferAttribute(position,i).applyMatrix4(gateFromMesh),
         weights:new T.Vector3().setComponent(k,1)}));
       for(const [axis,edge,sign] of cuts){
         if(!inside.length)break;
@@ -66,11 +66,15 @@ function openGate(mesh,assetFromMesh,box){
 
 export function openPassageGates(root,gates){
   root.updateWorldMatrix(true,true);const inverse=root.matrixWorld.clone().invert();
-  for(const [low,high] of gates){
+  for(const [low,high,frame] of gates){
+    // Some landings meet a curved wall on a diagonal. Clip in the landing's
+    // own frame so the back of the cut stays parallel to the doorway.
+    const toGate=frame?new T.Matrix4().makeRotationY(frame.yaw)
+      .setPosition(...frame.origin).invert().multiply(inverse):inverse;
     const gate=new T.Box3(new T.Vector3(...low),new T.Vector3(...high));
     root.traverse(o=>{
       if(!o.isMesh)return;
-      const m=inverse.clone().multiply(o.matrixWorld),g=o.geometry;
+      const m=toGate.clone().multiply(o.matrixWorld),g=o.geometry;
       if(!g.boundingBox)g.computeBoundingBox();
       if(g.boundingBox.clone().applyMatrix4(m).intersectsBox(gate))openGate(o,m,gate);
     });

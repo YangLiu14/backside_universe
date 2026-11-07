@@ -108,7 +108,12 @@ function makePassage({name,width,points,rail},base){
 export function addIslandPassages(root,id){
   if(!passages[id])return;
   const gates={
-    'blue-book':[[[-.025,.243,.162],[.013,.291,.205]],[[.254,.204,-.143],[.297,.274,-.104]]],
+    'blue-book':[
+      [[-.025,.243,.162],[.013,.291,.205]],
+      // Cut across the full rail, parallel to the observatory entrance.
+      // Its arched stone facade sits directly behind the inner lip of the rail.
+      [[-.021,.204,.0097],[.021,.239,.049],{origin:[.2764,0,-.146],yaw:Math.atan2(-.31,.95)}],
+    ],
     'orange-book':[[[.202,.288,.332],[.248,.362,.390]]],
   };
   if(gates[id])openPassageGates(root,gates[id]);

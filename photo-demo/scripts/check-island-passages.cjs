@@ -13,6 +13,27 @@ async function checkIsland(id){
   const desk=world.getObjectByName('Restored original modeled room');
   const plane=new T.Plane().setFromCoplanarPoints(...[[0,0,0],[1,0,0],[0,0,1]].map(p=>desk.localToWorld(new T.Vector3(...p))));
   const sea=(x,z)=>(-plane.constant-plane.normal.x*x-plane.normal.z*z)/plane.normal.y;
+  if(id==='blue-book'){
+    // Probe the masonry itself (not the door leaf or the opposite wall).
+    // Door-local +Z faces the landing; the stone arch rises above the leaf.
+    const sill=world.getObjectByName('圆亭观星室 / 门槛'),unit=sill.getWorldScale(new T.Vector3()).x;
+    const toward=new T.Vector3(0,0,-1).transformDirection(sill.matrixWorld),cast=new T.Raycaster();
+    cast.far=1.85*unit;
+    const probes=[];
+    for(const x of [-1.18,-.93,.93,1.18])for(const y of [.35,1.1,1.85,2.45])probes.push([x,y]);
+    for(const x of [-.66,-.33,0,.33,.66])for(const y of [2.72,2.96])probes.push([x,y]);
+    for(const [x,y] of probes){
+      cast.set(sill.localToWorld(new T.Vector3(x,y,1.15)),toward);
+      if(!cast.intersectObject(model,true).length)throw Error('圆亭观星室: missing facade beside or above the door at '+[x,y]);
+    }
+    // Clear the whole width of the landing at shin height: a centre-line walk
+    // alone misses thin fragments of the original stone rail near the edges.
+    cast.far=.89*unit;
+    for(const x of [-.82,-.6,0,.6,.82]){
+      cast.set(sill.localToWorld(new T.Vector3(x,.12,1.45)),toward);
+      if(cast.intersectObject(model,true).length)throw Error('圆亭观星室: rail fragment across landing at '+x);
+    }
+  }
   const lane=name=>definitions.find(d=>d.name===name).points;
   const quay=id==='blue-book'?lane('白崖低栈道'):[];
   const inn=id==='orange-book'?lane('赤岩栈桥至旅舍'):[];
