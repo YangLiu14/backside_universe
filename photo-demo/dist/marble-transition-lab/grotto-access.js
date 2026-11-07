@@ -13,6 +13,33 @@ const landings=[
   [0.076,-0.035,-0.715],
 ];
 
+// The lighthouse sill sits above the uneven rocks. A short service landing
+// and a lateral flight connect it to the rock ledge on its seaward side.
+export const beaconEntry={at:[-.241,-.167,-.639],out:[.66,-.75],height:.041};
+export function createBeaconLanding(){
+  const root=new T.Group();root.name='Lighthouse service landing';
+  root.position.fromArray(beaconEntry.at);root.rotation.y=Math.atan2(...beaconEntry.out);root.scale.setScalar(beaconEntry.height/2.18);
+  const wood=new T.MeshStandardMaterial({color:'#ae9174',map:woodGrain(),roughness:.85});
+  const iron=new T.MeshStandardMaterial({color:'#534c40',roughness:.72,metalness:.34});
+  const boards=[],posts=[];
+  function plank(batch,x,y,z,w,h,d){
+    const g=new T.BoxGeometry(w,h,d);g.translate(x,y,z);batch.push(g);
+  }
+  for(let i=0;i<18;i++)plank(boards,-.16,-.067,-.69+(i+.5)*.24,2.75,.135,.235);
+  for(const x of [-1.37,1.08]){
+    plank(boards,x,-.22,1.43,.18,.26,4.39);
+    for(const z of [.10,3.44])plank(posts,x,-1.40,z,.13,2.73,.13);
+  }
+  for(let i=0;i<11;i++)plank(boards,-1.57-(i+.5)*.32,-.095-(i+1)*.154,2.66,.326,.18,1.65);
+  for(const x of [-1.47,-.15,1.14])plank(posts,x,.46,3.57,.046,.92,.046);
+  for(const y of [.40,.91])plank(posts,-.16,y,3.57,2.65,.037,.041);
+  for(const [pieces,mat] of [[boards,wood],[posts,iron]]){
+    const mesh=new T.Mesh(mergeGeometries(pieces),mat);mesh.castShadow=mesh.receiveShadow=true;mesh.layers.enable(3);root.add(mesh);
+    pieces.forEach(p=>p.dispose());
+  }
+  return root;
+}
+
 function woodGrain(){
   const w=128,h=64,rgba=new Uint8Array(w*h*4);let seed=4861;
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){

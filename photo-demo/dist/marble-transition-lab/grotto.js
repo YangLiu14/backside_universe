@@ -1,4 +1,4 @@
-import {createCoastStair} from './grotto-access.js';
+import {createCoastStair,createBeaconLanding} from './grotto-access.js';
 import {dressCoast} from './coastal-surfaces.js';
 import * as THREE from 'three';
 import {harborFits,seatHarborBase} from './harbor-waterline.js';
@@ -24,7 +24,7 @@ export async function createGrotto(registered,surface,loader){
   fetch('../holiday-assets/assets/bookroom/grotto-layout.json').then(r=>{if(!r.ok)throw Error('洞窟布局未能载入');return r.json();}),
   buildInterior(root,loader,{furnitureWidthScale:.75,grotto:true,deferFurniture:true}),
  ]);
- let environment=initial;root.add(environment,createCoastStair());
+ let environment=initial;root.add(environment,createCoastStair(),createBeaconLanding());
  const localRoom=roomFrame(layout),worldFromRoom=registration.matrix.clone().multiply(localRoom),roomFromWorld=worldFromRoom.clone().invert();
  interior.root.applyMatrix4(localRoom);root.applyMatrix4(registration.matrix);root.updateMatrixWorld(true);
  interior.root.traverse(o=>{if(o.isPointLight){const s=.75*registration.scale;o.intensity*=s*s;o.distance*=s;}});

@@ -13,6 +13,7 @@
     "check:marble-transition": "node scripts/check-marble-transition.mjs",
     "check:desktop-startup": "node scripts/check-desktop-startup.cjs",
     "check:story-tour": "node scripts/check-story-tour.cjs",
+    "check:island-rooms": "node scripts/check-island-rooms.cjs",
     "check:island-walk": "node scripts/check-island-walk.cjs",
     "check:island-stories": "node scripts/check-island-stories.cjs",
     "check:cup-harbor": "node scripts/check-cup-harbor.cjs",

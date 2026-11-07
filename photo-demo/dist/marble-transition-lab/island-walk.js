@@ -9,7 +9,7 @@ const settings={
   'orange-book':{size:.046,bridge:true},
   phone:{size:.040,at:[.46,.475],toward:[.56,.57],height:.31},
   grotto:{size:.037,at:[.54,.072],toward:[.545,.16],height:.11},
-  office:{eyeHeight:1.62},reef:{size:.048,at:[.29,.36],toward:[.57,.54],height:.05},
+  office:{eyeHeight:1.62},interior:{eyeHeight:1.55},reef:{size:.048,at:[.29,.36],toward:[.57,.54],height:.05},
 };
 
 async function indexMeshes(meshes,signal){
@@ -94,14 +94,14 @@ export async function createIslandWalk({id,model,frame,camera,sea,aspect,reduced
   const at=(uv,h)=>new T.Vector3(box.min.x+uv[0]*extent.x,box.min.y+h*extent.y,box.min.z+uv[1]*extent.z);
   const start=spawn?.start||(fit.bridge?frame.localToWorld(new T.Vector3(.036,.15,.0883)):at(fit.at,fit.height));
   const aim=spawn?.aim||(fit.bridge?frame.localToWorld(new T.Vector3(.142,.18,.10685)):at(fit.toward,fit.height));
-  function place(){
+  function place(origin){
     let best,cost=Infinity;
     for(let ring=0;ring<=9;ring++){
       const count=ring?12:1;
       for(let i=0;i<count;i++){
-        const x=start.x+Math.cos(i*2*Math.PI/count)*ring*height*.46,z=start.z+Math.sin(i*2*Math.PI/count)*ring*height*.46;
+        const x=origin.x+Math.cos(i*2*Math.PI/count)*ring*height*.46,z=origin.z+Math.sin(i*2*Math.PI/count)*ring*height*.46;
         for(const y of floors(x,z,box.max.y+height,box.min.y-height,true)){
-          const score=Math.abs(y-start.y)+ring*height*.48;
+          const score=Math.abs(y-origin.y)+ring*height*.48;
           if(score<cost&&clearance(x,y,z)){best=new T.Vector3(x,y,z);cost=score;}
         }
       }
@@ -110,7 +110,7 @@ export async function createIslandWalk({id,model,frame,camera,sea,aspect,reduced
     if(!best)throw new Error('这座岛暂时没有安全的落脚点');
     return best;
   }
-  const foot=place(),keys=new Set(),angles=new T.Euler(0,0,0,'YXZ');
+  const foot=place(start),keys=new Set(),angles=new T.Euler(0,0,0,'YXZ');
   let eyeY=foot.y+height,yaw=Math.atan2(start.x-aim.x,start.z-aim.z),pitch=spawn?.pitch??-.055,speedX=0,speedZ=0;
   function move(dx,dz){
     const x=foot.x+dx,z=foot.z+dz;
@@ -165,6 +165,11 @@ export async function createIslandWalk({id,model,frame,camera,sea,aspect,reduced
     camera.updateMatrixWorld(true);
   }
   return {id,tick,clear,key(k,on){if(on)keys.add(k);else keys.delete(k);},
+    relocate(origin,target,tilt=-.05){
+      const next=place(origin);clear();foot.copy(next);eyeY=foot.y+height;
+      yaw=Math.atan2(foot.x-target.x,foot.z-target.z);
+      pitch=tilt??Math.atan2(target.y-eyeY,Math.hypot(target.x-foot.x,target.z-foot.z));tick(0);
+    },
     look(dx,dy){yaw-=dx*.004;pitch=T.MathUtils.clamp(pitch-dy*.004,-1.38,1.38);},
     get state(){return {id,foot:foot.toArray(),height,yaw,pitch};}};
 }
