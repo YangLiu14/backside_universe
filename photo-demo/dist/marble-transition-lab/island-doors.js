@@ -58,7 +58,7 @@ function makeEntrance(spec,frame){
   return {...door,pane,hinge};
 }
 
-export function withIslandDoors({outside,frame,camera,world,renderer,aspect,reduced,changed,veil,dayColor,bookroom}){
+export function withIslandDoors({outside,frame,camera,world,renderer,aspect,reduced,changed,veil,dayColor,modelLoader,bookroom}){
   const sites=buildings[outside.id];
   if(!sites)return outside;
   const doors=sites.map(s=>makeEntrance(s,frame));
@@ -126,10 +126,13 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
     if(disposed||pending||transition||mode!=='outside')return;
     if(choice.original){choice.original();return;}
     const request=new AbortController();pending=request;outside.clear();notice='正在打开'+choice.name+'…';changed();
+    let unattached=null;
     try{
-      const [{buildIslandInterior,upperFloor},{createIslandWalk}]=await Promise.all([import('./island-interiors.js'),import('./island-walk.js')]);
+      const [{buildIslandInterior,upperFloor},{createIslandWalk},{loadRoomDressing}]=await Promise.all([import('./island-interiors.js'),import('./island-walk.js'),import('./room-dressing.js')]);
       if(request.signal.aborted)return;
-      room=buildIslandInterior(choice.id,world.environment,dayColor);
+      const dressing=await loadRoomDressing(choice.id,modelLoader,request.signal);
+      if(request.signal.aborted){dressing.dispose();return;}
+      unattached=dressing;room=buildIslandInterior(choice.id,world.environment,dayColor,dressing);unattached=null;
       for(const door of doors.filter(d=>d.id===choice.id&&!d.open)){
         const portal=new T.Group();portal.position.y=door.upper?upperFloor:0;
         doorLeaf(portal,door.paint).rotation.y=1.49;room.model.add(portal);
@@ -140,10 +143,10 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
       inside=await createIslandWalk({id:'interior',model:room.model,camera:roomCamera,aspect,reduced,
         sea:()=>-Infinity,signal:request.signal,spawn:{start:v(0,floor,-.88),aim:v(0,floor,-3),pitch:-.055}});
       if(request.signal.aborted)return;
-      inside.tick(0);makeView();notice='';manualChoice=false;
+      inside.tick(0);makeView();notice=dressing.failed.length?'部分家具使用基础模型，重新进门会再加载。':'';manualChoice=false;
       transition={action:'enter',time:0,position:camera.position.clone(),rotation:camera.quaternion.clone(),floor};
       if(reduced())tick(duration);
-    }catch(err){if(!request.signal.aborted){cleanupRoom();notice='房间暂时未能打开，可以再试一次。';console.error(err);}}
+    }catch(err){unattached?.dispose();if(!request.signal.aborted){cleanupRoom();notice='房间暂时未能打开，可以再试一次。';console.error(err);}}
     finally{if(pending===request)pending=null;if(!disposed)changed();}
   }
   function action(){
@@ -225,7 +228,7 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
   return {id:outside.id,tick,action,select,hitDoor,
     get rooms(){return doors;},get scene(){return mode==='inside'?room?.scene:null;},
     get info(){return {key:choice.key,name:choice.name,inside:mode==='inside',near:!!atDoor(),busy:!!(transition||pending),notice};},
-    get state(){return {...active().state,id:outside.id,room:mode==='inside'?choice.id:null,entrance:choice.key};},
+    get state(){return {...active().state,id:outside.id,room:mode==='inside'?choice.id:null,entrance:choice.key,furnishings:mode==='inside'?room.furnishings:null};},
     escape(){if(pending){cancelLoad();cleanupRoom();notice='';changed();return true;}if(transition)return true;if(mode==='inside'){exitRoom();return true;}return false;},
     clear(){keys.clear();outside.clear();inside?.clear();},
     key(k,on){if(transition||pending)return;if(on)keys.add(k);else keys.delete(k);active().key(k,on);},

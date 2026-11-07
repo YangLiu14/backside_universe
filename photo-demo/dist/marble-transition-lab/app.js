@@ -28,7 +28,7 @@ const browsing=()=>ready&&progress===1&&!visit?.active&&!islandVisit?.active&&!w
 // frame and honour the latest seek (including Home) when decoding completes.
 const islandGate=.33;
 let pendingIslandSeek=null,waitingForIslands=false,islandGateReleased=false;
-let ready=false,progress=0,playing=null,variant='transition',meta,renderer,camera,compositor,objects,desktop,holiday,realScene,dreamScene;
+let ready=false,progress=0,playing=null,variant='transition',meta,modelLoader,renderer,camera,compositor,objects,desktop,holiday,realScene,dreamScene;
 let width=1,height=1,frameTimes=[],visitFrames=[],lastFrame=0,settleUntil=0;
 let oceanTime=0;
 let reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -235,7 +235,7 @@ async function boot(){
   const room=new SplatMesh({url:'../marble-refined-lab/assets/room-without-objects.spz',lod:false});room.scale.setScalar(meta.semantics_metadata.metric_scale_factor);room.rotation.x=Math.PI;room.position.y=meta.semantics_metadata.ground_plane_offset;realScene.add(room);
   const sourceCamera=camera.clone();sourceCamera.projectionMatrix.makePerspective(...projectionBounds(p,[0,0,1,1],1320,1739,sourceCamera.near),sourceCamera.near,sourceCamera.far);sourceCamera.projectionMatrixInverse.copy(sourceCamera.projectionMatrix).invert();sourceCamera.updateMatrixWorld(true);
   status('正在对齐电脑、书本和杯子…');
-  const modelLoader=new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('../vendor/draco/').setWorkerLimit(2));
+  modelLoader=new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('../vendor/draco/').setWorkerLimit(2));
   const registered=createObjects(renderer,realScene,meta,sourceCamera,modelLoader);
   [objects,desktop,holiday]=await Promise.all([registered,createDesktop(realScene),registered.then(o=>createHoliday(dreamScene,meta,o,renderer,modelLoader,{
     invalidate:()=>{settleUntil=performance.now()+450;},
@@ -580,7 +580,7 @@ async function startWalk(id){
     }};
    }
    walker=withIslandDoors({outside:walk,frame:frame||model,camera,world:dreamScene,renderer,aspect:()=>width/height,reduced:()=>reduce,
-    dayColor:holiday.daylight.color,bookroom,changed:roomUI,veil:value=>{$('room-veil').style.opacity=String(value);}});
+    dayColor:holiday.daylight.color,modelLoader,bookroom,changed:roomUI,veil:value=>{$('room-veil').style.opacity=String(value);}});
   }
   walker.tick(0);$('visit-move-pad').hidden=false;$('walk-story').disabled=false;
   $('phase').textContent=$('walk-place').selectedOptions[0].textContent+' · 漫步';

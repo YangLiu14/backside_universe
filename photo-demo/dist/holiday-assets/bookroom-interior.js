@@ -75,10 +75,10 @@ export async function buildInterior(scene,loader,{furnitureWidthScale=1,grotto=f
  for(const [x,y] of [[.16,.53],[-.05,.655]]){
   box('wall-sconce-back',[x,y,.112],[.009,.004,.018],brass);
   const globe=new THREE.Mesh(new THREE.SphereGeometry(.0045,16,12),new THREE.MeshStandardMaterial({color:'#fff1d1',emissive:'#ffd895',emissiveIntensity:1.5}));globe.position.copy(P(x,y+.006,.117));root.add(globe);
-  const lamp=new THREE.PointLight('#ffddb0',.003,.23,2);lamp.position.copy(P(x,y+.012,.112));root.add(lamp);
+  const lamp=new THREE.PointLight('#ffcc90',.0032,.20,2);lamp.position.copy(P(x,y+.012,.112));root.add(lamp);
  }
- const fill=new THREE.PointLight('#ffe4bb',.010,.35,2);fill.position.copy(P(.08,.595,.137));root.add(fill);
- const tableLight=new THREE.PointLight('#ffd7a0',.002,.16,2);tableLight.position.copy(P(-.022,.583,.073));root.add(tableLight);
+ const fill=new THREE.PointLight('#d1e4f3',.006,.29,2);fill.position.copy(P(-.051,.582,.106));root.add(fill);
+ const tableLight=new THREE.PointLight('#ffce92',.0028,.16,2);tableLight.position.copy(P(-.022,.583,.073));root.add(tableLight);
  const furniture=[],contents=new THREE.Group();
  contents.name='bookroom-furnishings';contents.visible=!deferFurniture;
  const result={root,pivot,door,furniture,contents,loadFurniture,book:null};

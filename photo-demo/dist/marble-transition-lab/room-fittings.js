@@ -24,7 +24,7 @@ function surfaceMap(kind){
   tex.colorSpace=T.SRGBColorSpace;tex.anisotropy=4;tiles.set(kind,tex);return tex;
 }
 
-export function workshop(root){
+export function workshop(root,timberMaps){
   const materials=new Map(),batches=new Map(),up=new T.Vector3(0,1,0);
   const cube=new T.BoxGeometry(),post=new T.CylinderGeometry(1,1,1,16);
   const wood=(color)=>finish(color,'wood'),cloth=color=>finish(color,'cloth');
@@ -32,7 +32,10 @@ export function workshop(root){
     const key=kind+color;if(materials.has(key))return materials.get(key);
     const metal=kind==='metal',glaze=kind==='glaze';
     const mat=new T.MeshStandardMaterial({color,roughness:metal?.38:glaze?.22:.82,metalness:metal?.68:0});
-    if(['wood','stone','cloth'].includes(kind)){
+    if(kind==='wood'&&timberMaps){
+      [mat.map,mat.normalMap,mat.roughnessMap]=timberMaps;mat.normalScale.set(.31,.31);
+      mat.userData.surface='timber';mat.roughness=.76;
+    }else if(['wood','stone','cloth'].includes(kind)){
       mat.map=mat.bumpMap=surfaceMap(kind);mat.bumpScale=kind==='stone'?.018:.006;
     }
     materials.set(key,mat);return mat;
@@ -40,8 +43,33 @@ export function workshop(root){
   function put(geometry,material,x,y,z,sx=1,sy=1,sz=1,rot=0){
     const g=geometry.index?geometry.toNonIndexed():geometry.clone();
     const q=typeof rot==='number'?new T.Quaternion().setFromAxisAngle(up,rot):rot;
+    if(material.userData.surface==='timber'){
+      const {position:p,normal:n,uv}=g.attributes,offset=(Math.abs(x*17+z*11+y*3)%11+.18)/12;
+      for(let i=0;i<p.count;i++){
+        if(geometry===cube){
+          const X=p.getX(i)*sx,Y=p.getY(i)*sy,Z=p.getZ(i)*sz;
+          const along=sx>=sy&&sx>=sz?X:sy>=sz?Y:Z;
+          const across=Math.abs(n.getY(i))>.6?(sx>=sz?Z:X):Math.abs(n.getX(i))>.6?(sy>=sz?Z:Y):(sx>=sy?Y:X);
+          uv.setXY(i,along/2.2+x*.31,offset+Math.tanh(across*5)*.027);
+        }else uv.setXY(i,uv.getX(i)*.82+x*.31,offset+(uv.getY(i)-.5)*.050);
+      }
+    }
     g.applyMatrix4(new T.Matrix4().compose(new T.Vector3(x,y,z),q,new T.Vector3(sx,sy,sz)));
+    if(material.userData.surface==='deck'||material.userData.surface==='plaster'){
+      const {position:p,normal:n,uv}=g.attributes;
+      for(let i=0;i<p.count;i++){
+        if(material.userData.surface==='deck')uv.setXY(i,p.getZ(i)/3.35,p.getX(i)/2.72);
+        else if(Math.abs(n.getY(i))>.7)uv.setXY(i,p.getX(i)/2.8,p.getZ(i)/2.8);
+        else uv.setXY(i,(Math.abs(n.getX(i))>.7?p.getZ(i):p.getX(i))/2.8,p.getY(i)/2.8);
+      }
+    }
     if(!batches.has(material))batches.set(material,[]);batches.get(material).push(g);
+  }
+  function scanned(surface,color,maps){
+    const [map,normalMap,roughnessMap]=maps;
+    const mat=new T.MeshStandardMaterial({color,map,normalMap,roughnessMap,roughness:.86,
+      normalScale:new T.Vector2(.67,.67)});
+    mat.userData.surface=surface;materials.set(mat,mat);return mat;
   }
   const box=(x,y,z,w,h,d,m,rot=0)=>put(cube,m,x,y,z,w,h,d,rot);
   function slab(x,y,z,w,h,d,edge,m){
@@ -110,7 +138,27 @@ export function workshop(root){
   function bench(x,z,w,ry=0){
     const pos=(u,v)=>[x+u*Math.cos(ry)+v*Math.sin(ry),z-u*Math.sin(ry)+v*Math.cos(ry)];
     for(let i=0;i<3;i++){const [a,b]=pos(0,(i-1)*.132);box(a,.46,b,w,.065,.124,oak,ry);}
-    for(const side of [-1,1]){const [a,b]=pos(side*(w/2-.15),0);box(a,.22,b,.09,.44,.36,dark,ry);}
+    for(const side of [-1,1]){
+      const u=side*(w/2-.14),[a,b]=pos(u,0);box(a,.37,b,.105,.15,.35,dark,ry);
+      for(const end of [-1,1]){
+        const [ax,az]=pos(u+side*.055,end*.178),[bx,bz]=pos(u,end*.123);
+        rod([ax,.02,az],[bx,.394,bz],.039,dark);
+        const [px,pz]=pos(u,end*.131);turned(px,.489,pz,[[.010,0],[.012,.003],[.009,.005]],brass,10);
+      }
+    }
+    box(x,.22,z,w-.28,.052,.05,dark,ry);
+  }
+  function curtain(x,top,z,width,height,yaw,tint){
+    const p=[],uv=[],index=[],nx=30,ny=18,m=cloth(tint);m.side=T.DoubleSide;
+    for(let j=0;j<=ny;j++)for(let i=0;i<=nx;i++){
+      const u=i/nx,t=j/ny,fold=Math.cos(u*Math.PI*10+.26*Math.sin(t*4+u*5));
+      p.push((u-.5)*width*(.82+.18*t)+.027*Math.sin(t*2.8),
+        -height*t+.018*t*t*fold,.044*fold*(.65+.55*t)+.028*Math.sin(t*4+u*2));
+      uv.push(u,1-t);
+    }
+    for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const a=j*(nx+1)+i;index.push(a,a+nx+1,a+1,a+1,a+nx+1,a+nx+2);}
+    const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(p,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
+    g.setIndex(index);g.computeVertexNormals();put(g,m,x,top,z,1,1,1,yaw);g.dispose();
   }
   function vase(x,y,z,s,color){
     turned(x,y,z,[[.075,0],[.14,.03],[.19,.16],[.165,.32],[.09,.39],[.09,.46],[.105,.47],[.105,.49],[.077,.49],[.071,.44]],finish(color,'glaze'),28);
@@ -175,8 +223,8 @@ export function workshop(root){
       mesh.castShadow=mesh.receiveShadow=true;root.add(mesh);parts.forEach(g=>g.dispose());}
     batches.clear();cube.dispose();post.dispose();
   }
-  function dispose(){for(const m of materials.values()){if(m.map&&!m.map.isDataTexture&&![...tiles.values()].includes(m.map))m.map.dispose();m.dispose();}}
-  return {box,rod,ring,turned,painting,slab,cover,weave,table,bench,vase,books,shade,hull,foliage,lantern,journal,put,finish,wood,cloth,oak,dark,brass,ivory,finishBatches,dispose};
+  function dispose(){for(const m of materials.values()){if(m.map&&!m.userData.surface&&!m.map.isDataTexture&&![...tiles.values()].includes(m.map))m.map.dispose();m.dispose();}}
+  return {box,rod,ring,turned,painting,slab,cover,weave,table,bench,curtain,vase,books,shade,hull,foliage,lantern,journal,put,finish,scanned,wood,cloth,oak,dark,brass,ivory,finishBatches,dispose};
 }
 
 export function printChart(kind,title){

@@ -367,6 +367,76 @@
       "sha256": "db51dfb3529101b12048bd13eac1e9235dc4132d597f35caec0b51cc3e26873b"
     },
     {
+      "path": "dist/holiday-assets/assets/island-rooms/boat-cradle.glb",
+      "bytes": 2550036,
+      "sha256": "597468a748e2b2023c7a5f81de0dbbc47dbd02bda580351a33db94e33c0d4a2e"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/copper-bath.glb",
+      "bytes": 2046432,
+      "sha256": "93f3bb22b0841288278e2e3c85b429db1116b010a86872aaeadbb23f1cd2de92"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/field-bench.glb",
+      "bytes": 2222824,
+      "sha256": "46c7af01e584a2488565a7d9c12a3e6ebc4f4fdba9aacab769c7cc261ae97e08"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/hearth.glb",
+      "bytes": 2446068,
+      "sha256": "6549466e3b0b16e50510e42dae0a62d8f97bae0597d8c33d53e1c86d0fc481a6"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/keeper-table.glb",
+      "bytes": 2772808,
+      "sha256": "836c048527970e1d21a6d601e7866a10c15a305572d607b359e7adde6fff58fc"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/linen-bed.glb",
+      "bytes": 2064688,
+      "sha256": "d279d29b404db91c8c4abd91b32b3583fc54d4eafeff922fff3ee1a2ff86a89a"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/plaster_grey_04-color.jpg",
+      "bytes": 975880,
+      "sha256": "fe2eff1c12bf25160dd65ccb014d98bf58a79a1fa836444d0d88805cb88cd085"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/plaster_grey_04-normal.jpg",
+      "bytes": 665809,
+      "sha256": "e7bddcd80ff406cac4a78281fd3d293f85aaa0504f5e9d7b007ae4b1ff06ec25"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/plaster_grey_04-rough.jpg",
+      "bytes": 173754,
+      "sha256": "0b025d1b8004fc06e1c479f73f73e2cf95b38e0189ad3db42c108215eb76590a"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/sorting-hutch.glb",
+      "bytes": 2420372,
+      "sha256": "fb466d4cdd6e331129d5a236747f8c25040fb37bb94e13082975b65556367a80"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/telescope.glb",
+      "bytes": 2441056,
+      "sha256": "6bbacb1e4960ad7f43727b5531c3315409b2e22884bd30657801da3b93900d22"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/wood_floor_deck-color.jpg",
+      "bytes": 1041561,
+      "sha256": "3071c0846969f65dd567dd9e8b4bc81f96652adf5f073c5c967f51ac95f4d64d"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/wood_floor_deck-normal.jpg",
+      "bytes": 151968,
+      "sha256": "d32fb33867e7df370b18370e6c08cbb6c294bf14c548f7657e8efd1700a04cd1"
+    },
+    {
+      "path": "dist/holiday-assets/assets/island-rooms/wood_floor_deck-rough.jpg",
+      "bytes": 184816,
+      "sha256": "8028a011d95b64fd03e5e66c9e0979ebafec2493387f5c9d82ef189c35b48cef"
+    },
+    {
       "path": "dist/holiday-assets/assets/laptop/back.jpg",
       "bytes": 597972,
       "sha256": "8661fb691f35d905155e2ce8ff4c41daf2b9ac364e73c0642861f617c73d5b5f"

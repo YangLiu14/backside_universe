@@ -30,6 +30,14 @@ Git 保存源码、校准参数、小型来源元数据、许可证与文字结�
 
 五座岛共用一张 1K 岩石近景细节图。可在 `photo-demo/` 运行 `python3 scripts/build-rock-detail.py`，脚本需要 FFmpeg，会核对原图并将明度、高度和粗糙度打包成 JPEG。应用只请求本地成品。原扫描由 Greg Zaal 摄影、Dario Barresi 处理，采用 CC0 许可。[Poly Haven · Rock Face](https://polyhaven.com/a/rock_face)
 
+群岛室内的八件 Tripo 陈设与六张墙面、地板贴图位于 `dist/holiday-assets/assets/island-rooms/`。原件位置、生成任务号、提示词和原件哈希记录在[陈设清单](../scripts/island-room-props.json)。从备份的原件重建单件家具，例如在 `photo-demo/` 运行以下命令。
+
+```sh
+blender --background --python scripts/package-room-prop.py -- evidence/tripo-room-furnishings/hearth/source.glb dist/holiday-assets/assets/island-rooms/hearth.glb
+```
+
+石灰灰泥和木地板使用 Poly Haven 的 CC0 扫描。运行 `python3 scripts/build-room-surfaces.py` 可用 FFmpeg 重建调色后的漫反射、法线和粗糙度贴图。[灰泥扫描](https://polyhaven.com/a/plaster_grey_04) · [木板扫描](https://polyhaven.com/a/wood_floor_deck)
+
 ## Spark 运行依赖
 
 版本固定为 `@sparkjsdev/spark@2.4.0`。本地运行文件等同官方包的 `dist/spark.module.min.js`，重命名为 `spark.module.js`。其 SHA256 为：

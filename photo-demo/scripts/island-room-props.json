@@ -1,0 +1,66 @@
+{
+  "sorting-hutch": {
+    "provider": "Tripo H3.1 API",
+    "taskId": "2e7947da-065a-4180-9b2b-a54d80372c7c",
+    "credits": 30,
+    "original": "evidence/tripo-room-furnishings/sorting-hutch/tripo-out/island-room-sorting-hutch-2e7947da/model.glb",
+    "sourceSha256": "442c2800d8ec9b25c03d4b3bdf0387c62180036a5975872cf14d60ffc08922ad",
+    "prompt": "Museum-quality photogrammetry of one complete old French island post office sorting bureau, a real late 19th-century wooden counter with an attached tall pigeonhole back, slightly wider than tall. Large open mail cubbies full of imperfect stacks of cream envelopes and tied blue airmail bundles, tiny tarnished brass label frames, a central writing ledge with leather blotter, ink stamp and twine, bank of shallow drawers under the writing surface. Deep honey walnut polished where hands touch, faded peacock blue inside the slots, visible endgrain and rubbed moldings. Standalone furniture. High fidelity PBR, unlit neutral materials, crisp real joins, front three-quarter, no backdrop, no room."
+  },
+  "field-bench": {
+    "provider": "Tripo H3.1 API",
+    "taskId": "0fa17003-e118-4077-82e3-7a025a48a50c",
+    "credits": 30,
+    "original": "evidence/tripo-room-furnishings/field-bench/tripo-out/island-room-field-bench-0fa17003/model.glb",
+    "sourceSha256": "f0c8e287e4cea58054f22391fb8a2dbfd7071fb318b8f11b9dd01cf59f6005d6",
+    "prompt": "One antique coastal naturalist's field workbench with integral specimen hutch. Broad worn dark honey oak apothecary bench, open kneehole, many shallow specimen drawers at either end with brass cup pulls, two levels of shelves above the back. Beautiful glass cloches, stoppered antique aqua and amber botanical jars, fan coral, a fern herbarium sheet leaning against the back, tiny brass magnifier on the bench. Asymmetric lived-in composition. Weathered museum conservation furniture photographed for a period film set. Realistic precise joinery, high frequency wood grain, brass patina, detailed opaque glass reflections. One freestanding unified asset, front three-quarter, no walls or floor."
+  },
+  "linen-bed": {
+    "provider": "Tripo H3.1 API",
+    "taskId": "68dcb5a9-a315-4b9b-8eb7-bd9fc0fcd5c8",
+    "credits": 30,
+    "original": "evidence/tripo-room-furnishings/linen-bed/tripo-out/island-room-linen-bed-68dcb5a9/model.glb",
+    "sourceSha256": "acdbf28a4a2abef3478ac546494b57c81d633f88e0725696c58308eef77d4140",
+    "prompt": "An exceptionally realistic antique Mediterranean guest bed, full bed on four carved walnut feet, honey-coloured headboard with inset woven cane and turned posts. One rumpled ivory flax duvet with deep irregular fabric folds, two softly creased linen pillows, terracotta and muted indigo narrow striped handloom blanket draped over the foot and partly down the right side. The bed is longer than wide, full length visible, no canopy or walls. Quiet collected coastal inn, fine visible linen weave, believable gravity and upholstery thickness, carved timber corners, restrained aged materials, film set furniture scan quality. One isolated complete bed, no other furniture, neutral light."
+  },
+  "telescope": {
+    "provider": "Tripo H3.1 Studio",
+    "taskId": "53c23571-0370-4415-99ac-de61003de1ae",
+    "credits": 55,
+    "original": "evidence/tripo-room-furnishings/telescope/source.glb",
+    "sourceSha256": "0e1437813c2a18f97f9769daf3583796db83942cd47ec98ca7873be509674f68",
+    "prompt": "An antique brass astronomical refracting telescope on its own splayed mahogany surveyor tripod. A long gracefully angled brass barrel, small black eyepiece, cool glass objective, engraved setting circles, large mechanical equatorial mount with aged green bronze, fine adjustment wheels. Whole instrument and all three feet visible, realistic Victorian maritime observatory, exquisite preserved scientific instrument, museum photography, isolated on white, no floor or plinth or other props."
+  },
+  "copper-bath": {
+    "provider": "Tripo H3.1 Studio",
+    "taskId": "d12ca491-d165-42e4-b8e0-222862da127a",
+    "credits": 55,
+    "original": "evidence/tripo-room-furnishings/copper-bath/source.glb",
+    "sourceSha256": "3cac0cc14a2ecc0a3831ab810d7224b7b9e2720b743c4ecb21d4e8045101283f",
+    "prompt": "A single beautiful antique coastal soaking tub, an elongated freestanding hammered copper roll-top bathtub. Warm mottled copper patina outside, soft pale turquoise enamel lining, gentle rolled rim, ornate dark brass claw feet, paired vintage gooseneck taps at one short end. Filled with still pale aqua bathwater just under the rim. Refined nineteenth century bathhouse, realistic hand hammered metal and worn green oxidation in crevices. Whole object from above in three-quarter product view showing the basin, front and left side. Isolated, no floor or walls."
+  },
+  "boat-cradle": {
+    "provider": "Tripo H3.1 Studio",
+    "taskId": "0e756ed2-9517-4636-a2fa-281d8b24db2d",
+    "credits": 55,
+    "original": "evidence/tripo-room-furnishings/boat-cradle/source.glb",
+    "sourceSha256": "edd73628146c71e85c5ac7a26f11a67977a1f5e51d195a68011d18a338acd753",
+    "prompt": "A beautifully restored antique Mediterranean clinker-built wooden rowing dinghy sitting upright on two low dark wooden shipwright trestles. Complete boat seen from above at three-quarter view with the open cockpit visible, flaking deep petrol blue paint outside, natural golden maritime oak planks inside, bent ribs, small brass rowlocks, worn thwarts, a loose coil of real hemp line in the bow. Entire continuous hull, graceful narrow prow, no mast, no sail, no water or floor. Real marine museum workshop photography, exquisite wood patina and lapstrake seams."
+  },
+  "keeper-table": {
+    "provider": "Tripo H3.1 Studio",
+    "taskId": "03e86c52-fee7-4e42-9c2c-2ac630e36b3b",
+    "credits": 55,
+    "original": "evidence/tripo-room-furnishings/keeper-table/source.glb",
+    "sourceSha256": "301c226d3eb308f99e94a8ca7e64e6e675d9aab163022857520076d10e499806",
+    "prompt": "A single compact old lighthouse keeper's standing console in maritime oak. On its wooden cabinet top a large antique brass ship chronometer with a cream clock face, weathered copper storm lantern with amber glass, and a half-open dark leather watch log. Narrow lower drawers with brass ring pulls and battered dark teal lower cupboard. Real salt patina, aged oak and polished brass highlights. Full freestanding object, historically believable coastal watch room, crisp PBR detail, museum photography, isolated, no walls or floor."
+  },
+  "hearth": {
+    "provider": "Tripo H3.1 Studio",
+    "taskId": "167f65af-9370-4fd8-96bb-146fde3a065b",
+    "credits": 55,
+    "original": "evidence/tripo-room-furnishings/hearth/source.glb",
+    "sourceSha256": "1440d41a733af9d8263c6e4954e27cf7dbfd81e79ef7ab7adc8294df470744b5",
+    "prompt": "One compact floor-standing Mediterranean inn fireplace, broad Spanish limestone surround with an open firebox and dark sooty arch. Rustic hand-cut honey limestone voussoirs, carved weathered mantel with a copper kettle and earthenware pots, wrought iron andirons holding charred logs and a few glowing embers in the recessed black hearth. Slender upper chimney breast in warm pink plaster. A self-contained architectural antique fitting with straight flat back against the wall. Fine realistic material detail, normal human scale, photogrammetric period film prop. Front view showing inside the hearth. No floor, no other walls or scenery."
+  }
+}

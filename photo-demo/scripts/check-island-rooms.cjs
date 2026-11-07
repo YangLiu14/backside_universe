@@ -6,6 +6,8 @@ const rooms=[
   ['cup','post'],['blue-book','field'],['blue-book','watch'],['orange-book','inn-hall'],
   ['orange-book','inn-loft'],['phone','baths'],['phone','slip'],['grotto','beacon'],
 ];
+const furnishings={post:['sorting-hutch'],field:['field-bench'],watch:['telescope'],inn:['hearth','linen-bed'],
+  baths:['copper-bath'],slip:['boat-cradle'],beacon:['keeper-table']};
 
 async function approach(page,island,key){
   if((await walker(page))?.id!==island)await page.selectOption('#walk-place',island);
@@ -24,11 +26,18 @@ async function testRoutes(page){
     const T=await import('/vendor/three.module.js');
     const {createIslandWalk}=await import('/marble-transition-lab/island-walk.js');
     const {buildIslandInterior}=await import('/marble-transition-lab/island-interiors.js');
+    const {loadRoomDressing}=await import('/marble-transition-lab/room-dressing.js');
+    const {GLTFLoader}=await import('three/addons/loaders/GLTFLoader.js');
+    const {DRACOLoader}=await import('three/addons/loaders/DRACOLoader.js');
+    const decoder=new DRACOLoader().setDecoderPath('/vendor/draco/').setWorkerLimit(2);
+    const loader=new GLTFLoader().setDRACOLoader(decoder);
     const results=[];
     for(const id of ['field','inn','beacon']){
-      const room=buildIslandInterior(id,null);
+      const signal=new AbortController().signal,dressing=await loadRoomDressing(id,loader,signal);
+      if(dressing.failed.length)throw Error('Missing furniture: '+dressing.failed.join(', '));
+      const room=buildIslandInterior(id,null,null,dressing);
       const walk=await createIslandWalk({id:'interior',model:room.model,camera:new T.PerspectiveCamera(),
-        sea:()=>-Infinity,aspect:()=>1.7,reduced:()=>true,signal:new AbortController().signal,
+        sea:()=>-Infinity,aspect:()=>1.7,reduced:()=>true,signal,
         spawn:{start:new T.Vector3(0,0,-.88),aim:new T.Vector3(0,0,-3)}});
       let points;
       if(id==='beacon'){
@@ -49,7 +58,7 @@ async function testRoutes(page){
       }
       results.push({id,maxError:Math.max(...errors),top:rise[points.length-1],bottom:rise.at(-1)});room.dispose();
     }
-    return results;
+    decoder.dispose();return results;
   });
   for(const r of routes){
     assert(r.maxError<.04,JSON.stringify(r));assert(Math.abs(r.top-({field:2.58,inn:2.85,beacon:3.45})[r.id])<.02,JSON.stringify(r));
@@ -67,10 +76,11 @@ async function main(){
     let intercepted,release;
     const arrived=new Promise(r=>{intercepted=r;}),hold=new Promise(r=>{release=r;});
     const delay=async route=>{intercepted();await hold;await route.continue();};
-    await page.route('**/island-interiors.js',delay);
+    const sortingFile='**/sorting-hutch.glb';
+    await page.route(sortingFile,delay);
     await page.click('#walk-room');await arrived;await page.keyboard.press('Escape');release();
     await page.waitForFunction(()=>!document.querySelector('#walk-room').disabled);
-    assert.equal((await walker(page)).room,null);await page.unroute('**/island-interiors.js',delay);
+    assert.equal((await walker(page)).room,null);await page.unroute(sortingFile,delay);
     for(const [island,key] of rooms){
       const entry=await approach(page,island,key);
       if(key==='post'){
@@ -87,6 +97,7 @@ async function main(){
       await page.waitForFunction(()=>window.__marbleTransition.state.walk?.room&&!document.querySelector('#walk-room').disabled);
       const inside=await walker(page);
       assert.equal(inside.room,key.startsWith('inn-')?'inn':key);assert.equal(inside.entrance,key);
+      assert.deepEqual(inside.furnishings,furnishings[inside.room]);
       assert(Math.abs(inside.foot[1]-(key==='inn-loft'?2.85:0))<.07,key+' threshold');
       await page.locator('#world').focus();
       if(key==='post'){
@@ -116,6 +127,13 @@ async function main(){
       if(key==='inn-hall')assert(back.foot[1]>entry.foot[1]+entry.height,'upper canyon terrace');
       else assert(Math.hypot(...back.foot.map((v,i)=>v-entry.foot[i]))<entry.height*.25,key+' exterior sill');
     }
+    await approach(page,'cup','post');
+    await page.route(sortingFile,r=>r.fulfill({contentType:'model/gltf-binary',body:'incomplete GLB'}),{times:1});
+    for(const expected of [[],furnishings.post]){
+      await page.click('#walk-room');await page.waitForFunction(()=>window.__marbleTransition.state.walk?.room==='post');
+      assert.deepEqual((await walker(page)).furnishings,expected);
+      await page.click('#walk-room');await page.waitForFunction(()=>!window.__marbleTransition.state.walk?.room&&!document.querySelector('#walk-room').disabled);
+    }
     await testRoutes(page);
     await approach(page,'grotto','library');await page.click('#walk-room');
     await page.waitForSelector('#world[data-visit="inside"][data-visit-busy="false"]');
@@ -131,7 +149,7 @@ async function main(){
     await mobile.waitForFunction(()=>!window.__marbleTransition.state.walk?.room&&!document.querySelector('#walk-room').disabled);
     assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await mobile.close();
     assert.deepEqual(errors,[]);
-    console.log('Eight island entrances, three stair round trips, walk-through exits, original library photo loop, touch and cancellation passed.');
+    console.log('Eight Tripo furnishings, eight entrances, three furnished stair round trips, original library photo loop, touch, cancellation and furniture fallback/re-entry passed.');
   }finally{await browser.close();}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
