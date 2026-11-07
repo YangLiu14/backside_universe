@@ -40,7 +40,7 @@ export function createBeaconLanding(){
   return root;
 }
 
-function woodGrain(){
+export function woodGrain(){
   const w=128,h=64,rgba=new Uint8Array(w*h*4);let seed=4861;
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
     seed=(Math.imul(seed,1664525)+1013904223)>>>0;

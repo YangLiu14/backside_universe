@@ -1,3 +1,4 @@
+import {addIslandPassages} from './island-passages.js';
 import {dressCoast} from './coastal-surfaces.js';
 import * as THREE from '../vendor/three.module.js';
 import {createPhoneCase,fitCoastToCase,handset,handsetShore} from './phone-case.js';
@@ -137,6 +138,7 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
         }
       });
       if(level==='hd')dressCoast(model,entry.id);
+      addIslandPassages(model,entry.id);
       const first=!entry.models.hd&&!entry.models.near;
       if(first&&entry.id==='phone')entry.root.add(createPhoneCase());
       model.visible=false;entry.root.add(model);entry.models[level]=model;

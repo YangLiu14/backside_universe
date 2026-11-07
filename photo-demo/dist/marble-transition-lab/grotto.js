@@ -1,4 +1,5 @@
 import {createCoastStair,createBeaconLanding} from './grotto-access.js';
+import {addIslandPassages} from './island-passages.js';
 import {dressCoast} from './coastal-surfaces.js';
 import * as THREE from 'three';
 import {harborFits,seatHarborBase} from './harbor-waterline.js';
@@ -25,6 +26,7 @@ export async function createGrotto(registered,surface,loader){
   buildInterior(root,loader,{furnitureWidthScale:.75,grotto:true,deferFurniture:true}),
  ]);
  let environment=initial;root.add(environment,createCoastStair(),createBeaconLanding());
+ addIslandPassages(root,'grotto');
  const localRoom=roomFrame(layout),worldFromRoom=registration.matrix.clone().multiply(localRoom),roomFromWorld=worldFromRoom.clone().invert();
  interior.root.applyMatrix4(localRoom);root.applyMatrix4(registration.matrix);root.updateMatrixWorld(true);
  interior.root.traverse(o=>{if(o.isPointLight){const s=.75*registration.scale;o.intensity*=s*s;o.distance*=s;}});

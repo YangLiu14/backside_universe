@@ -5,9 +5,9 @@ const cache=new WeakMap();
 const arrows={w:'arrowup',s:'arrowdown',a:'arrowleft',d:'arrowright'};
 const settings={
   cup:{size:.091,at:[.55,.30],toward:[.55,.51],height:.23},
-  'blue-book':{size:.040,at:[.08,.69],toward:[.24,.705],height:.25},
-  'orange-book':{size:.046,bridge:true},
-  phone:{size:.040,at:[.46,.475],toward:[.56,.57],height:.31},
+  'blue-book':{size:.040,start:[.305,.055,.012],aim:[.291,.055,-.018]},
+  'orange-book':{size:.046,start:[.036,.15,.0883],aim:[.142,.18,.10685]},
+  phone:{size:.040,start:[.042,.071,.066],aim:[.027,.072,.007]},
   grotto:{size:.037,at:[.54,.072],toward:[.545,.16],height:.11},
   office:{eyeHeight:1.62},interior:{eyeHeight:1.55},reef:{size:.048,at:[.29,.36],toward:[.57,.54],height:.05},
 };
@@ -92,8 +92,8 @@ export async function createIslandWalk({id,model,frame,camera,sea,aspect,reduced
     return true;
   }
   const at=(uv,h)=>new T.Vector3(box.min.x+uv[0]*extent.x,box.min.y+h*extent.y,box.min.z+uv[1]*extent.z);
-  const start=spawn?.start||(fit.bridge?frame.localToWorld(new T.Vector3(.036,.15,.0883)):at(fit.at,fit.height));
-  const aim=spawn?.aim||(fit.bridge?frame.localToWorld(new T.Vector3(.142,.18,.10685)):at(fit.toward,fit.height));
+  const start=spawn?.start||(fit.start?frame.localToWorld(new T.Vector3(...fit.start)):at(fit.at,fit.height));
+  const aim=spawn?.aim||(fit.aim?frame.localToWorld(new T.Vector3(...fit.aim)):at(fit.toward,fit.height));
   function place(origin){
     let best,cost=Infinity;
     for(let ring=0;ring<=9;ring++){
@@ -114,15 +114,7 @@ export async function createIslandWalk({id,model,frame,camera,sea,aspect,reduced
   let eyeY=foot.y+height,yaw=Math.atan2(start.x-aim.x,start.z-aim.z),pitch=spawn?.pitch??-.055,speedX=0,speedZ=0;
   function move(dx,dz){
     const x=foot.x+dx,z=foot.z+dz;
-    let hits=floors(x,z,foot.y+rise,foot.y-drop);
-    // A foot spans the narrow seams between planks. Probe to either side,
-    // requiring both edges for support when its centre is over a gap.
-    if(!hits.length){
-      const n=Math.hypot(dx,dz);if(!n)return false;
-      const sx=dx/n*radius*.50,sz=dz/n*radius*.50;
-      const a=floors(x+sx,z+sz,foot.y+rise,foot.y-drop),b=floors(x-sx,z-sz,foot.y+rise,foot.y-drop);
-      if(a.length&&b.length)hits=[(Math.max(...a)+Math.max(...b))*.5];
-    }
+    const hits=floors(x,z,foot.y+rise,foot.y-drop);
     const center=hits.length?Math.max(...hits):null;
     if(center!==null&&center>=foot.y&&clearance(x,center,z)){foot.set(x,center,z);return true;}
     // A capsule meets a tread with its toes before its centre crosses the
@@ -137,8 +129,16 @@ export async function createIslandWalk({id,model,frame,camera,sea,aspect,reduced
       const step=Math.min(Math.max(...left),Math.max(...right));
       if(clearance(x,step,z)){foot.set(x,step,z);return true;}
     }
-    if(center===null||!clearance(x,center,z))return false;
-    foot.set(x,center,z);return true;
+    if(center!==null&&clearance(x,center,z)){foot.set(x,center,z);return true;}
+    // A crack can expose rock below the deck. Keep support from both ends
+    // of the sole even when the centre ray hits that lower, unusable surface.
+    const heelX=dx/n*radius*.90,heelZ=dz/n*radius*.90;
+    const fore=floors(x+heelX,z+heelZ,foot.y+rise,foot.y-drop,true);
+    const aft=floors(x-heelX,z-heelZ,foot.y+rise,foot.y-drop,true);
+    if(!fore.length||!aft.length)return false;
+    const frontY=Math.max(...fore),backY=Math.max(...aft),supported=Math.max(frontY,backY);
+    if(Math.abs(frontY-backY)>drop||!clearance(x,supported,z))return false;
+    foot.set(x,supported,z);return true;
   }
   function clear(){keys.clear();speedX=speedZ=0;}
   const held=k=>keys.has(k)||keys.has(arrows[k]);

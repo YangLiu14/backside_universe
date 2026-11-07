@@ -70,7 +70,7 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
   doors.forEach(d=>exterior.add(d.group));exterior.updateMatrixWorld(true);
   const cast=new T.Raycaster(),keys=new Set(),leafMaterials=new Set();
   let choice=doors[0],mode='outside',room=null,inside=null,roomCamera=null,sky=null,preview=null;
-  let transition=null,pending=null,disposed=false,lastNear=false,notice='',arrivalAnchor=null,manualChoice=false;
+  let transition=null,pending=null,disposed=false,lastNear=false,notice='',arrivalAnchor=null,manualChoice=false,entryFoot=null;
   function near(d=choice){
     const p=camera.position,dx=p.x-d.sill.x,dz=p.z-d.sill.z;
     return Math.hypot(dx,dz)<d.height*1.72&&dx*d.facing.x+dz*d.facing.z>=-d.scale*.15
@@ -81,9 +81,11 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
     if(choice.hinge)choice.hinge.rotation.y=angle;
   }
   function placeOutside(d,away=false){
-    const landing=d.sill.clone().addScaledVector(d.facing,d.height*(d.id==='library'?.37:1.10));
+    const landing=away&&entryFoot?.door===d?entryFoot.position:
+      d.sill.clone().addScaledVector(d.facing,d.height*(d.id==='library'?.37:1.10));
     const target=away?landing.clone().addScaledVector(d.facing,d.height):d.aim;
     outside.relocate(landing,target,away?-.05:null);arrivalAnchor=camera.position.clone();manualChoice=false;
+    if(away)entryFoot=null;
   }
   function atDoor(){return near()||(arrivalAnchor&&camera.position.distanceTo(arrivalAnchor)<choice.height*.26);}
   function select(key){
@@ -144,6 +146,7 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
         sea:()=>-Infinity,signal:request.signal,spawn:{start:v(0,floor,-.88),aim:v(0,floor,-3),pitch:-.055}});
       if(request.signal.aborted)return;
       inside.tick(0);makeView();notice=dressing.failed.length?'部分家具使用基础模型，重新进门会再加载。':'';manualChoice=false;
+      entryFoot={door:choice,position:new T.Vector3().fromArray(outside.state.foot)};
       transition={action:'enter',time:0,position:camera.position.clone(),rotation:camera.quaternion.clone(),floor};
       if(reduced())tick(duration);
     }catch(err){unattached?.dispose();if(!request.signal.aborted){cleanupRoom();notice='房间暂时未能打开，可以再试一次。';console.error(err);}}
