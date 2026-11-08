@@ -1,0 +1,52 @@
+{
+  "model": "depth-anything/DA3-BASE",
+  "model_revision": "f4a6c9b3c95e41c82048423d3493a81ec3fa810e",
+  "model_license": "Apache-2.0",
+  "source_sha256": "1c1a19fd7ba6aa9a0f7c538b1b3f94b1da02cdae1261f4f4e46fefa956f3ef0b",
+  "inference_seconds": 0.8912803750135936,
+  "device": "mps",
+  "inference_width": 756,
+  "inference_height": 574,
+  "generator": "BLUNT + complete-intrinsics adapter",
+  "representation": "depth-derived 3D Gaussian baseline; no learned Gaussian head",
+  "code_commit": "3d835ec1a5802d64a8b8b15f817a1ab54809bfe4",
+  "blunt_commit": "b0b8356103dce5871d7b1dad7cec9e68af372096",
+  "width": 704,
+  "height": 528,
+  "intrinsics": [
+    683.9521484375,
+    721.990478515625,
+    352.0,
+    264.0
+  ],
+  "gaussian_count": 369941,
+  "gaussian_bytes": 25156404,
+  "ply_sha256": "3d660f1d6492cbb7366891aefdf5c9dcb66a3ea586c0c9f184d82e1ce4f2152c",
+  "original_width": 1706,
+  "original_height": 1279,
+  "source_image": "original.jpg",
+  "gaussian_file": "source-gaussian.ply",
+  "coordinate_system": "OpenCV: x right, y down, z forward; source camera at origin",
+  "units": "relative model units, not surveyed meters",
+  "pivot_opencv": [
+    -0.023133190125676942,
+    0.020544759017112245,
+    0.5618606209754944
+  ],
+  "depth_range": [
+    0.4955039620399475,
+    2.044387102127075
+  ],
+  "inpainting": false,
+  "normalization": false,
+  "gaussian_head": false,
+  "overlap_factor": 0.8,
+  "edge_mode": "nearest",
+  "edge_refinement": null,
+  "limitations": [
+    "Single visible surface; no occluded back surfaces recovered.",
+    "Small camera movement exposes missing data and estimated-depth errors.",
+    "Gaussian footprints and source resolution limit sharpness.",
+    "No real additional views exist to validate unseen geometry."
+  ]
+}

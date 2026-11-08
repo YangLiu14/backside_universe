@@ -9,6 +9,8 @@ cd photo-demo
 npm run dev
 ```
 
+**第二件作品：[小狗身体博物馆](http://127.0.0.1:9988/canine-museum/index.html)**。从实拍原照绕到 Hi3D 小狗右侧，打开骨架和六个独立的 Hi3D 微缩展馆，点器官即可推近、斜看、返回。[直接看剖面](http://127.0.0.1:9988/canine-museum/index.html?angle=90)。[制作与资产恢复](photo-demo/docs/CANINE_MUSEUM.md)。项目技能：[实景配准](.agents/skills/photo-gaussian-registration/SKILL.md)、[微缩剖景](.agents/skills/miniature-cutaway/SKILL.md)、[可逆绕行](.agents/skills/reversible-photo-orbit/SKILL.md)。
+
 从 3DGS 工位绕到背面，可以自由浏览高清群岛，也可以点「跟随故事」，从蓝杯港湾依次前往蓝书白崖、橙书峡谷、手机潮港和洞窟书屋，再从书页回到工位。[进入主桌面](http://127.0.0.1:9988/marble-transition-lab/index.html)
 
 点「工位漫步」进入原始空间，或绕到背面点「上岛漫步」。五座岛和桌下海底都有落脚点。走到岛上的建筑门前，点门或按 E 可以入内；也可以从漫步栏选择房间。白崖阁楼、赤岩旅舍与灯塔有可步行的楼梯，电脑书屋里的书页能带你回到工位。WASD 或方向键步行，拖动环顾。

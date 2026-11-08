@@ -28,6 +28,24 @@ STATE = EVIDENCE / 'job.json'
 API = 'https://api.worldlabs.ai/marble/v1'
 EXPECTED_CREDITS = 1580
 MODEL = 'marble-1.1'
+LABEL = 'Complete Desk'
+STEM = 'desk'
+SEED = 20261104
+SIZE = (1320, 1739)
+SOURCE_URL = '../../assets/desk-original.jpg'
+SOURCE_PATH = 'dist/assets/desk-original.jpg'
+
+
+def configure_canine():
+    global SOURCE, EXPECTED_SOURCE, ASSETS, EVIDENCE, STATE, LABEL, STEM, SEED, SIZE, SOURCE_URL, SOURCE_PATH
+    SOURCE_PATH = 'dist/canine-museum/assets/original.jpg'
+    SOURCE = APP / SOURCE_PATH
+    EXPECTED_SOURCE = '1c1a19fd7ba6aa9a0f7c538b1b3f94b1da02cdae1261f4f4e46fefa956f3ef0b'
+    ASSETS = APP / 'dist/canine-museum/assets/marble'
+    EVIDENCE = APP / 'evidence/canine-production/marble'
+    STATE = EVIDENCE / 'job.json'
+    LABEL, STEM, SEED, SIZE = 'Canine Museum', 'canine', 20261108, (1706, 1279)
+    SOURCE_URL = '../original.jpg'
 
 
 def save_json(path, value, private=False):
@@ -76,16 +94,16 @@ def source_record():
     data = SOURCE.read_bytes()
     digest = hashlib.sha256(data).hexdigest()
     if digest != EXPECTED_SOURCE:
-        raise RuntimeError('Source photo differs from the approved complete desk photo.')
+        raise RuntimeError('Source photo differs from the registered source photo.')
     if len(data) > 7_000_000:
         raise RuntimeError('Source exceeds this runner’s inline upload limit.')
-    return data, {'sha256': digest, 'bytes': len(data), 'path': 'dist/assets/desk-original.jpg'}
+    return data, {'sha256': digest, 'bytes': len(data), 'path': SOURCE_PATH}
 
 
 def build_request(data):
     return {
-        'display_name': 'Backside Universe - Complete Desk - Marble 1.1',
-        'model': MODEL, 'seed': 20261104,
+        'display_name': f'Backside Universe - {LABEL} - Marble 1.1',
+        'model': MODEL, 'seed': SEED,
         'permission': {'public': False, 'allow_id_access': False, 'allowed_readers': [], 'allowed_writers': []},
         'world_prompt': {'type': 'image', 'is_pano': False,
                          'image_prompt': {'source': 'data_base64', 'extension': 'jpg',
@@ -131,7 +149,7 @@ def import_world(world, state):
     variants = {}
     for variant in ('full_res', '500k'):
         if urls.get(variant):
-            variants[variant] = download(urls[variant], f'desk-{variant}.spz')
+            variants[variant] = download(urls[variant], f'{STEM}-{variant}.spz')
     if not variants:
         raise RuntimeError('No recognized full_res/500k variant in response.')
     extras = {}
@@ -142,8 +160,8 @@ def import_world(world, state):
             extras[name] = download(url, filename)
     manifest = {
         'status': 'generated', 'model': MODEL, 'source_sha256': state['source']['sha256'],
-        'source_image': '../../assets/desk-original.jpg', 'width': 1320, 'height': 1739,
-        'seed': 20261104, 'input': 'complete unedited photo',
+        'source_image': SOURCE_URL, 'width': SIZE[0], 'height': SIZE[1],
+        'seed': SEED, 'input': 'complete unedited photo',
         'world_id': world.get('world_id'), 'operation_id': state['operation_id'],
         'cost': state.get('cost'), 'variants': variants, 'extras': extras,
         'semantics_metadata': semantics, 'coordinate_system': 'marble_raw_opencv',
@@ -237,7 +255,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('command', choices=['prepare', 'generate', 'resume'])
     parser.add_argument('--operation-id')
+    parser.add_argument('--case', choices=['desk', 'canine'], default='desk')
     args = parser.parse_args()
+    if args.case == 'canine':
+        configure_canine()
     EVIDENCE.mkdir(parents=True, exist_ok=True)
     with (EVIDENCE / 'runner.lock').open('a') as lock:
         try:

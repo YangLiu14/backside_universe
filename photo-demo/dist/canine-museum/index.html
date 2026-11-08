@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小狗的内脏博物馆 · 背面宇宙</title><link rel="icon" href="data:,">
+<script>const route = new URLSearchParams(location.search); if (route.get('view') === 'marble' || route.has('review')) location.replace('./cutaway.html' + location.search + location.hash);</script>
+<link rel="stylesheet" href="./museum.css">
+<style>
+main.orbit{width:min(1080px,94%)}.orbit .title{padding:20px 0 14px}.orbit h1{font-size:clamp(28px,3.4vw,46px)}.orbit .title p{font-size:13px}
+.orbit section{width:min(100%,99svh);margin:auto}.orbit #stage{width:100%;aspect-ratio:1706/1279;height:auto;background:#242520;border-color:#42473e}.orbit #photo{background:#242520}
+.orbit .tools{gap:16px}.orbit footer a,.orbit header a{color:var(--moss);text-decoration:underline;text-underline-offset:3px}
+.orbit #stage:focus-visible{outline-offset:-2px}.orbit .plate{z-index:1}.orbit #hint{margin:0;font-size:12px;color:var(--faint)}
+@media(max-width:640px){main.orbit{width:94%}.orbit #stage{height:auto;aspect-ratio:4/3}.orbit .title{padding:16px 0 12px}.orbit .title p{margin-top:5px}.orbit .tools{gap:8px}.orbit .caption{align-items:start}}
+#organ-pins{position:absolute;inset:0;pointer-events:none}.organ-pin{pointer-events:auto;position:absolute;transform:translate(-50%,-50%);border:1px solid #dcb981;background:#292721e8;color:#fff4df;font:600 11px Georgia,serif;border-radius:50%;width:23px;height:23px;padding:0;line-height:20px;box-shadow:0 1px 5px #0008}.organ-pin:hover,.organ-pin:focus-visible{background:#a25231}
+#flank-actions,#gallery-focus{position:absolute;bottom:10px;z-index:2}#flank-actions{right:10px}#gallery-focus{left:50%;transform:translateX(-50%);width:max-content;max-width:96%;display:flex;align-items:center;gap:6px;background:#fcf6e9f5;padding:5px 8px;border:1px solid #aaa28b;border-radius:4px}#gallery-title{color:#352f26;font-size:13px;font-weight:600}
+#flank-actions button,#gallery-focus button{background:#fbf4e7;color:#3f372c;border:1px solid #b7a991;padding:5px 9px;font-size:12px;border-radius:3px}#galleries{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-block:1px solid var(--line);margin-top:9px}.gallery-entry{border:0;border-right:1px solid var(--line);text-align:left;padding:9px;background:transparent}.gallery-entry:last-child{border:0}.gallery-entry small{font:10px ui-monospace,monospace;color:#776854}.gallery-entry strong{display:block;font-weight:560;font-size:13px;color:var(--ink)}.gallery-entry:hover,.gallery-entry[aria-pressed=true]{background:#e6e6d9}#gallery-note{margin:8px 0 14px;color:var(--faint);font-size:13px}#gallery-note:empty{display:none}
+@media(max-width:640px){#galleries{grid-template-columns:repeat(3,1fr)}.organ-pin{width:17px;height:17px;font-size:9px;line-height:14px}#gallery-focus{gap:3px;padding:4px}#gallery-title{font-size:11px}.orbit .caption{flex-wrap:wrap}}
+#stage[data-browsing=true]{touch-action:none;cursor:grab;user-select:none}#stage[data-browsing=true]:active{cursor:grabbing}
+</style>
+<script type="importmap">{"imports":{"three":"../vendor/three.module.js","three/addons/":"../vendor/addons/","@sparkjsdev/spark":"../gs-lab/vendor/spark.module.js"}}</script>
+<link rel="stylesheet" href="./food-tour.css">
+</head><body><main class="orbit">
+<header><div class="brand"><b>背面宇宙</b><i></i><span>小狗身体博物馆</span></div><a href="./dog.html?model=hi3d">查看独立模型 ↗</a></header>
+<div class="title"><h1>小狗的内脏博物馆<span>。</span></h1><p>跟随一口食物，在沿途的器官展馆停靠参观。</p><button id="food-start" class="food-primary" type="button" disabled>▶ 食物的第一视角之旅</button></div>
+<section aria-label="小狗照片与三维实景转场">
+<div id="stage" tabindex="0" aria-describedby="hint" aria-label="左右拖动或按方向键绕行，Home 回到原照，End 查看右侧">
+<canvas id="world" aria-hidden="true"></canvas><img id="photo" src="./assets/original.jpg" alt="白毛黄耳的小狗坐在地毯上，歪着头看向镜头。" draggable="false">
+<div class="plate"><i></i><span id="viewName">原照</span></div>
+<div id="tour-shade" hidden></div>
+<div id="tour-overlay" hidden><div class="tour-map-card"><canvas id="tour-map" width="352" height="286" aria-label="小狗侧身图，红点表示食物的当前位置"></canvas></div>
+<div id="tour-departure" hidden><span>从口腔出发，沿途可进六馆</span><button id="tour-first-landing" type="button">先看胸腔停靠点 →</button></div>
+<div id="tour-doorways" hidden></div>
+<div id="tour-landing" hidden><strong id="tour-location"></strong><button id="tour-pass" type="button" hidden>继续前行 →</button></div>
+<div id="tour-room-card" hidden><strong id="tour-room-title"></strong><button id="tour-room-back" type="button">返回食物路线</button></div>
+<div class="tour-caption"><div><span id="tour-step"></span><strong id="tour-heading"></strong></div><p id="tour-copy"></p></div></div>
+<div id="digestive-map" hidden><canvas aria-hidden="true"></canvas></div><div id="organ-pins"></div><div id="flank-actions" hidden><button id="tour-map-toggle" type="button" aria-pressed="false">显示消化路线</button> <button id="side-reset" type="button" hidden>复位视角</button> <button id="coat-toggle" type="button">查看完整外观</button></div>
+<div id="gallery-focus" hidden><button id="gallery-back" type="button">← 返回全景</button><span id="gallery-title"></span><button id="gallery-reset" type="button" hidden>复位视角</button></div></div>
+<div id="tour-panel" hidden><div id="tour-room-tools"><button id="tour-room-sound" type="button">关闭旁白</button><span>拖动环绕，滚轮或双指缩放。双击展品对焦。</span></div><nav id="tour-stops" aria-label="消化道六站"></nav>
+<label class="tour-timeline">游览进度 <input type="range" id="tour-time" min="0" step=".01" value="0"></label><div class="tour-controls"><button id="tour-prev" type="button">上一站</button><button id="tour-play" class="food-primary" type="button">暂停</button><button id="tour-next" type="button">下一站</button><label class="tour-docking"><input type="checkbox" id="tour-autostop" checked> 到馆停靠</label><button id="tour-sound" type="button">关闭旁白</button><button id="tour-exit" type="button">退出导览</button></div></div>
+<div class="tools"><button id="turn" disabled><span id="playMark" aria-hidden="true">↻</span><span id="playLabel">播放转场</span></button>
+<div class="track"><div><label for="angle">正面原照</label><span>右侧剖景</span></div><input id="angle" type="range" min="0" max="90" step=".1" value="0" disabled aria-label="向右绕行"></div>
+<output for="angle" id="degrees">000°</output></div>
+<div class="caption"><p id="hint" role="status">正在载入小狗和房间…</p><span><a href="./assets/digestion/food-tour.mp4" download>下载消化导览短片</a></span></div>
+<nav id="galleries" aria-label="六个器官展区"></nav><p id="gallery-note" aria-live="polite"></p></section></main><script type="module" src="./transition.js"></script></body></html>

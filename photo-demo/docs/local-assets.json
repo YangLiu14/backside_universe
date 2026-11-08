@@ -232,6 +232,251 @@
       "sha256": "dd9356a21a965c521ab7f3ece3c260eed2d243acdcbe8c86b69ecb1232d23305"
     },
     {
+      "path": "dist/canine-museum/assets/digestion/colon.m4a",
+      "bytes": 104019,
+      "sha256": "ff7fa8915dc19e2fe4e7a0648d454baa89c4bc66a177568448e3c35984da4d8d"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/esophagus.m4a",
+      "bytes": 83603,
+      "sha256": "e39cf4ebd6dd4c278100f5ca35b9e4cfd971176adb8fb6577591f641f3421227"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/food-tour.mp4",
+      "bytes": 31301620,
+      "sha256": "779ee614887c71ec70fc18392530a7477cb5d639bd542ee800db409c22e4402a"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/galleries/gut.m4a",
+      "bytes": 127464,
+      "sha256": "1430ee5e96be1c22d8273dc77ad8d6d14d8a59cfd6b514869ed3421b0d4cc158"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/galleries/heart.m4a",
+      "bytes": 97013,
+      "sha256": "679703326fa039a273a8de206a4e93d508d8f91822e082280113dc2537dcb20b"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/galleries/kidney.m4a",
+      "bytes": 108675,
+      "sha256": "e7e63517e30b2e0839d242d971beea45eb0f5cf1d3fad64fbd15ed55d408fb90"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/galleries/liver.m4a",
+      "bytes": 100831,
+      "sha256": "2e044c90aa8409cb5501c917d0ef1a1713ebf7edeb33d06b1a8a5f5ed5207800"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/galleries/lungs.m4a",
+      "bytes": 88975,
+      "sha256": "46996afede1be3acfcb06051b3ae7f2dd11071b45ce1a1d77646140cefd167ba"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/galleries/stomach.m4a",
+      "bytes": 112842,
+      "sha256": "ae3875231a1c47eb0a607b401116d099dab9ca71821fae379e41e50128c2e948"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/mouth.m4a",
+      "bytes": 103497,
+      "sha256": "e0d65cd4893fbe12cf8c1ef5a8b09643432f29c2cdfc19e04c6dba6909da3310"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/rectum.m4a",
+      "bytes": 116294,
+      "sha256": "05c6975f2b4e92a967a87a131a817476647e5ab39ac963410a27690e577db8ae"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/small-intestine.m4a",
+      "bytes": 130306,
+      "sha256": "1410974fb16740e3f5c744e750a4c2b1fced7a61a57d6c3a8db934bab7e24d1f"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/stomach.m4a",
+      "bytes": 118883,
+      "sha256": "81da7d680278f735675aae2d0882753f52695ca753fa972da6a2f6cf06950415"
+    },
+    {
+      "path": "dist/canine-museum/assets/dog/hi3d-dog.glb",
+      "bytes": 48710692,
+      "sha256": "b23a122253ed44ebc50bf995ce3dc8a87f842a22e9e7b41d14c20333ff82d843"
+    },
+    {
+      "path": "dist/canine-museum/assets/dog/seated-dog.glb",
+      "bytes": 9228852,
+      "sha256": "55c10b66cc9c35d01f720a27d51b0296e9aee4a4ada7833748a218319b3a3ada"
+    },
+    {
+      "path": "dist/canine-museum/assets/flank.bin",
+      "bytes": 5805552,
+      "sha256": "b47eeea42ee1950192578c0c6f835dc9c2b480108fe68e9f2e4f1b6593096b25"
+    },
+    {
+      "path": "dist/canine-museum/assets/flank.webp",
+      "bytes": 252078,
+      "sha256": "cf99c0a53082859ddb21795ec4fb1939e318df0d69e31e82acc9a1e6864681c1"
+    },
+    {
+      "path": "dist/canine-museum/assets/gallery-walls.jpg",
+      "bytes": 983773,
+      "sha256": "2a89ff3a1750d085bdaae680127c247d51bdb9b2078bee7d4206c5220b9aa6b9"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/flank-mask.png",
+      "bytes": 4552,
+      "sha256": "001afa7e0144208f152c0a1e81bb499b80ea48240f4e9eb1ecb294e01b0f724a"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/gut-detail.glb",
+      "bytes": 4906076,
+      "sha256": "b5262b4cbe719bcda057e1e407d8bd07b9ca2f920d09064a9c8c14459da07c9a"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/gut-overview.glb",
+      "bytes": 1002268,
+      "sha256": "54335c82def2885080167ad841684e6c541af6ab2316f0f4fb8c691e0655a098"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/heart-detail.glb",
+      "bytes": 4191436,
+      "sha256": "37ef772656759df2d504e090715565ce5af14fa90214b31db1f6525852c80fdf"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/heart-overview.glb",
+      "bytes": 836184,
+      "sha256": "67242793e47dbe0c26914e38f6f1ad537323c96d9eeb3d0ef5378a3f953a3996"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/kidney-detail.glb",
+      "bytes": 4255064,
+      "sha256": "19b8ddb30bb3c40d5e111e67e5bd8d9dd385b39b22a97aed5f263bfd68b2ed86"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/kidney-overview.glb",
+      "bytes": 854916,
+      "sha256": "f4dcee793c070f8e3ef90f1cefa04486067b7ede34713a86806276b0fe12ffe1"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/liver-detail.glb",
+      "bytes": 3962880,
+      "sha256": "cd1bdbd52d3bcebb43c9884bb1b09a5731381b1d18da81730ef3b57ba42455ad"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/liver-overview.glb",
+      "bytes": 771884,
+      "sha256": "0d518764499ae01069ab7e3c52cd2bddc97c25e448a960eab37c822c399917a6"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/lungs-detail.glb",
+      "bytes": 4998200,
+      "sha256": "8181085d78277f37240d813bcc9224031d30efd30e3cb628375af4e8492065a6"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/lungs-overview.glb",
+      "bytes": 1028376,
+      "sha256": "19490cdfbf98b804e757a7ac2bfda86191cae4c317e1a9c72fe31a939906867c"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/museum-tour.mp4",
+      "bytes": 7378251,
+      "sha256": "c8caaf41276f79916766f2897ae4afb6f91c6811c212558e2efa4883ffd744dd"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/stomach-detail.glb",
+      "bytes": 3848988,
+      "sha256": "83acda4ff112035fc2bbf6e906c885de9db5cf47a665c8ebba7cd2450c25c527"
+    },
+    {
+      "path": "dist/canine-museum/assets/hi3d-galleries/stomach-overview.glb",
+      "bytes": 764772,
+      "sha256": "ce127fc641d445ce1bc0a0fd659b7e811e17e6d4a0206205631e92900f59a82e"
+    },
+    {
+      "path": "dist/canine-museum/assets/inference-reference.jpg",
+      "bytes": 93968,
+      "sha256": "6be563f50866d86e892e877c0eff7509f827c8847e8ce08281b8304b2126ba02"
+    },
+    {
+      "path": "dist/canine-museum/assets/marble/canine-500k.spz",
+      "bytes": 7628610,
+      "sha256": "3ce376e883eac0f709585325ce9ec51d782ff99678ba9b085c8b2cc90a469ce0"
+    },
+    {
+      "path": "dist/canine-museum/assets/marble/canine-full_res.spz",
+      "bytes": 29218963,
+      "sha256": "6698609e5287fefcf61f92f40ac658e4da6df9699ce121d48b556b6f4d179b46"
+    },
+    {
+      "path": "dist/canine-museum/assets/marble/world-collider.glb",
+      "bytes": 1801376,
+      "sha256": "0391329bf3d7e23eaa81441472491c2e47e76e49bdc3c4ae703157a96e455487"
+    },
+    {
+      "path": "dist/canine-museum/assets/marble/world-pano.jpg",
+      "bytes": 10481415,
+      "sha256": "9492ae59509dbcedc46d9c772a0a93a78b3e9699e44902ea5ee16ed89a9ae58b"
+    },
+    {
+      "path": "dist/canine-museum/assets/original.jpg",
+      "bytes": 153857,
+      "sha256": "1c1a19fd7ba6aa9a0f7c538b1b3f94b1da02cdae1261f4f4e46fefa956f3ef0b"
+    },
+    {
+      "path": "dist/canine-museum/assets/profile-reference.png",
+      "bytes": 1907290,
+      "sha256": "41deb011cd16834105e3c09dcb384a06b4d7d86b8d0228ebf466c33586f74640"
+    },
+    {
+      "path": "dist/canine-museum/assets/room-underlay.jpg",
+      "bytes": 32962,
+      "sha256": "709ebbb2ef12609fde0a8f76c4eb58e582d21f636f2554464363c16c81b2dbd5"
+    },
+    {
+      "path": "dist/canine-museum/assets/room.splat",
+      "bytes": 11838112,
+      "sha256": "5e4d3f966adb71b76fee1fd5046f61fe971a70a0e9bae13e30a2e37e23d65c3c"
+    },
+    {
+      "path": "dist/canine-museum/assets/source-gaussian.ply",
+      "bytes": 25156404,
+      "sha256": "3d660f1d6492cbb7366891aefdf5c9dcb66a3ea586c0c9f184d82e1ce4f2152c"
+    },
+    {
+      "path": "dist/canine-museum/assets/transition/contact.png",
+      "bytes": 16182,
+      "sha256": "a31979be784db258845fd3b1b7fae21f3e5639714f9db079f2550734a721af23"
+    },
+    {
+      "path": "dist/canine-museum/assets/transition/hi3d-orbit.glb",
+      "bytes": 5383284,
+      "sha256": "8fdfadc3d2f00a76f01a7b337bb15759b5670161eb967105797c0040a0794deb"
+    },
+    {
+      "path": "dist/canine-museum/assets/transition/photo-to-hi3d.mp4",
+      "bytes": 2588213,
+      "sha256": "69d198e9a5e2cbe665b1899c1b413102e165fcc81c3b0f3044f8e643ee5f8acc"
+    },
+    {
+      "path": "dist/canine-museum/assets/transition/room.spz",
+      "bytes": 7455883,
+      "sha256": "8ba3a72d260d6fa974a783e73e8657261b0cb54f897f3524a5a202a17cddb86b"
+    },
+    {
+      "path": "dist/canine-museum/assets/transition/source-surface.png",
+      "bytes": 107789,
+      "sha256": "655ed6fa5b3c8a069bd68dc090a34b47e9fcf939d3fc20fad88b6284a6c95a98"
+    },
+    {
+      "path": "dist/canine-museum/assets/transition/source-warp.png",
+      "bytes": 14465,
+      "sha256": "b44b8fec0814700d41a3b9a41f596bb94615be17ad8c09b71f535fcb590276e8"
+    },
+    {
+      "path": "dist/canine-museum/assets/visible-coat.bin",
+      "bytes": 548860,
+      "sha256": "8deeda5271db755e44b3fd2073a373c28e8ecfe9dc9315fece50056d642624bf"
+    },
+    {
       "path": "dist/gs-lab/assets/desk-gaussian.ply",
       "bytes": 52084404,
       "sha256": "c36a8b8a7ab3dfe92be212e4c2a2c4ab2bab10abc5ee53bf03f85821abf2c60d"

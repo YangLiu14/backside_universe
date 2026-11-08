@@ -1,0 +1,28 @@
+{
+  "model": "Tripo v3.1",
+  "endpoint": "multiview_to_model",
+  "task_id": "6deb8648-f39a-4cc9-837d-ba30ef64740b",
+  "credits_consumed": 20,
+  "input": {
+    "front_photo": "1c1a19fd7ba6aa9a0f7c538b1b3f94b1da02cdae1261f4f4e46fefa956f3ef0b",
+    "approved_right_profile": "94b5e2e1e9e6d14fbee33e306ed3c94af0283c3bc2b7d444708dc5d991a712b4"
+  },
+  "raw_geometry": {
+    "sha256": "4897555f8bbacb17039682d12aa4dc2d08dd7fbe5cd35bd1e357caa333d16f4e",
+    "triangles": 1487300
+  },
+  "finish": {
+    "coat_texture": "3072 px two-view color projection; center back extrapolated from observed coat samples",
+    "fur_strips": 95111,
+    "mesh_triangles": {
+      "Directional guard hairs": 570666,
+      "tripo_mesh_6deb8648-f39a-4cc9-837d-ba30ef64740b": 325000
+    }
+  },
+  "deliverable": {
+    "file": "seated-dog.glb",
+    "bytes": 9228852,
+    "sha256": "55c10b66cc9c35d01f720a27d51b0296e9aee4a4ada7833748a218319b3a3ada",
+    "triangles": 895666
+  }
+}

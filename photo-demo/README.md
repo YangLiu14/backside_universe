@@ -16,6 +16,7 @@ npm run dev
 
 | 入口 | 用途与当前结论 |
 | --- | --- |
+| [小狗身体博物馆](http://127.0.0.1:9988/canine-museum/index.html) | 原照、Marble 房间与 Hi3D 小狗的可逆侧绕；在同一只小狗的右侧打开骨架、进入六个 Hi3D 器官展馆。[制作与恢复](docs/CANINE_MUSEUM.md) |
 | `/` | 原照片到桌面度假世界的 4.5 秒体验；现有版本保留 |
 | `/?view=room` | 固定原照机位，检查家具、材质与场景还原 |
 | `/gs-lab/index.html` | BLUNT + DA3 深度推导 Gaussian 基线；遮挡缺失明显 |

@@ -1,0 +1,34 @@
+{
+  "organs": {
+    "heart": {
+      "provider": "Tripo3D",
+      "state": "unsubmitted",
+      "reference_sha256": "f46edac739e7cc3c722f40459c880d18670dcd5a043aa08f172862306be64a4b"
+    },
+    "lungs": {
+      "provider": "Tripo3D",
+      "state": "unsubmitted",
+      "reference_sha256": "d08bba65345dc85a99c94aeacea14f431dd73eda51c4489c82902a5515d091cc"
+    },
+    "liver": {
+      "provider": "Tripo3D",
+      "state": "unsubmitted",
+      "reference_sha256": "c422a3536323172710ffd7d55ba4555b2cf0b346a60fd3776505d197161ae902"
+    },
+    "stomach": {
+      "provider": "Tripo3D",
+      "state": "unsubmitted",
+      "reference_sha256": "56229147a76c61d3c45f63383cb831065f39c9a9df9d45aa073d12d92eefdf92"
+    },
+    "kidney": {
+      "provider": "Tripo3D",
+      "state": "unsubmitted",
+      "reference_sha256": "6bb26ff62156de859bdf4beb071fedc4e85bb70c1023a30cec2dee08d3b520b5"
+    },
+    "gut": {
+      "provider": "Tripo3D",
+      "state": "unsubmitted",
+      "reference_sha256": "36e464aa79e6ae91ffeabd744fdb48b0efaca03b535afd4e62dc4eba2b72c275"
+    }
+  }
+}

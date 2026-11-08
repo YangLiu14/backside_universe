@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
-export function createViewer(host,{shadows=false,fitToViewport=false}={}){
+export function createViewer(host,{shadows=false,fitToViewport=false,groundShadow=false,exposure}={}){
  const draco=new DRACOLoader().setDecoderPath('../vendor/draco/');
  const loader=new GLTFLoader().setDRACOLoader(draco);
  const scene=new THREE.Scene();scene.background=new THREE.Color('#eeeae2');
@@ -10,6 +10,11 @@ export function createViewer(host,{shadows=false,fitToViewport=false}={}){
  const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment(),env=pmrem.fromScene(room,.04);scene.environment=env.texture;room.dispose();pmrem.dispose();
  const camera=new THREE.PerspectiveCamera(38,1,.01,100);const light=new THREE.DirectionalLight('#fff3dc',2.3);light.position.set(3,5,4);scene.add(light,new THREE.HemisphereLight('#f6faff','#837f72',1.5));
  if(shadows){renderer.toneMappingExposure=1;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;scene.environmentIntensity=.4;light.castShadow=true;light.shadow.mapSize.set(2048,2048);Object.assign(light.shadow.camera,{left:-2,right:2,top:2,bottom:-2,near:.1,far:15});light.shadow.bias=-.0001;light.shadow.normalBias=.0003;}
+ if(exposure!==undefined)renderer.toneMappingExposure=exposure;
+ if(groundShadow&&shadows){
+   const ground=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.ShadowMaterial({opacity:.20}));
+   ground.rotation.x=-Math.PI/2;ground.position.y=-.006;ground.receiveShadow=true;scene.add(ground);
+ }
  let model,angle=0,pitch=.27,distance=3.4,centerY=.8,active=true,serial=0;
  const render=()=>{if(!active)return;const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();const radius=distance*(fitToViewport?Math.max(1,h/w):1);camera.position.set(radius*Math.sin(angle)*Math.cos(pitch),centerY+radius*Math.sin(pitch),radius*Math.cos(angle)*Math.cos(pitch));camera.lookAt(0,centerY,0);renderer.render(scene,camera);};
  new ResizeObserver(render).observe(host);

@@ -43,6 +43,7 @@ evidence/
 *.mov
 *.webm
 *.mp3
+*.m4a
 *.wav
 *.ogg
 

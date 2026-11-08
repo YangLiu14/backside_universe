@@ -1,0 +1,41 @@
+{
+  "world_id": "43181bd2-fd62-435f-9a7b-7d151c83a01c",
+  "source_sha256": "1c1a19fd7ba6aa9a0f7c538b1b3f94b1da02cdae1261f4f4e46fefa956f3ef0b",
+  "full_sha256": "6698609e5287fefcf61f92f40ac658e4da6df9699ce121d48b556b6f4d179b46",
+  "method": "SIFT/MAGSAC original-to-Marble panorama; camera orientation and focal fit; full SPZ depth for dog scale",
+  "panorama_matches": 85,
+  "panorama_median_px": 1.4998467160152744,
+  "browser_refinement": {
+    "matches": 25,
+    "before_median_px": 3.0786007156938395,
+    "after_median_px": 2.9693872759130917
+  },
+  "raw_center": [
+    -0.00619121222037793,
+    0.021436601652053248,
+    0.024999999999999998
+  ],
+  "cv_to_raw_quaternion": [
+    -0.2967911151511661,
+    0.01179672152261817,
+    0.03572374706811115,
+    0.9542010716950903
+  ],
+  "camera_scale": [
+    4.37336457971062,
+    4.148023290656054,
+    4.654074603616363
+  ],
+  "focal_px": [
+    1557.4510916805773,
+    1558.7481521595953
+  ],
+  "depth_anchor_count": 9,
+  "fit_size": [
+    840,
+    630
+  ],
+  "inliers": 25,
+  "median_px": 2.9693872759130917,
+  "p90_px": 7.066605716857785
+}

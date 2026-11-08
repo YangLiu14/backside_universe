@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<script>const q=new URLSearchParams(location.search);if(!q.has('review')&&q.get('view')!=='marble'&&(q.has('angle')||q.get('view')==='cutaway'))location.replace('./index.html'+location.search+location.hash);</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小狗身体博物馆 · 背面宇宙</title><link rel="icon" href="data:,"><link rel="stylesheet" href="./museum.css">
+<script type="importmap">{"imports":{"three":"../vendor/three.module.js","three/addons/":"../vendor/addons/","@sparkjsdev/spark":"../gs-lab/vendor/spark.module.js"}}</script></head>
+<body><main>
+<header><div class="brand"><svg viewBox="0 0 36 36" fill="none" aria-hidden="true"><circle cx="18" cy="18" r="12.5"/><ellipse cx="18" cy="18" rx="6" ry="16" transform="rotate(58 18 18)"/><path d="M18 2v5m0 22v5"/></svg><b>背面宇宙</b><i></i><span>日常博物志</span></div><a href="../marble-transition-lab/index.html">上一件藏品 <span aria-hidden="true">↗</span></a></header>
+<div class="title"><div><div class="kicker"><i></i> COLLECTION OF HIDDEN WORLDS <span>/</span> VOL. 02</div><h1>小狗身体博物馆<span>。</span></h1></div><p>它歪头看着你。<br>绕过这张照片，看看它侧身藏着什么。</p></div>
+<div class="spread"><section class="viewer"><div id="stage" tabindex="0" aria-label="三维展台。左右拖动或使用方向键转动；Home 回到原照。">
+<canvas id="world" aria-hidden="true"></canvas><img id="photo" src="./assets/original.jpg" draggable="false" alt="原照片：一只白底黄耳的小狗坐在浅色地毯上，抬头望向镜头。">
+<div class="plate"><i></i><span id="viewName">原照机位</span></div><span class="plateNo">FIG. 02</span><div id="pins"></div>
+<button hidden id="overview">← 返回侧面全景</button><span id="focusZoom" hidden><button id="nearer" aria-label="推近展品">＋</button><button id="farther" aria-label="退远观察">−</button></span><p id="failure" role="alert" hidden></p></div>
+<div class="tools"><button id="turn" disabled><span id="playMark" aria-hidden="true">↻</span> <span id="playLabel">绕到右侧</span></button><div class="track"><div><label for="angle">正面</label><span>右侧剖景</span></div><input id="angle" type="range" min="0" max="90" value="0" step=".1" disabled aria-label="绕行角度"></div><output for="angle" id="degrees">000°</output></div>
+<div class="caption"><span>图版 02 <i>/</i> <a id="modeLink" href="?view=marble">单看 Marble 实景 ↗</a></span><span id="hint" role="status">正在准备展柜…</span></div></section>
+<aside><div class="index-head"><span>展区索引</span><small>GALLERY INDEX</small></div><div id="catalog"></div><div class="label" aria-live="polite"><div class="kicker" id="tag">CURATOR’S NOTE</div><h2 id="labelTitle">一张照片，两种尺度</h2><p id="labelText">从原照出发，慢慢转到小狗侧面。</p></div></aside></div>
+<footer><span>背面宇宙 <i>/</i> 私人藏品系列</span><a href="./index.html">回到照片转场 ↗</a></footer>
+</main><script type="module" src="./museum.js"></script></body></html>

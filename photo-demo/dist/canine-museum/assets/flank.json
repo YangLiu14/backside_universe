@@ -1,0 +1,49 @@
+{
+  "source": "Generated side reference; not an observed view.",
+  "parts": [
+    {
+      "name": "flank",
+      "count": 30104,
+      "indexCount": 174120,
+      "position": 0,
+      "uv": 361248,
+      "index": 602080,
+      "sourcePosition": 1298560,
+      "sourceUv": 1659808
+    },
+    {
+      "name": "far",
+      "count": 53456,
+      "indexCount": 316428,
+      "position": 1900640,
+      "uv": 2542112,
+      "index": 2969760,
+      "sourcePosition": null,
+      "sourceUv": null
+    },
+    {
+      "name": "cover",
+      "count": 24690,
+      "indexCount": 145620,
+      "position": 4235472,
+      "uv": 4531752,
+      "index": 4729272,
+      "sourcePosition": 5311752,
+      "sourceUv": 5608032
+    }
+  ],
+  "files": {
+    "profile-reference.png": {
+      "bytes": 1907290,
+      "sha256": "41deb011cd16834105e3c09dcb384a06b4d7d86b8d0228ebf466c33586f74640"
+    },
+    "flank.bin": {
+      "bytes": 5805552,
+      "sha256": "b47eeea42ee1950192578c0c6f835dc9c2b480108fe68e9f2e4f1b6593096b25"
+    },
+    "flank.webp": {
+      "bytes": 252078,
+      "sha256": "cf99c0a53082859ddb21795ec4fb1939e318df0d69e31e82acc9a1e6864681c1"
+    }
+  }
+}

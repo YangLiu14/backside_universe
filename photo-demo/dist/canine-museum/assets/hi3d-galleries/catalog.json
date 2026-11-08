@@ -1,0 +1,250 @@
+{
+  "provider": "Hi3D.ai",
+  "model": "v3.0 high quality",
+  "credits_per_model": 45,
+  "date": "2026-11-08",
+  "native_front": "+Z",
+  "dog_open_side": "+X",
+  "organs": {
+    "heart": {
+      "asset_id": "a0345797c6ab45409d14c3aa3fb34946",
+      "source_sha256": "d27d7839b1aa04d60ce0ad9dd06bb798624fca76446fce293c48c59ca1924fa2",
+      "source_bytes": 48778612,
+      "source_triangles": 1978308,
+      "reference_sha256": "f46edac739e7cc3c722f40459c880d18670dcd5a043aa08f172862306be64a4b",
+      "depth_span_to_width": 0.633,
+      "overview": {
+        "file": "heart-overview.glb",
+        "triangles": 45000,
+        "bytes": 836184,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "sha256": "67242793e47dbe0c26914e38f6f1ad537323c96d9eeb3d0ef5378a3f953a3996"
+      },
+      "detail": {
+        "file": "heart-detail.glb",
+        "triangles": 375000,
+        "bytes": 4191436,
+        "textures": [
+          [
+            3072,
+            3072
+          ],
+          [
+            3072,
+            3072
+          ]
+        ],
+        "sha256": "37ef772656759df2d504e090715565ce5af14fa90214b31db1f6525852c80fdf"
+      }
+    },
+    "lungs": {
+      "asset_id": "40c7be78f9454f9283093d204e74e6ce",
+      "source_sha256": "83c54f547de5e6e6fe4931f4eb8b82044e44554fcd2553a82b109f8ec42a2989",
+      "source_bytes": 50030328,
+      "source_triangles": 1973412,
+      "reference_sha256": "d08bba65345dc85a99c94aeacea14f431dd73eda51c4489c82902a5515d091cc",
+      "depth_span_to_width": 0.2581,
+      "overview": {
+        "file": "lungs-overview.glb",
+        "triangles": 44999,
+        "bytes": 1028376,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "sha256": "19490cdfbf98b804e757a7ac2bfda86191cae4c317e1a9c72fe31a939906867c"
+      },
+      "detail": {
+        "file": "lungs-detail.glb",
+        "triangles": 375000,
+        "bytes": 4998200,
+        "textures": [
+          [
+            3072,
+            3072
+          ],
+          [
+            3072,
+            3072
+          ]
+        ],
+        "sha256": "8181085d78277f37240d813bcc9224031d30efd30e3cb628375af4e8492065a6"
+      }
+    },
+    "liver": {
+      "asset_id": "3b3874cf77ec4b62a74aaf8afdad58ae",
+      "source_sha256": "a624a3ed7ccd2955c6fc77c1360778d9b2d2bba6833b841b50d229540cee0eb1",
+      "source_bytes": 48438064,
+      "source_triangles": 1982248,
+      "reference_sha256": "c422a3536323172710ffd7d55ba4555b2cf0b346a60fd3776505d197161ae902",
+      "depth_span_to_width": 0.6374,
+      "overview": {
+        "file": "liver-overview.glb",
+        "triangles": 45000,
+        "bytes": 771884,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "sha256": "0d518764499ae01069ab7e3c52cd2bddc97c25e448a960eab37c822c399917a6"
+      },
+      "detail": {
+        "file": "liver-detail.glb",
+        "triangles": 374999,
+        "bytes": 3962880,
+        "textures": [
+          [
+            3072,
+            3072
+          ],
+          [
+            3072,
+            3072
+          ]
+        ],
+        "sha256": "cd1bdbd52d3bcebb43c9884bb1b09a5731381b1d18da81730ef3b57ba42455ad"
+      }
+    },
+    "stomach": {
+      "asset_id": "f321f88289734dc7af2b04afc57040fe",
+      "source_sha256": "d20aea81b7091ed166f28d3bee06ed032818e165da9ef20892794daad0d02883",
+      "source_bytes": 48202156,
+      "source_triangles": 1981610,
+      "reference_sha256": "56229147a76c61d3c45f63383cb831065f39c9a9df9d45aa073d12d92eefdf92",
+      "depth_span_to_width": 0.8008,
+      "overview": {
+        "file": "stomach-overview.glb",
+        "triangles": 45000,
+        "bytes": 764772,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "sha256": "ce127fc641d445ce1bc0a0fd659b7e811e17e6d4a0206205631e92900f59a82e"
+      },
+      "detail": {
+        "file": "stomach-detail.glb",
+        "triangles": 374999,
+        "bytes": 3848988,
+        "textures": [
+          [
+            3072,
+            3072
+          ],
+          [
+            3072,
+            3072
+          ]
+        ],
+        "sha256": "83acda4ff112035fc2bbf6e906c885de9db5cf47a665c8ebba7cd2450c25c527"
+      }
+    },
+    "kidney": {
+      "asset_id": "803e6db587e24a6188ad33a4fc8c3783",
+      "source_sha256": "bec6196613ad04a54e5d71462c7cd745d6cd9847e7bfaa68884b435563361f61",
+      "source_bytes": 48946852,
+      "source_triangles": 1977544,
+      "reference_sha256": "6bb26ff62156de859bdf4beb071fedc4e85bb70c1023a30cec2dee08d3b520b5",
+      "depth_span_to_width": 0.3383,
+      "overview": {
+        "file": "kidney-overview.glb",
+        "triangles": 45000,
+        "bytes": 854916,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "sha256": "f4dcee793c070f8e3ef90f1cefa04486067b7ede34713a86806276b0fe12ffe1"
+      },
+      "detail": {
+        "file": "kidney-detail.glb",
+        "triangles": 374999,
+        "bytes": 4255064,
+        "textures": [
+          [
+            3072,
+            3072
+          ],
+          [
+            3072,
+            3072
+          ]
+        ],
+        "sha256": "19b8ddb30bb3c40d5e111e67e5bd8d9dd385b39b22a97aed5f263bfd68b2ed86"
+      }
+    },
+    "gut": {
+      "asset_id": "00474bf4571c444c851db3341e061bba",
+      "source_sha256": "ccfd540fc1f039a1d35c3b2504d5ebc0558f124b7c99705a9fb9843ac66d569c",
+      "source_bytes": 50473628,
+      "source_triangles": 1972724,
+      "reference_sha256": "36e464aa79e6ae91ffeabd744fdb48b0efaca03b535afd4e62dc4eba2b72c275",
+      "depth_span_to_width": 0.844,
+      "overview": {
+        "file": "gut-overview.glb",
+        "triangles": 45000,
+        "bytes": 1002268,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "sha256": "54335c82def2885080167ad841684e6c541af6ab2316f0f4fb8c691e0655a098"
+      },
+      "detail": {
+        "file": "gut-detail.glb",
+        "triangles": 375000,
+        "bytes": 4906076,
+        "textures": [
+          [
+            3072,
+            3072
+          ],
+          [
+            3072,
+            3072
+          ]
+        ],
+        "sha256": "b5262b4cbe719bcda057e1e407d8bd07b9ca2f920d09064a9c8c14459da07c9a"
+      }
+    }
+  }
+}

@@ -69,6 +69,8 @@ Spark 许可证已保留在 `dist/gs-lab/vendor/SPARK-LICENSE.txt`。Three.js �
 
 后两步依赖 NumPy、SciPy、Pillow 和 OpenCV；当前本地环境位于 `experiments/gaussian/.venv/`。Python 环境、上游源码 clone、checkpoint 和 CUDA wheel 均不提交。运行脚本里已有的本机工具路径在新环境中需要调整。
 
+小狗案例单独恢复：见 [制作与资产清单](CANINE_MUSEUM.md)。
+
 ## 提交前检查
 
 ```sh

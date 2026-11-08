@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 import time
@@ -29,18 +30,38 @@ def main():
     parser.add_argument('--overlap', type=float, default=.8)
     parser.add_argument('--edge-mode', choices=['original', 'nearest', 'segmented'], default='segmented')
     parser.add_argument('--reuse-depth', action='store_true')
+    parser.add_argument('--photo', type=Path, help='New case: source photo; requires a separate output and cache directory.')
+    parser.add_argument('--output-dir', type=Path)
+    parser.add_argument('--cache-dir', type=Path)
+    parser.add_argument('--pivot-uv', type=float, nargs=2, default=(.53,.455))
     args = parser.parse_args()
+    if args.photo and (not args.output_dir or not args.cache_dir or args.edge_mode == 'segmented'):
+        parser.error('New photos require --output-dir, --cache-dir, and --edge-mode nearest or original (desk masks are desk-specific).')
+    if not all(0 < a < 1 for a in args.pivot_uv): parser.error('pivot must be inside the photo')
     sys.path.insert(0, str(EXP / 'da3-source/src'))
     import cv2
     import numpy as np
     import torch
     from PIL import Image
 
-    image_path = ROOT / 'dist/assets/desk-original.jpg'
+    image_path = args.photo or ROOT / 'dist/assets/desk-original.jpg'
     source_hash = hashlib.sha256(image_path.read_bytes()).hexdigest()
+    destination = args.output_dir or ROOT / 'dist/gs-lab/assets'
+    if args.photo:
+        previous = destination / 'scene.json'
+        if destination.resolve() == (ROOT / 'dist/gs-lab/assets').resolve():
+            parser.error('Use a separate output directory for a new photo; the desk baseline is reserved.')
+        if previous.exists() and json.loads(previous.read_text()).get('source_sha256') != source_hash:
+            parser.error('Output already belongs to another photograph. Choose a separate case directory.')
+        previous_run = args.cache_dir / 'source-da3-base.json'
+        if previous_run.exists() and json.loads(previous_run.read_text()).get('source_sha256') != source_hash:
+            parser.error('Depth cache already belongs to another photograph.')
     original = Image.open(image_path).convert('RGB')
-    cache_path = EXP / 'desk-da3-base.npz'
-    inference_meta = EXP / 'desk-da3-base.json'
+    cache_dir = args.cache_dir or EXP
+    cache_dir.mkdir(exist_ok=True, parents=True)
+    stem = 'source' if args.photo else 'desk'
+    cache_path = cache_dir / f'{stem}-da3-base.npz'
+    inference_meta = cache_dir / f'{stem}-da3-base.json'
     if args.reuse_depth:
         cached = np.load(cache_path)
         depth, K = cached['depth'], cached['intrinsics']
@@ -85,8 +106,8 @@ def main():
     out_w = round(original.width / original.height * out_h)
     dh, dw = depth.shape
     canonical_depth = cv2.resize(depth, (out_w, out_h), interpolation=cv2.INTER_LINEAR)
-    pivot_u, pivot_v = out_w * .53, out_h * .455
-    pivot_depth = float(np.median(canonical_depth[int(pivot_v)-3:int(pivot_v)+4,int(pivot_u)-3:int(pivot_u)+4]))
+    pivot_u, pivot_v = out_w * args.pivot_uv[0], out_h * args.pivot_uv[1]
+    pivot_depth = float(np.median(canonical_depth[max(0,int(pivot_v)-3):int(pivot_v)+4,max(0,int(pivot_u)-3):int(pivot_u)+4]))
     K = K.copy()
     K[0] *= out_w / dw
     K[1] *= out_h / dh
@@ -127,9 +148,8 @@ def main():
     for i in range(4):
         gaussians[f'rot_{i}'] = q[:, i].astype(np.float32)
     assert all(np.isfinite(v).all() for v in gaussians.values())
-    destination = ROOT / 'dist/gs-lab/assets'
     destination.mkdir(parents=True, exist_ok=True)
-    ply_path = destination / 'desk-gaussian.ply'
+    ply_path = destination / f'{stem}-gaussian.ply'
     blunt.write_ply(gaussians, str(ply_path))
     Image.fromarray(rgb).save(destination / 'inference-reference.jpg', quality=95)
     result = dict(**run, generator='BLUNT + complete-intrinsics adapter',
@@ -140,7 +160,8 @@ def main():
                   gaussian_count=len(z), gaussian_bytes=ply_path.stat().st_size,
                   ply_sha256=hashlib.sha256(ply_path.read_bytes()).hexdigest(),
                   original_width=original.width, original_height=original.height,
-                  source_image='../../assets/desk-original.jpg',
+                  source_image=os.path.relpath(image_path.resolve(), destination.resolve()),
+                  gaussian_file=ply_path.name,
                   coordinate_system='OpenCV: x right, y down, z forward; source camera at origin',
                   units='relative model units, not surveyed meters',
                   pivot_opencv=[(pivot_u-cx)*pivot_depth/fx,(pivot_v-cy)*pivot_depth/fy,pivot_depth],

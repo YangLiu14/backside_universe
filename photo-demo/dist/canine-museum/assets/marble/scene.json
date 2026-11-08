@@ -1,0 +1,66 @@
+{
+  "status": "generated",
+  "model": "marble-1.1",
+  "source_sha256": "1c1a19fd7ba6aa9a0f7c538b1b3f94b1da02cdae1261f4f4e46fefa956f3ef0b",
+  "source_image": "../original.jpg",
+  "width": 1706,
+  "height": 1279,
+  "seed": 20261108,
+  "input": "complete unedited photo",
+  "world_id": "43181bd2-fd62-435f-9a7b-7d151c83a01c",
+  "operation_id": "6148956c-9e77-469b-9af7-4bb778c77640",
+  "cost": {
+    "total_credits": 1580,
+    "line_items": [
+      {
+        "name": "Pano generation (image, non-pano)",
+        "credits": 80
+      },
+      {
+        "name": "World generation",
+        "credits": 1500
+      }
+    ]
+  },
+  "variants": {
+    "full_res": {
+      "file": "canine-full_res.spz",
+      "bytes": 29218963,
+      "sha256": "6698609e5287fefcf61f92f40ac658e4da6df9699ce121d48b556b6f4d179b46"
+    },
+    "500k": {
+      "file": "canine-500k.spz",
+      "bytes": 7628610,
+      "sha256": "3ce376e883eac0f709585325ce9ec51d782ff99678ba9b085c8b2cc90a469ce0"
+    }
+  },
+  "extras": {
+    "panorama": {
+      "file": "world-pano.jpg",
+      "bytes": 10481415,
+      "sha256": "9492ae59509dbcedc46d9c772a0a93a78b3e9699e44902ea5ee16ed89a9ae58b"
+    },
+    "collider": {
+      "file": "world-collider.glb",
+      "bytes": 1801376,
+      "sha256": "0391329bf3d7e23eaa81441472491c2e47e76e49bdc3c4ae703157a96e455487"
+    }
+  },
+  "semantics_metadata": {
+    "metric_scale_factor": 1.0326189,
+    "ground_plane_offset": 0.9834545
+  },
+  "coordinate_system": "marble_raw_opencv",
+  "calibration": {
+    "file": "registration.json",
+    "method": "SIFT/MAGSAC original-to-Marble panorama; camera orientation and focal fit; full SPZ depth for dog scale",
+    "browser_refinement": {
+      "matches": 25,
+      "before_median_px": 3.0786007156938395,
+      "after_median_px": 2.9693872759130917
+    }
+  },
+  "limitations": [
+    "Single-view generated room and animal; unseen surfaces and fur are inferred."
+  ]
+}
