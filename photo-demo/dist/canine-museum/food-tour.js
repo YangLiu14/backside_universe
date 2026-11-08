@@ -1,3 +1,4 @@
+import {createClayChannels} from './clay-channels.js';
 import {BrowseCamera} from './browse-camera.js';
 import {boundaries,createTract,nativeAt} from './digestive-tract.js';
 
@@ -36,6 +37,7 @@ function routeMap(canvas,profile,exhibits){
 
 export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
   const {worldFromNative}=museum,passages=createOrganPassages(museum);
+  const channels=createClayChannels(onChange);
   let renderRim;
   const root=byId('stage'),panel=byId('tour-panel'),overlay=byId('tour-overlay');
   const startButton=byId('food-start'),play=byId('tour-play'),mute=byId('tour-sound');
@@ -63,9 +65,18 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
   function currentPassage(){
     return intro<approachSeconds*.76?{site:null,opening:0}:passages.at(position());
   }
+  function featured(site){return site.zone==='upper'?'stomach':site.zone==='chest'?'lungs':index===4?'kidney':'gut';}
   function availableDoors(){
-    const {site,opening}=currentPassage();
-    return site&&opening>=.56?site.ids:[];
+    const {site,opening,peek}=currentPassage();
+    if(!site)return [];
+    if(opening>=.56)return site.ids;
+    return peek>=.70||opening>.14?[featured(site)]:[];
+  }
+  function apertureState(){
+    const {opening,peek=0}=currentPassage();
+    // Move through the same opening when entering from the first glimpse.
+    const w=Math.min(1,(visit?.weight||0)/.63),open=opening+(1-opening)*w*w*(3-2*w);
+    return {open,peek,mixed:open<.999&&(open>0||peek>0)};
   }
   function enterGallery(id,fromMesh=false){
     if(visit||!museum.exhibits.has(id))return;
@@ -108,6 +119,13 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
     const k=position(),{site}=currentPassage();
     if(!site)return null;
     const pose=passages.corridor(k,site,yaw,pitch);
+    const {opening,peek}=currentPassage();
+    if(opening>0||peek>0){
+      const primary=featured(site);
+      const preview=passages.inside(primary);
+      const t=Math.min(1,Math.max(0,(opening-.28)/.70)),blend=1-t*t*(3-2*t);
+      pose.eye.lerp(preview.eye,blend);pose.target.lerp(preview.target,blend);
+    }
     if(visit){
       const dest=visit.rig||passages.inside(visit.id),w=visit.weight*visit.weight*(3-2*visit.weight);
       pose.eye.lerp(dest.eye,w);pose.target.lerp(dest.target,w);
@@ -131,7 +149,9 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
     byId('tour-location').textContent=currentPassage().site.label+(parked?' · 已停靠':'');
     const width=root.clientWidth,height=root.clientHeight;
     const labels=ids.map(id=>{
-      const button=doorButtons.get(id),pt=passages.location(id).project(camera);
+      const button=doorButtons.get(id);
+      let pt=passages.location(id).project(camera);
+      if(apertureState().mixed)pt=renderRim.screenPoint(ids.length===1?{x:0,y:-.59}:pt);
       const half=button.offsetWidth*.5+4;
       return {button,x:Math.max(half,Math.min(width-half,(pt.x+1)*.5*width)),
         y:Math.max(height*.23,Math.min(height*.64,(1-pt.y)*.5*height+4)),half};
@@ -144,14 +164,16 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
     }
     for(const {button,x,y} of labels){button.style.left=x+'px';button.style.top=y+'px';}
   }
+  function beginWorld(renderer){
+    if(apertureState().mixed){renderRim??=createWindowRim();renderRim.begin(renderer);}
+  }
   function afterWorld(renderer,camera,aspect){
-    cutawayCamera=camera;drawEntrances(camera);
-    if(visit)return;
-    const {opening}=currentPassage();
-    if(opening>0&&opening<.999){
-      renderRim??=createWindowRim();
-      renderRim(renderer,opening,()=>tract.render(renderer,position(),tourTime,aspect,yaw,pitch));
-    }
+    cutawayCamera=camera;
+    const {site,opening,peek}=currentPassage();
+    if(opening>.75)passages.renderFoyer(renderer,camera,site,aspect,visit?.weight||0);
+    const view=apertureState();
+    if(view.mixed)renderRim.compose(renderer,view.open,view.peek,()=>renderChannel(renderer,aspect,Math.max(opening,view.peek*.6)),channels);
+    drawEntrances(camera);
   }
   function audioState(){
     const file=stops[index].id;
@@ -182,11 +204,11 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
     mute.textContent=muted?'打开旁白':'关闭旁白';mute.setAttribute('aria-pressed',String(!muted));
     buttons.forEach((button,i)=>{if(i===index)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current');});
   }
-  function setIndex(i,offset=0){index=i;elapsed=offset;yaw=0;pitch=0;finished=false;audioState();show();}
+  function setIndex(i,offset=0){index=i;channels.prepare(i);elapsed=offset;yaw=0;pitch=0;finished=false;audioState();show();}
   function begin(auto=true,station=0){
     if(active)return;
     visited.clear();parked=false;visibleDoors='';visit=null;
-    tract??=createTract();active=true;playing=auto;intro=station>0||(auto&&reduce.matches)?approachSeconds:0;
+    channels.retry();active=true;playing=auto;intro=station>0||(auto&&reduce.matches)?approachSeconds:0;
     index=0;elapsed=0;tourTime=0;finished=false;yaw=pitch=0;
     root.dataset.touring='true';document.querySelector('main.orbit').classList.add('touring');
     panel.hidden=false;overlay.hidden=false;startButton.hidden=true;shade.hidden=false;
@@ -247,16 +269,21 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
     const mouth=nativeAt(0),outside=mouth.clone();outside.x+=.095;outside.y+=.018;outside.z+=.105;
     eye.lerp(worldFromNative(outside),t);target.lerp(worldFromNative(mouth),t);return t;
   }
+  function renderChannel(renderer,aspect,opening){
+    const t=elapsed/stops[index].seconds;
+    if(channels.render(renderer,index,t,aspect,yaw,pitch,opening))return;
+    tract??=createTract();tract.render(renderer,position(),tourTime,aspect,yaw,pitch);
+  }
   function render(renderer,aspect){
     const seam=approachSeconds*.76,k=position();
     timeline.value=starts[index]+elapsed;
     shade.style.opacity=String(Math.max(0,1-Math.abs(intro-seam)/.27)*.98);
-    const {site,opening}=currentPassage();
+    const {site,opening,peek}=currentPassage();
     drawMap(k,opening>.4?site?.ids:null,visit?.id);
-    if(visit||opening>0)return false;
+    if(visit||opening>0||peek>0)return false;
     doorLayer.hidden=true;landing.hidden=true;
     if(intro<seam)return false;
-    tract.render(renderer,k,tourTime,aspect,yaw,pitch);return true;
+    renderChannel(renderer,aspect,0);return true;
   }
   function key(e){
     if(!active)return false;
@@ -280,10 +307,13 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
   });
   root.addEventListener('pointerup',e=>{
     const gesture=touch;touch=null;
-    if(!gesture||gesture.moved||gesture.id!==e.pointerId||visit||!cutawayCamera||currentPassage().opening<.70)return;
+    if(!gesture||gesture.moved||gesture.id!==e.pointerId||visit||!cutawayCamera||!availableDoors().length)return;
     const rect=root.getBoundingClientRect();
     const pointer={x:(e.clientX-rect.left)*2/rect.width-1,y:1-(e.clientY-rect.top)*2/rect.height};
-    const id=museum.hit(pointer,cutawayCamera);
+    const mixed=apertureState().mixed,ray=mixed?renderRim.pickPoint(pointer):pointer;
+    if(!ray)return;
+    const doors=availableDoors();
+    const id=mixed&&doors.length===1?doors[0]:museum.hit(ray,cutawayCamera);
     if(id)enterGallery(id,true);
   });
   for(const event of ['pointercancel','lostpointercapture'])root.addEventListener(event,()=>{touch=null;});
@@ -319,7 +349,7 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
   mute.onclick=()=>{muted=!muted;audioState();show();};startButton.disabled=false;
   return {get active(){return active;},get moving(){return active&&(playing||Boolean(visit&&(visit.leaving||visit.weight<1)));},
     get visiting(){return visit?.id||null;},get inspecting(){return Boolean(visit&&!visit.leaving&&visit.weight===1);},
-    get inCutaway(){return active&&(visit!==null||currentPassage().opening>0);},
-    get visitWeight(){return visit?.weight??0;},galleryRig,galleryPose,afterWorld,get state(){return {active,index,elapsed,playing,finished,muted,k:position(),nearby:availableDoors(),visiting:visit?.id??null,parked,yaw,pitch};},
+    get inCutaway(){return active&&(visit!==null||Boolean(currentPassage().site));},
+    get visitWeight(){return visit?.weight??0;},galleryRig,galleryPose,beginWorld,afterWorld,get state(){return {channels:channels.ready,failedChannels:channels.failed,active,index,elapsed,playing,finished,muted,k:position(),nearby:availableDoors(),visiting:visit?.id??null,parked,yaw,pitch};},
     resetRig(){if(visit)visit.rig=null;},begin,startAtLanding,exit,advance,entryPose,render,key};
 }

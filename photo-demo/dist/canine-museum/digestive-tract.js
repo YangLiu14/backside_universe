@@ -29,7 +29,7 @@ const profiles=[
   [16.5,1.17,1.06],[22,1.12,1.02],[24.6,1.08,1.04],[26,1.44,1.28],[29,1.55,1.34],
   [33.9,1.54,1.34],[35.5,1.66,1.36],[36.9,1.16,1.04],[38,1.52,1.26]
 ];
-const colors=['#bc7770','#b77462','#ca876b','#ca9e71','#aa8679','#ab7b72'].map(x=>new T.Color(x));
+const colors=['#d58e93','#76aaa0','#b57953','#deb270','#8ca787','#ac91b4'].map(x=>new T.Color(x));
 function tissue(k){
   let j=1;while(j<profiles.length-1&&profiles[j][0]<k)j++;
   const a=profiles[j-1],b=profiles[j],t=smooth(a[0],b[0],k);
@@ -69,13 +69,12 @@ function buildWall(){
   const g=new T.BufferGeometry();
   for(const [name,data,size] of [['position',pos,3],['color',rgb,3],['along',travel,1],['outward',radial,3]])g.setAttribute(name,new T.Float32BufferAttribute(data,size));
   g.setIndex(idx);g.computeVertexNormals();
-  const clock={value:0},m=new T.MeshStandardMaterial({vertexColors:true,roughness:.56,side:T.DoubleSide});
+  const clock={value:0},m=new T.MeshStandardMaterial({vertexColors:true,roughness:.86,side:T.DoubleSide});
   m.onBeforeCompile=shader=>{
     shader.uniforms.journeyClock=clock;
     shader.vertexShader='uniform float journeyClock; attribute float along; attribute vec3 outward; varying vec3 wallCoord;\n'+shader.vertexShader.replace('#include <begin_vertex>',
       '#include <begin_vertex>\nwallCoord=position; float pulse=smoothstep(4.,5.,along)*(1.-smoothstep(9.3,10.,along))*pow(.5+.5*cos(along*3.-journeyClock*2.1),5.); transformed-=outward*.13*pulse;');
-    shader.fragmentShader='varying vec3 wallCoord;\n'+shader.fragmentShader.replace('#include <color_fragment>',
-      '#include <color_fragment>\nvec3 w=wallCoord;float striae=sin(w.x*11.+3.*sin(w.y*2.3)+w.z*5.)*sin(w.z*8.4-w.y*6.2);float fine=sin(w.x*7.+w.y*3.+1.3*sin(w.z*1.5)+1.4*sin(w.y*2.));float capillary=pow(max(fine,0.),18.)*(.5+.5*sin(w.z*1.7+w.y));diffuseColor.rgb*=vec3(1.02,.99,.97)*(1.+.050*striae);diffuseColor.gb*=1.-.075*capillary;');
+
   };
   return {mesh:new T.Mesh(g,m),clock};
 }
@@ -90,14 +89,14 @@ function instanced(scene,geometry,settings,items){
 }
 function liningDetails(scene){
   const rng=random(1108),teeth=[],villi=[],papillae=[];
-  const shape=new T.LatheGeometry([[0,0],[.53,0],[.50,.18],[.38,.51],[.18,.82],[.036,.99],[0,1]].map(([x,y])=>new T.Vector2(x,y)),14);
+  const shape=new T.LatheGeometry([[0,0],[.53,0],[.50,.18],[.38,.51],[.32,.77],[.20,.91],[0,.98]].map(([x,y])=>new T.Vector2(x,y)),14);
   for(let i=0;i<12;i++)for(const side of [-1,1])for(const upper of [false,true]){
     const k=.13+i*.282+(upper?0:.125),a=(side>0?0:Math.PI)+(upper?1:-1)*side*(.54+.10*Math.cos(i));
     const f=frame(k),wall=surface(f,tissue(k),k,a),canine=i===2;
     const direction=f.vertical.clone().multiplyScalar(upper?-1:1).addScaledVector(f.right,-side*.20).addScaledVector(f.forward,.13).normalize();
     teeth.push({position:wall,direction,size:canine?[.78,1.41,.82]:[.60,.68+.13*Math.cos(i),.76],color:'#f1dfb4'});
   }
-  instanced(scene,shape,{roughness:.33},teeth);
+  instanced(scene,shape,{roughness:.78},teeth);
   for(let j=0;j<2550;j++){
     const k=15.16+rng()*9.70,a=tau*rng(),f=frame(k),wall=surface(f,tissue(k),k,a);
     const inward=f.center.clone().sub(wall).normalize(),len=.095+rng()*.19;

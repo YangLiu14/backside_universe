@@ -8,8 +8,9 @@ import tempfile
 from pathlib import Path
 from PIL import Image
 
-def resize(path):
-    size = 1024 if path.stem.endswith('-overview') else 3072
+def resize(path, size=None):
+    if size is None:
+        size = 1024 if path.stem.endswith('-overview') else 3072
     data = path.read_bytes()
     count = struct.unpack_from('<I', data, 12)[0]
     doc = json.loads(data[20:20+count])

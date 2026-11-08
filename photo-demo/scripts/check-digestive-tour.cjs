@@ -27,6 +27,9 @@ await p.locator('#tour-prev').click();assert.equal((await state()).tour.index,4)
 await p.locator('#tour-stops button').nth(2).click();assert.equal((await state()).tour.index,2);
 await p.locator('#tour-sound').click();assert.equal((await state()).tour.muted,true);
 await p.locator('#tour-exit').click();await p.waitForFunction(()=>!window.__photoOrbit.state.tour.active);await p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));assert.deepEqual((await state()).camera,base);
+const channelIds=['mouth','esophagus','stomach','small-intestine','colon','rectum'];
+await p.waitForFunction(ids=>ids.every(id=>window.__photoOrbit.state.tour.channels.includes(id)),channelIds);
+assert.deepEqual((await state()).tour.failedChannels,[]);
 assert.deepEqual(errors,[]);console.log({mobile,responses,errors});
 if(!mobile&&process.env.ALL==='1'){
 await p.locator('#food-start').click();await p.locator('#tour-autostop').uncheck();await p.locator('#tour-sound').click();await p.waitForFunction(()=>window.__photoOrbit.state.tour.finished,null,{timeout:120000});

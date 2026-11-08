@@ -33,5 +33,18 @@ const fs=require('node:fs/promises'),path=require('node:path'),assert=require('n
  const when=(await state()).tour.elapsed;await page.waitForTimeout(500);assert.equal((await state()).tour.elapsed,when);
  await page.keyboard.press('Escape');await wait(()=>!window.__photoOrbit.state.tour.visiting&&window.__photoOrbit.state.tour.playing);
  await page.locator('#tour-exit').click();assert.equal((await state()).tour.active,false);
+ // Enter through the working kiln doorway before the automatic two-gallery stop.
+ await page.goto(baseURL+'/canine-museum/index.html?tour=food&station=stomach');
+ await wait(()=>window.__photoOrbit?.state.tour.channels.includes('stomach')&&window.__photoOrbit.state.installed.length===6);
+ assert.equal((await state()).tour.index,2);
+ await page.locator('#tour-time').fill('19.75');
+ const kiln=page.locator('.tour-door[data-organ=stomach]');await kiln.waitFor({state:'visible'});
+ assert.deepEqual((await state()).tour.nearby,['stomach']);
+ const beforeKiln=await state(),sign=await kiln.boundingBox();
+ await page.mouse.click(sign.x+sign.width/2,sign.y-7);
+ await wait(()=>window.__photoOrbit.state.free&&window.__photoOrbit.state.tour.visiting==='stomach');
+ await page.locator('#tour-room-back').click();await wait(()=>!window.__photoOrbit.state.tour.visiting);
+ assert.equal((await state()).tour.elapsed,beforeKiln.tour.elapsed);
+ assert.deepEqual((await state()).camera,beforeKiln.camera);
  assert.deepEqual(errors,[]);console.log({mobile,passed:'all six Hi3D visits, free exploration, exact restore, docking and playback'});
 }finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});

@@ -133,8 +133,11 @@ export function createFlankMuseum({dog,fit,origin,ring,load,requestFrame,onSelec
     const scale=Math.min(w/size.x,h/size.y,.208/size.z);
     scene.position.sub(c);oriented.scale.setScalar(scale);anchor.add(oriented);oriented.userData.gallery=item.room.id;
     oriented.traverse(o=>{if(o.isMesh){o.material.envMapIntensity=.73;o.userData.gallery=item.room.id;}});
-    const width=size.x*scale,height=size.y*scale,depth=size.z*scale;
-    item.span=Math.max(width,height);item.depth=depth;
+    // Keep the doorway and camera fixed when the higher-detail mesh streams in.
+    if(!item.overview){
+      item.span=Math.max(size.x,size.y)*scale;
+      item.depth=size.z*scale;
+    }
     return oriented;
   }
   function loadOverview(id){

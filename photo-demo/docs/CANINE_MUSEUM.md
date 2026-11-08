@@ -31,9 +31,13 @@ Marble 1.1 接收完整 1706 × 1279 原照，world ID 为 `43181bd2-fd62-435f-9
 
 ## 食物的第一视角之旅
 
-[消化路线图](http://127.0.0.1:9988/canine-museum/index.html?map=food)按这只坐姿狗的口鼻、胸腹与骨盆位置标出六站。点图上的站名可以从该段开始。进入[食物视角](http://127.0.0.1:9988/canine-museum/index.html?tour=food)后，按播放可听普通话旁白。沿途可拖动转头、暂停、按站跳转、拖动进度或退出，退出后返回进来时的机位。六个展馆来自已有 Hi3D 模型。导览中的管壁、牙齿、胃皱襞和小肠绒毛为沿中心线制作的教学示意网格。
+[消化路线图](http://127.0.0.1:9988/canine-museum/index.html?map=food)按这只坐姿狗的口鼻、胸腹与骨盆位置标出六站。点图上的站名可以从该段开始。进入[食物视角](http://127.0.0.1:9988/canine-museum/index.html?tour=food)后，按播放可听普通话旁白。沿途可拖动转头、暂停、按站跳转、拖动进度或退出，退出后返回进来时的机位。六个展馆来自已有 Hi3D 模型。六段通道分别使用 Hi3D.ai 的私有动画风格网格，管腔内的镜头按原模型的可通行深度校准。分段预载，下载过程中使用轻量示意模型。
 
 到达胸腔、上腹和肠道附近时，观察窗打开，镜头看到小狗身上已装配的 Hi3D 网格。默认在各处首次经过时暂停。点场馆或入口标签可以入馆自由浏览，换成该馆的讲解。返回后恢复原来的路线位置、朝向和播放状态。在自动停靠点可继续看另一馆，或按「继续前行」。取消「到馆停靠」即可连续播放。可直接打开[胸腔停靠点](http://127.0.0.1:9988/canine-museum/index.html?tour=food&stop=chest)。观察窗和入馆路线是博物馆的观展设计。
+
+[从胃部大厅开始](http://127.0.0.1:9988/canine-museum/index.html?tour=food&station=stomach)，按播放靠近陶土窑门。胸腔用黄铜管与风琴厅衔接，腹腔用木饰与水绿色釉面衔接档案馆、水务馆。两侧共用相同的立体门框。开门时在同一画面中渲染通道和狗身上的展馆。六个通道各花费 45 个 Hi3D 积分。[模型来源、哈希与镜头轨迹](../dist/canine-museum/assets/digestion/channels/catalog.json)
+
+恢复原件和动画参考图到 `evidence/canine-production/hi3d-tract/animated/` 后，可在 `photo-demo/` 运行 `blender -b -P scripts/pack-hi3d-channel.py -- stomach`，依次替换为其余五个站点 ID。随后用项目的 NumPy、OpenCV、Pillow 环境运行 `python scripts/catalog-hi3d-channels.py` 生成移动端贴图及镜头轨迹。
 
 口腔 → 食管 → 胃 → 小肠 → 大肠 → 直肠与肛门。小肠站讲解胆汁、胰液和营养吸收。讲解参考[华盛顿州立大学兽医教学医院的犬消化系统图谱](https://hospital.vetmed.wsu.edu/2022/03/10/digestive-system-of-the-dog/)及[默沙东兽医手册的犬消化系统介绍](https://www.merckvetmanual.com/dog-owners/digestive-disorders-of-dogs/introduction-to-digestive-disorders-of-dogs)。音频和字幕随页面保存在 `assets/digestion/`。
 

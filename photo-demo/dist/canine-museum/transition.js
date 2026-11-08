@@ -278,6 +278,7 @@ void main(){
     routeMap.draw(camera,angle>=85&&!selected&&!showSkin&&!foodTour.active);
     uniforms.alignAmount.value=inCutaway?0:1-smooth(2,13,angle);uniforms.photoAmount.value=inCutaway?0:1-smooth(.6,8,angle);
     const opacity=inCutaway?0:(1-smooth(.15,4,angle))*(1-approach);photo.style.opacity=opacity;photo.style.visibility=opacity===0?'hidden':'visible';
+    if(inCutaway)foodTour.beginWorld(renderer);
     renderer.setClearColor(0x403a33);renderer.clear();fillMaterial.uniforms.inverseProjection.value.copy(camera.projectionMatrixInverse);
     fillMaterial.uniforms.eyeMatrix.value.copy(camera.matrixWorld);
     renderer.render(backing,camera);renderer.render(room,roomCam);
@@ -310,7 +311,8 @@ void main(){
   if(query.get('map')==='food'||query.get('tour')==='food'||query.get('angle')==='90'||query.get('view')==='cutaway'||query.has('gallery'))angle=90;
   if(query.has('gallery'))selectGallery(query.get('gallery'));
   if(query.get('tour')==='food'){
-    foodTour.begin(false);
+    const station=stops.findIndex(stop=>stop.id===query.get('station'));
+    foodTour.begin(false,station<0?0:station);
     if(query.has('stop'))foodTour.startAtLanding(query.get('stop'));
   }
   ready=true;stage.dataset.ready='true';play.disabled=false;slider.disabled=false;updateControls();

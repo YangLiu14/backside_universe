@@ -232,6 +232,36 @@
       "sha256": "dd9356a21a965c521ab7f3ece3c260eed2d243acdcbe8c86b69ecb1232d23305"
     },
     {
+      "path": "dist/canine-museum/assets/digestion/channels/colon.glb",
+      "bytes": 1145328,
+      "sha256": "c05995ecaa09e7723275347e08bc8e4c664f9f4a7a2b370419501018be77e358"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/channels/esophagus.glb",
+      "bytes": 1182952,
+      "sha256": "a83844a20bcd88c45b61794bcc1996843dc76c2e6ac03f77a4d0a43a40001991"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/channels/mouth.glb",
+      "bytes": 1120752,
+      "sha256": "84ea3b00dbd6b9de21930a19c5c02bfd5d48ba69d616e9f310d105a410140120"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/channels/rectum.glb",
+      "bytes": 1235068,
+      "sha256": "ea8d2f46036f86c0b73e1faa258d5b7b50c22447d400b23d4a153179dea21658"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/channels/small-intestine.glb",
+      "bytes": 1264316,
+      "sha256": "a8ad2713a7b66c5635438376360d8a139b28007e1b4024195ce4036ca9fa4573"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/channels/stomach.glb",
+      "bytes": 1221556,
+      "sha256": "f361a1ece6bd19744d6e89655e4f61708d4d01d2f7340d3aae6e3dd40e9394ef"
+    },
+    {
       "path": "dist/canine-museum/assets/digestion/colon.m4a",
       "bytes": 104019,
       "sha256": "ff7fa8915dc19e2fe4e7a0648d454baa89c4bc66a177568448e3c35984da4d8d"
@@ -243,8 +273,8 @@
     },
     {
       "path": "dist/canine-museum/assets/digestion/food-tour.mp4",
-      "bytes": 31301620,
-      "sha256": "779ee614887c71ec70fc18392530a7477cb5d639bd542ee800db409c22e4402a"
+      "bytes": 31565455,
+      "sha256": "7d92c0967ae6cef4d7875e5d350380aec8dcda014e7bbb104b31bd676396eb31"
     },
     {
       "path": "dist/canine-museum/assets/digestion/galleries/gut.m4a",
