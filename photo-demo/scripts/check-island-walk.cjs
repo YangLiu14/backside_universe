@@ -96,7 +96,25 @@ async function desktop(browser){
     assert((await walk(page)).foot[2]<start.foot[2]-.15);await page.keyboard.press('Escape');
     assert.deepEqual((await state(page)).camera,office.camera);
     await page.click('[data-progress="1"]');await page.waitForFunction(()=>window.__marbleTransition.islands.every(e=>e.amount===1));
-    const desk=await state(page);await page.click('#walk-start');
+    const desk=await state(page);
+    const quay=await page.evaluate(async()=>{
+      const T=await import('three'),app=window.__marbleTransition;
+      const phone=app.dreamScene.getObjectByName('Desktop island / phone');
+      const p=phone.localToWorld(new T.Vector3(.041,.071,.04)).project(app.camera);
+      const r=document.querySelector('#world').getBoundingClientRect();
+      return [r.left+(p.x+1)*r.width/2,r.top+(1-p.y)*r.height/2];
+    });
+    await page.mouse.click(...quay);await arrived(page,'phone');await page.click('#walk-exit');
+    assert.deepEqual((await state(page)).camera,desk.camera);
+    await page.selectOption('#explore-island','phone');
+    const bounds=await page.locator('#world').boundingBox(),x=bounds.x+bounds.width*.4,y=bounds.y+bounds.height*.55;
+    await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+24,y+6,{steps:4});await page.mouse.up();
+    const beforeZoom=await state(page);
+    await page.mouse.wheel(0,-65);
+    await page.waitForFunction(z=>window.__marbleTransition.state.camera[14]!==z,beforeZoom.camera[14]);
+    assert.equal(await page.inputValue('#explore-island'),'phone');
+    await page.click('#walk-start');await arrived(page,'phone');await page.click('#walk-exit');
+    await page.click('#explore-overview');await page.click('#walk-start');
     for(const id of ['orange-book','cup','blue-book','phone','reef','grotto']){
       if(id!=='orange-book')await page.selectOption('#walk-place',id);
       await arrived(page,id);await page.locator('#world').focus();
@@ -139,6 +157,15 @@ async function touch(browser){
     const to=await walk(page);assert(Math.abs(to.yaw-from.yaw)>.05);
     assert(Math.hypot(to.foot[0]-from.foot[0],to.foot[2]-from.foot[2])>from.height*.08);
     await page.tap('#walk-exit');assert.deepEqual((await state(page)).camera,desk.camera);
+    await page.selectOption('#explore-island','phone');
+    await page.getByRole('button',{name:'游览手机小镇'}).tap();await arrived(page,'phone');
+    const landing=await walk(page);
+    await gesture('touchStart',[finger]);
+    await page.waitForFunction(p=>{
+      const w=window.__marbleTransition.state.walk;
+      return Math.hypot(w.foot[0]-p.foot[0],w.foot[2]-p.foot[2])>p.height*.12;
+    },landing);
+    await gesture('touchEnd',[]);await page.tap('#walk-exit');
     console.log('Touch movement and simultaneous drag-to-look passed.');
   }finally{await page.close();}
 }

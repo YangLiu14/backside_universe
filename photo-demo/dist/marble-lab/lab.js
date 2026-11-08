@@ -1,9 +1,10 @@
 import * as THREE from 'three';
-import { SparkRenderer, SplatMesh } from '@sparkjsdev/spark';
+import { SparkRenderer } from '@sparkjsdev/spark';
+import {loadMarbleRoom} from '../marble-detail/room.js';
 import { orbitPose, projectionBounds, validateCalibration } from './camera.js';
 
 const $=s=>document.querySelector(s);
-const crops={full:[0,0,1,1],desk:[.09,.30,.89,.31],laptop:[.34,.35,.25,.15],cup:[.52,.35,.18,.13]};
+const crops={full:[0,0,1,1],desk:[.09,.30,.89,.31],laptop:[.34,.35,.25,.15],cup:[.52,.35,.18,.13],carpet:[.31,.80,.28,.155]};
 let meta,renderer,scene,camera,splat,calibration,originalCalibration;
 let ready=false,loading=false,playing=false,phase=0,lastTime=0,angle=0,cropName='full',storageKey='';
 let manifestStatus='pending';
@@ -70,22 +71,67 @@ async function loadScene(manifest){
   // Disabling it undersamples small splats on narrow screens. No depth-of-field
   // or image-space blur is used to conceal reconstruction errors.
   const spark=new SparkRenderer({renderer,apertureAngle:0,blurAmount:.3,enableLod:false,sortRadial:false});scene.add(spark);
-  splat=new SplatMesh({url,lod:false,onProgress:e=>{if(e.total)$('#loading').textContent=`正在读取 Marble 场景 · ${Math.round(100*e.loaded/e.total)}%`;}});
-  splat.scale.setScalar(scale);splat.rotation.x=Math.PI;splat.position.y=ground;scene.add(splat);
+  let detail = new URLSearchParams(location.search).get('detail') === '1';
+  const detailUrl = '../marble-detail/assets/desk-detail.spz';
+  const onProgress = e => {
+    if (e.total) $('#loading').textContent = `正在读取本地 SPZ 资产 · ${Math.round(e.loaded / e.total * 100)}%`;
+  };
+  const load = enhanced => loadMarbleRoom(enhanced ? detailUrl : url, semantics, onProgress);
+  let fallback = false;
+  try {
+    splat = await load(detail);
+  } catch (error) {
+    if (!detail) throw error;
+    detail = false;
+    fallback = true;
+    splat = await load(false);
+  }
+  scene.add(splat);
+  const checkbox = $('#detail');
+  function showVersion() {
+    checkbox.checked = detail;
+    $('#result-note').textContent = detail
+      ? '已用原照片细化赛车画、书页、屏幕和地毯织纹。可绕行观察，或关闭增强在同一机位比较。'
+      : (meta.review?.summary || '已载入原始 Marble 场景。');
+    $('#status').textContent = `Marble 1.1 · ${detail ? '细节增强' : '原始场景'} · ${(splat.numSplats / 10000).toFixed(1)} 万个高斯点`;
+  }
+  checkbox.addEventListener('change', async () => {
+    const requested = checkbox.checked;
+    checkbox.disabled = true;
+    stop();
+    hideReference();
+    $('#status').textContent = '正在切换场景…';
+    try {
+      const next = await load(requested);
+      scene.add(next);
+      scene.remove(splat);
+      splat.dispose();
+      splat = next;
+      detail = requested;
+      const link = new URL(location.href);
+      link.searchParams.set('detail', detail ? '1' : '0');
+      history.replaceState(null, '', link);
+      showVersion();
+    } catch {
+      showVersion();
+      $('#status').textContent += ' · 切换失败，可重试';
+    } finally {
+      checkbox.disabled = false;
+    }
+  });
   resize();setAngle(0);
   renderer.setAnimationLoop(time=>{
     const dt=Math.max(0,Math.min((time-lastTime)/1000,.05));lastTime=time;
     if(playing){phase+=dt*2*Math.PI/8;setAngle(12*Math.sin(phase),false);}
     renderer.render(scene,camera);
   });
-  await splat.initialized;
   ready=true;$('#loading').hidden=true;
   document.querySelectorAll('button:disabled,input:disabled,fieldset:disabled').forEach(el=>el.disabled=false);
-  $('#status').textContent=`Marble 1.1 · ${(splat.numSplats/10000).toFixed(1)} 万个 Gaussian`;
+  showVersion();
+  if (fallback) $('#status').textContent += ' · 增强文件未载入';
   $('#calibration-status').textContent=saved?'· 已载入本机校准':meta.calibration?'· 已载入记录':'· 需要检查';
-  $('#result-note').textContent=meta.review?.summary||'已载入真实 Marble 生成结果。原图对齐与 ±12° 视觉效果尚待验收，不代表已通过。';
   if(meta.calibration&&!saved)$('#calibration-note').textContent='已按原照共同特征校准机位与视角，并人工检查整体构图。物件形状仍有差异；这是近似配准，不是精确实景重建。';
-  $('#asset-details').textContent=`${meta.model} · 完整原照片 1320 × 1739 · ${(variant.bytes/1024/1024).toFixed(1)} MiB。使用服务返回的场景比例与坐标信息。${meta.cost?.total_credits!=null?'本次生成消耗 '+meta.cost.total_credits+' credits。':''} 原图 SHA256：${meta.source_sha256}`;
+  $('#asset-details').textContent=`原始导出 · ${meta.model} · 完整原照片 1320 × 1739 · ${(variant.bytes/1024/1024).toFixed(1)} MiB。使用服务返回的场景比例与坐标信息。${meta.cost?.total_credits!=null?'本次生成消耗 '+meta.cost.total_credits+' credits。':''} 原图 SHA256：${meta.source_sha256}`;
   if(!saved&&!meta.calibration)$('#calibration-panel').open=true;
   setAngle(0);
 }
@@ -113,7 +159,13 @@ window.__marbleLab={setAngle,setCrop:selectCrop,resize,calibrate:calibrationChan
     splats:splat?.numSplats||0,camera:camera?.matrixWorld.toArray(),projection:camera?.projectionMatrix.toArray(),
     referenceVisible:!$('#alignment-reference').hidden};},
   get renderer(){return renderer;},get scene(){return scene;},get camera(){return camera;},get meta(){return meta;}};
-document.querySelectorAll('[data-crop]').forEach(b=>b.addEventListener('click',()=>selectCrop(b.dataset.crop)));
+document.querySelectorAll('[data-crop]').forEach(button => button.addEventListener('click', () => {
+  selectCrop(button.dataset.crop);
+  const url = new URL(location.href);
+  if (cropName === 'full') url.searchParams.delete('crop');
+  else url.searchParams.set('crop',cropName);
+  history.replaceState(null,'',url);
+}));
 document.querySelectorAll('[data-angle]').forEach(b=>b.addEventListener('click',()=>setAngle(b.dataset.angle)));
 $('#angle').addEventListener('input',e=>setAngle(e.target.value));$('#reset').addEventListener('click',()=>setAngle(0));
 $('#gaps').addEventListener('change',e=>$('#result-frame').classList.toggle('gaps',e.target.checked));
@@ -138,4 +190,6 @@ $('#export-calibration').addEventListener('click',()=>{
   const a=document.createElement('a');a.href=url;a.download='marble-calibration.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});window.addEventListener('resize',resize);
-resize();checkScene();setInterval(checkScene,8000);
+const initialCrop = new URLSearchParams(location.search).get('crop');
+selectCrop(Object.hasOwn(crops,initialCrop) ? initialCrop : 'full');
+checkScene();setInterval(checkScene,8000);

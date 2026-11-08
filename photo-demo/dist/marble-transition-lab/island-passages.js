@@ -2,6 +2,7 @@ import * as T from 'three';
 import {mergeGeometries} from '../vendor/addons/utils/BufferGeometryUtils.js';
 import {openPassageGates} from './passage-gates.js';
 import {woodGrain} from './grotto-access.js';
+import {createBathSurround} from './bath-entrance.js';
 
 // Surveyed after the GLBs are seated in the tide. Coordinates are in each
 // island's own Y-up frame. Every tread below is also its collision surface.
@@ -117,6 +118,7 @@ export function addIslandPassages(root,id){
     'orange-book':[[[.202,.288,.332],[.248,.362,.390]]],
   };
   if(gates[id])openPassageGates(root,gates[id]);
+  if(id==='phone')root.add(createBathSurround());
   boards??=new T.MeshStandardMaterial({map:woodGrain(),color:0xb59c7a,roughness:.9});
   braces??=new T.MeshStandardMaterial({map:boards.map,color:0x78644e,roughness:.92});
   for(const path of passages[id])root.add(makePassage(path,id==='grotto'?-.37:.022));

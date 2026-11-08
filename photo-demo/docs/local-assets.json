@@ -32,6 +32,11 @@
       "sha256": "a5a2ad89c596347fb97f38b9741b2d5e831f657cefa33b4150d7709c8d9365a0"
     },
     {
+      "path": "dist/assets/desk-super-resolution-2x.jpg",
+      "bytes": 2079931,
+      "sha256": "3f96d3166699baaa8c326d81bf8ad61fcd1b9584fe40c9e7941bca7f7fc573b2"
+    },
+    {
       "path": "dist/assets/holiday-house.glb",
       "bytes": 7756348,
       "sha256": "87f48a3406c8ed879cd7478a28969a4492c94a8cbdccff52caca4a2211483bcb"
@@ -635,6 +640,16 @@
       "path": "dist/infinisplat-portrait-lab/assets/environment.txt",
       "bytes": 1803,
       "sha256": "3597bfe4f6d4878f8a306e31a2e21dbcfc9d76f562b125c469ac3c02558bd95e"
+    },
+    {
+      "path": "dist/marble-detail/assets/desk-detail.spz",
+      "bytes": 32635021,
+      "sha256": "4a0d96a355eac5712f6f6bf15b5c70f0b8ba4447c7ef223fb4912d8f9d57950c"
+    },
+    {
+      "path": "dist/marble-detail/assets/room-detail.spz",
+      "bytes": 32431467,
+      "sha256": "79360b68016aedf57249f24b46ad31379716f43e82017ba206a0c07900f53725"
     },
     {
       "path": "dist/marble-hybrid-lab/assets/objects.json",

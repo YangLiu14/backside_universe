@@ -2,14 +2,23 @@ import * as THREE from 'three';
 
 // Shared calibrated geometry for both render passes; no duplicate object poses.
 // Decode the photo to linear color for the offscreen compositor. Older pages stay unchanged.
-export async function createObjects(renderer,scene,meta,sourceCamera,modelLoader){
+export async function createObjects(renderer,scene,meta,sourceCamera,modelLoader,photoDetail=false){
   const load=path=>new THREE.TextureLoader().loadAsync(path);
+  const originalPhoto = () => load('../assets/desk-original.jpg');
+  const projectedPhoto = photoDetail
+    ? load('../assets/desk-super-resolution-2x.jpg').catch(originalPhoto)
+    : originalPhoto();
   const [data,photo,laptopMask,cupMask,noteMask,glaze,bookPhoto,paper]=await Promise.all([
-    fetch('../marble-refined-lab/assets/objects.json').then(r=>r.json()),load('../assets/desk-original.jpg'),
+    fetch('../marble-refined-lab/assets/objects.json').then(r=>r.json()),projectedPhoto,
     load('../assets/objects/laptop-mask.png'),load('../assets/objects/cup-mask.png'),
     load('../assets/objects/note-mask.png'),load('../marble-refined-lab/assets/cup-glaze.png'),load('../marble-refined-lab/assets/book-photo.png'),
     modelLoader.loadAsync('../assets/note-hd.glb').then(g=>g.scene.getObjectByProperty('isMesh',true)).catch(()=>null)]);
   for(const t of [photo,laptopMask,cupMask,noteMask,glaze,bookPhoto]){t.colorSpace=THREE.NoColorSpace;t.generateMipmaps=false;t.minFilter=THREE.LinearFilter;}
+  if (photo.image.width > meta.width) {
+    photo.generateMipmaps = true;
+    photo.minFilter = THREE.LinearMipmapLinearFilter;
+    photo.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  }
   const group=new THREE.Group();group.name='Registered photo-textured objects';
   for(const part of data.parts){
     let mesh=part.name==='hi3d-paper-0'?paper:null;

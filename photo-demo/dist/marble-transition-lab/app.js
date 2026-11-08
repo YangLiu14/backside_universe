@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
-import {SparkRenderer,SplatMesh} from '@sparkjsdev/spark';
+import {SparkRenderer} from '@sparkjsdev/spark';
+import {loadMarbleRoom} from '../marble-detail/room.js';
 import {projectionBounds} from '../marble-lab/camera.js';
 import {createObjects,createDesktop} from './objects.js';
 import {createHoliday} from './holiday.js';
@@ -57,14 +58,16 @@ const tour=createStoryTour({
   onExit(){visit?.cancelEntry();canvas.focus({preventScroll:true});},
 });
 tour.refresh();
-function storyEntry(focus){
+function updateIslandEntrances(focus){
  const entry=$('enter-island-story'),label=storyEntries[focus];
+ const walk=$('walk-start'),walkLabel=focus==='phone'?'游览手机小镇':'上岛漫步';
+ if(walk.textContent!==walkLabel)walk.textContent=walkLabel;
  entry.hidden=!label||!browsing()||variant==='real';
  if(label&&entry.textContent!==label)entry.textContent=label;
 }
 function browseUI(){
  const free=browsing();
- storyEntry($('explore-island').value);
+ updateIslandEntrances($('explore-island').value);
  $('walk-start').hidden=!free||variant==='real';$('office-walk').hidden=!ready||progress!==0||embedded||tour.active;
  $('daylight-tools').hidden=!free||variant==='real';
  $('explore-tools').hidden=!free;$('explore-help').hidden=!free||!!visit?.state.preparing||entryFeedback;
@@ -232,26 +235,34 @@ async function boot(){
   camera=new THREE.PerspectiveCamera(50,1,.012,30);const p=meta.calibration.parameters;
   camera.position.set(p.x,p.y,p.z);camera.quaternion.setFromEuler(new THREE.Euler(...[p.pitch,p.yaw,p.roll].map(THREE.MathUtils.degToRad),'YXZ'));camera.updateMatrixWorld(true);
   spark=new SparkRenderer({renderer,apertureAngle:0,blurAmount:.3,enableLod:false,sortRadial:false});realScene.add(spark);
-  const room=new SplatMesh({url:'../marble-refined-lab/assets/room-without-objects.spz',lod:false});room.scale.setScalar(meta.semantics_metadata.metric_scale_factor);room.rotation.x=Math.PI;room.position.y=meta.semantics_metadata.ground_plane_offset;realScene.add(room);
+  const originalRoom = '../marble-refined-lab/assets/room-without-objects.spz';
+  const baseline = new URLSearchParams(location.search).get('detail') === '0';
+  const loadRoom = path => loadMarbleRoom(path, meta.semantics_metadata);
+  const roomReady = (baseline ? loadRoom(originalRoom) :
+    loadRoom('../marble-detail/assets/room-detail.spz').catch(() => loadRoom(originalRoom)))
+    .then(room => realScene.add(room));
   const sourceCamera=camera.clone();sourceCamera.projectionMatrix.makePerspective(...projectionBounds(p,[0,0,1,1],1320,1739,sourceCamera.near),sourceCamera.near,sourceCamera.far);sourceCamera.projectionMatrixInverse.copy(sourceCamera.projectionMatrix).invert();sourceCamera.updateMatrixWorld(true);
   status('正在对齐电脑、书本和杯子…');
   modelLoader=new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('../vendor/draco/').setWorkerLimit(2));
-  const registered=createObjects(renderer,realScene,meta,sourceCamera,modelLoader);
+  const registered=createObjects(renderer,realScene,meta,sourceCamera,modelLoader,!baseline);
   [objects,desktop,holiday]=await Promise.all([registered,createDesktop(realScene),registered.then(o=>createHoliday(dreamScene,meta,o,renderer,modelLoader,{
     invalidate:()=>{settleUntil=performance.now()+450;},
     report:message=>{$('island-feedback').textContent=message;$('island-retry').hidden=!message;},
-  })),room.initialized]);
+  })),roomReady]);
   realScene.environment=holiday.environment;realScene.environmentIntensity=.75;
   const realSun=holiday.sun.clone();realSun.castShadow=false;realSun.target=holiday.sun.target.clone();
   realScene.add(realSun,realSun.target,new THREE.HemisphereLight('#e3e9e6','#8d8574',1.0));
   objects.meshes.forEach(o=>o.castShadow=!['book','note'].includes(o.userData.kind));
   compositor=createCompositor(renderer,{objects:objects.group,desktop},realScene,dreamScene,holiday);resize();
   explore=createDeskExplore(camera,holiday,objects,dreamScene,{reduced:()=>reduce,enterCup,changed:view=>{
-    $('explore-island').value=view.focus;storyEntry(view.focus);settleUntil=performance.now()+450;
+    $('explore-island').value=view.focus;updateIslandEntrances(view.focus);settleUntil=performance.now()+450;
     holiday.update(sampleJourney(1).time,camera,1);
     canvas.dataset.camera=JSON.stringify(camera.matrixWorld.toArray());
   }});
-  gestures=exploreGestures(canvas,explore);
+  gestures=exploreGestures(canvas,explore,id=>{
+    if(id==='phone'&&!embedded&&variant!=='real'&&!tour.active)startWalk(id);
+    else explore.focus(id);
+  });
   islandOptions=holiday.islands.destinations.map(([id,{root}])=>({root,option:$('explore-island').querySelector('option[value="'+id+'"]')}));
 
   visit=createBookroomVisit(holiday.grotto,camera,{aspect:()=>width/height,reduced:()=>reduce,onChange:visitUI,

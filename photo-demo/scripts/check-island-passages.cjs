@@ -13,6 +13,27 @@ async function checkIsland(id){
   const desk=world.getObjectByName('Restored original modeled room');
   const plane=new T.Plane().setFromCoplanarPoints(...[[0,0,0],[1,0,0],[0,0,1]].map(p=>desk.localToWorld(new T.Vector3(...p))));
   const sea=(x,z)=>(-plane.constant-plane.normal.x*x-plane.normal.z*z)/plane.normal.y;
+  if(id==='phone'){
+    const sill=world.getObjectByName('潮汐浴屋 / 门槛'),cast=new T.Raycaster();
+    const unit=sill.getWorldScale(new T.Vector3()).x;
+    function facadeAt(x,y,slope){
+      const origin=sill.localToWorld(new T.Vector3(x+slope,y,1));
+      cast.set(origin,new T.Vector3(-slope,0,-1).transformDirection(sill.matrixWorld));
+      cast.far=unit*Math.hypot(1,slope)*1.45; // exclude the far wall inside the baths
+      return cast.intersectObject(model,true).length>0;
+    }
+    for(const slope of [-.65,0,.65]){
+      for(const x of [-.79,.79])for(const y of [.38,1.15,1.83]){
+        if(!facadeAt(x,y,slope))throw Error('潮汐浴屋: gap beside jamb at '+[x,y,slope]);
+      }
+      for(const x of [-.34,0,.34])for(const y of [2.29,2.43]){
+        if(!facadeAt(x,y,slope))throw Error('潮汐浴屋: gap above lintel at '+[x,y,slope]);
+      }
+    }
+    for(const x of [-.42,0,.42])for(const y of [.45,1.5,1.96]){
+      if(facadeAt(x,y,0))throw Error('潮汐浴屋: open doorway obstructed at '+[x,y]);
+    }
+  }
   if(id==='blue-book'){
     // Probe the masonry itself (not the door leaf or the opposite wall).
     // Door-local +Z faces the landing; the stone arch rises above the leaf.

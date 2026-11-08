@@ -26,6 +26,7 @@ npm run dev
 
 ## 项目文档
 
+- [项目现状与下一轮优先级（2026-11-08）](PROJECT_STATUS.md)
 - [产品概要](PRODUCT.md)与[设计讨论](DESIGN.md)
 - [近期实现与验证](photo-demo/docs/PROGRESS.md)
 - [照片转三维方案调研](research/photo-to-world-options.md)

@@ -1,5 +1,6 @@
 import * as T from 'three';
 import {beaconEntry} from './grotto-access.js';
+import {bathEntrance,bathPaintMap} from './bath-entrance.js';
 
 // Sills, facade normals and opening heights surveyed on the seated island meshes.
 const buildings={
@@ -15,7 +16,7 @@ const buildings={
     {id:'inn',key:'inn-loft',name:'赤岩旅舍 · 楼上客房',at:[.250,.289,.313],out:[-.98,.20],height:.052,paint:'#66705a',upper:true},
   ],
   phone:[
-    {id:'baths',name:'潮汐浴屋',at:[-.119,.058,-.088],out:[0,1],height:.065,paint:'#438880'},
+    bathEntrance,
     {id:'slip',name:'修船工棚',at:[.073,.059,.285],out:[-1,0],height:.067,paint:'#926c4b',open:true},
   ],
   grotto:[
@@ -26,9 +27,10 @@ const v=(x,y,z)=>new T.Vector3(x,y,z);
 const ease=t=>t*t*(3-2*t);
 const duration=.98;
 
-function doorLeaf(group,color){
+function doorLeaf(group,spec){
   const hinge=new T.Group();hinge.position.set(-.55,0,.07);group.add(hinge);
-  const paint=new T.MeshStandardMaterial({color,roughness:.75}),dark=paint.clone();dark.color.multiplyScalar(.69);
+  const paint=new T.MeshStandardMaterial({color:spec.paint,map:spec.id==='baths'?bathPaintMap():null,roughness:.75});
+  const dark=paint.clone();dark.color.multiplyScalar(.69);
   const brass=new T.MeshStandardMaterial({color:0xb39462,roughness:.42,metalness:.67});
   const block=(x,y,z,w,h,d,m)=>{const mesh=new T.Mesh(new T.BoxGeometry(w,h,d),m);mesh.position.set(x,y,z);hinge.add(mesh);return mesh;};
   block(.55,1.035,0,1.10,2.07,.06,dark);
@@ -44,17 +46,19 @@ function makeEntrance(spec,frame){
   const facing=v(spec.out[0],0,spec.out[1]).transformDirection(frame.matrixWorld);facing.y=0;facing.normalize();
   const group=new T.Group(),height=spec.height*frame.getWorldScale(new T.Vector3()).y,scale=height/2.18;
   group.name=spec.name+' / 门槛';group.position.copy(sill);group.rotation.y=Math.atan2(facing.x,facing.z);group.scale.setScalar(scale);
+  // Match the fixed arch on the slightly tilted handset.
+  if(spec===bathEntrance)frame.getWorldQuaternion(group.quaternion);
   const hit=new T.Mesh(new T.PlaneGeometry(spec.width||1.36,2.29),new T.MeshBasicMaterial({visible:false,side:T.DoubleSide}));
   hit.position.set(0,1.1,.115);group.add(hit);
   const door={...spec,key:spec.key||spec.id,sill,facing,group,height,scale,hit,aim:sill.clone().add(v(0,scale*1.43,0))};
   if(spec.original)return door;
-  const trim=new T.MeshStandardMaterial({color:spec.open?'#886e50':'#a68b66',roughness:.87});
+  const trim=new T.MeshStandardMaterial({color:spec===bathEntrance?'#54766b':spec.open?'#886e50':'#a68b66',roughness:.87});
   const add=(x,y,z,w,h,d)=>{const m=new T.Mesh(new T.BoxGeometry(w,h,d),trim);m.position.set(x,y,z);group.add(m);};
   for(const side of [-1,1])add(side*.594,1.06,0,.08,2.16,.14);
   add(0,2.15,0,1.30,.13,.16);add(0,.018,0,1.25,.037,.20);
   const pane=new T.Mesh(new T.PlaneGeometry(1.115,2.10),new T.MeshBasicMaterial({color:0x332e29,toneMapped:false}));
   pane.position.set(0,1.055,-.021);group.add(pane);pane.visible=!spec.open;
-  const hinge=spec.open?null:doorLeaf(group,spec.paint);
+  const hinge=spec.open?null:doorLeaf(group,spec);
   return {...door,pane,hinge};
 }
 
@@ -137,7 +141,7 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
       unattached=dressing;room=buildIslandInterior(choice.id,world.environment,dayColor,dressing);unattached=null;
       for(const door of doors.filter(d=>d.id===choice.id&&!d.open)){
         const portal=new T.Group();portal.position.y=door.upper?upperFloor:0;
-        doorLeaf(portal,door.paint).rotation.y=1.49;room.model.add(portal);
+        doorLeaf(portal,door).rotation.y=1.49;room.model.add(portal);
         portal.traverse(o=>{if(o.isMesh)leafMaterials.add(o.material);});
       }
       roomCamera=camera.clone();roomCamera.position.set(0,1.55,-1);

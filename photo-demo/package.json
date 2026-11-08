@@ -9,6 +9,7 @@
     "check:repo": "node scripts/check-repository.mjs",
     "check:marble": "python3 scripts/test-marble-runner.py && node scripts/check-marble-camera.mjs && node scripts/check-marble-refined.mjs",
     "check:marble-assets": "python3 scripts/check-marble-hybrid.py && python3 scripts/check-marble-refined.py",
+    "check:marble-details": "node scripts/check-marble-details.cjs",
     "check:marble-browser": "node scripts/check-marble-lab.cjs",
     "check:marble-transition": "node scripts/check-marble-transition.mjs",
     "check:desktop-startup": "node scripts/check-desktop-startup.cjs",

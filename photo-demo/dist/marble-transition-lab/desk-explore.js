@@ -75,6 +75,7 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
       waypoint=(diving?to:view).position.clone();
       waypoint.y=Math.max(view.position.y,to.position.y,surface(waypoint.x,waypoint.z)+.17);
     }
+    view.focus=to.focus;
     return new Promise(done=>{motion={from:copy(view),to:copy(to),waypoint,time:0,done};});
   }
   function tick(dt,now){
@@ -91,7 +92,7 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
       }else view.position.lerpVectors(m.from.position,m.to.position,t);
       constrain(view.position);
       view.rotation.slerpQuaternions(m.from.rotation,m.to.rotation,t);
-      view.distance=lerp(m.from.distance,m.to.distance,t);view.modified=true;view.focus=m.to.focus;
+      view.distance=lerp(m.from.distance,m.to.distance,t);view.modified=true;
     }
     apply();
     if(t===1)m.done(true);
@@ -108,7 +109,7 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     view.rotation.setFromEuler(angles);
   }
   function manualChange(){
-    view.modified=true;view.focus='';apply();
+    view.modified=true;apply();
   }
   function look(dx,dy){
     cancelMotion();rotate(dx,dy);manualChange();
@@ -193,7 +194,7 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
       hit=ray.intersectObjects(meshes,false)[0]?.object;
     }finally{holiday.applyPass(false);objects.group.updateWorldMatrix(true,true);}
     while(hit&&!roots.has(hit))hit=hit.parent;
-    if(hit)focus(roots.get(hit));
+    return roots.get(hit);
   }
   return {setHome,stop,cancelMotion,clearKeys,tick,key,look,pan,zoom,focus,pick,move,
     bounds:id=>destinations.get(id).bounds,
@@ -203,7 +204,7 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
 }
 
 // Keep a gesture with its original owner even if a timeline drag reaches 180°.
-export function exploreGestures(canvas,controls){
+export function exploreGestures(canvas,controls,onIslandTap){
   const pointers=new Map();
   const centroid=(a,b)=>a.clone().add(b).multiplyScalar(.5);
   const panPixels=(dx,dy)=>{
@@ -236,7 +237,8 @@ export function exploreGestures(canvas,controls){
     const p=pointers.get(e.pointerId);pointers.delete(e.pointerId);
     if(p?.tap&&e.type==='pointerup'&&p.start.distanceTo(new THREE.Vector2(e.clientX,e.clientY))<5){
       const r=canvas.getBoundingClientRect();
-      controls.pick(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,1-(e.clientY-r.top)/r.height*2));
+      const id=controls.pick(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,1-(e.clientY-r.top)/r.height*2));
+      if(id)onIslandTap(id);
     }
   }
   function clear(){
