@@ -2,7 +2,7 @@ import {t,onLanguageChange} from '../i18n/core.js';
 import {onRoomVisibility,roomVisible} from '../cinema/room.js';
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
+import {createDeskModelLoader} from './model-loader.js';
 import {SparkRenderer} from '@sparkjsdev/spark';
 import {loadMarbleRoom} from '../marble-detail/room.js';
 import {projectionBounds} from '../marble-lab/camera.js';
@@ -249,7 +249,7 @@ async function boot(){
     .then(room => {realScene.add(room);status('正在搭建桌面与群岛…');});
   const sourceCamera=camera.clone();sourceCamera.projectionMatrix.makePerspective(...projectionBounds(p,[0,0,1,1],1320,1739,sourceCamera.near),sourceCamera.near,sourceCamera.far);sourceCamera.projectionMatrixInverse.copy(sourceCamera.projectionMatrix).invert();sourceCamera.updateMatrixWorld(true);
   status('正在对齐电脑、书本和杯子…');
-  modelLoader=new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('../vendor/draco/').setWorkerLimit(2));
+  modelLoader=await createDeskModelLoader();
   const registered=createObjects(renderer,realScene,meta,sourceCamera,modelLoader,!baseline);
   [objects,desktop,holiday]=await Promise.all([registered,createDesktop(realScene),registered.then(o=>createHoliday(dreamScene,meta,o,renderer,modelLoader,{
     invalidate:()=>{settleUntil=performance.now()+450;},

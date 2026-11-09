@@ -13,7 +13,7 @@
 
 ## 更新一张照片
 
-以下命令在仓库根目录运行，需要 Python 3.11 或更新版本。构建作品前，按[资产说明](../docs/ASSETS.md)恢复该作品的本地文件。
+以下命令在仓库根目录运行，需要 Python 3.11 或更新版本。构建作品前，按[资产说明](../docs/ASSETS.md)恢复该作品的本地文件。工位打包使用 Pillow 生成移动端纹理，请在带有 Pillow 的 Python 环境中运行。
 
 1. 新照片在 `dist/index.html` 增加相册页，在 [scenes.json](scenes.json) 登记同一 `data-work`、入口和该作品可公开的运行文件。缩略图放入 `dist/cinema/album-art/`。这里的 `dist/` 指 `photo-demo/dist/`。
 2. 使用下面的命令只构建要更新的作品。输出会给出版本值。保留完整场景库及其私有备份，包含仍需支持的旧链接。当前开发机保存首发场景库的位置为 `photo-demo/evidence/deployment/scene-store`。
@@ -51,6 +51,27 @@ netlify deploy --prod --no-build --site backside-universe --dir "$ALBUM_OUTPUT"
 ```sh
 MARBLE_BASE_URL=https://backside-universe.netlify.app npm --prefix photo-demo run check:album
 ```
+
+## 用 iPhone Safari 验收
+
+工位的触屏版本使用同一份完整实景和模型几何，模型内嵌纹理的最长边为 1024 像素。场景包会生成 `desk-mobile/catalog.json` 和对应的 GLB。用 `npm run dev` 测本地源目录时，恢复资产后先运行 `python3 photo-demo/scripts/build-holiday-site.py --prepare-mobile`，模型更新后重新运行。正式发布的场景包会自动完成这一步。
+
+首次打开、两部作品切换和后台恢复都在真机验收。记录机型、iOS 版本、网络、测试时间和最后一条加载提示。需要复测冷启动时，在 Safari 的网站数据中仅移除本项目域名的数据；重访测试保留同一标签页及其缓存。
+
+1. 从正式相簿点工位照片，等「开始放映」可用，点入群岛，拖动画面，返回相簿。
+2. 进入小狗博物馆，绕到侧面，返回后再打开工位。留意是否自动重载、卡在同一步，或只在切换作品后失败。
+3. 在新标签直接打开 `/#desk` 测试深链接。再从[工位独立入口](https://backside-universe.netlify.app/marble-transition-lab/index.html)打开同一版本，对照相簿嵌入与独立加载。单独测试后台切回、横竖屏切换，再用蜂窝网络复测首次加载。每次只改一个条件。
+
+Mac 上安装 Selenium 后可用系统自带的 SafariDriver 重复前两步。用数据线连接并解锁 iPhone，在手机的 Safari 高级设置中开启「网页检查器」和「远程自动化」。Mac 首次配置按 [WebKit 的 iOS WebDriver 指引](https://webkit.org/blog/9395/webdriver-is-coming-to-safari-in-ios-13/) 操作。脚本默认使用真机，明确指定 `--simulator` 才使用 Xcode 的 iOS 模拟器。
+
+```sh
+python3 -m venv .cache/ios-safari-qa
+.cache/ios-safari-qa/bin/pip install 'selenium>=4.26,<5'
+.cache/ios-safari-qa/bin/python photo-demo/scripts/check-ios-safari.py
+.cache/ios-safari-qa/bin/python photo-demo/scripts/check-ios-safari.py --deep-link desk
+```
+
+脚本在 Safari 中激活页面控件，输出每个加载阶段与就绪时间，确认工位请求了移动端 GLB，并检查互动、返回和意外重载。加 `--native-touch` 可额外验证自动化触点是否命中控件。若 Safari 整个页面进程退出，WebDriver 可能直接报会话中断。手动复现时，先在 Mac Safari 的「开发 → iPhone → 相簿」打开检查器并开始记录 Network 和 Timelines，再在手机点照片。若检查器断开，保留故障时间，到设备日志中对照 WebContent、GPU 或 JetsamEvent 的终止原因。[Web Inspector 设置](https://webkit.org/web-inspector/enabling-web-inspector/) · [Apple 内存终止报告说明](https://developer.apple.com/documentation/xcode/identifying-high-memory-use-with-jetsam-event-reports)
 
 ## 扩容与回滚
 

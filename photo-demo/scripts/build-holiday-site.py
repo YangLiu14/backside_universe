@@ -14,12 +14,7 @@ SOURCE = APP / 'dist'
 CHUNK_BYTES = 16 * 1024 * 1024
 
 
-def build(destination, desk_only=False, screening_pack=False):
-    if destination == SOURCE or SOURCE in destination.parents:
-        raise ValueError('Build into a separate deployment directory')
-    if destination.exists() and any(destination.iterdir()):
-        raise ValueError('Use an empty output directory so old assets cannot enter the release')
-    destination.mkdir(parents=True, exist_ok=True)
+def select_assets(desk_only, screening_pack):
     selected = set()
 
     def collect(directory, predicate=lambda p: True):
@@ -52,6 +47,31 @@ def build(destination, desk_only=False, screening_pack=False):
                    'world-pano.jpg','world-collider.glb','photo-to-hi3d.mp4','museum-tour.mp4'}
         collect('canine-museum', lambda p: p.name not in omitted)
 
+    return selected
+
+
+def prepare_mobile_models(destination, selected):
+    from glb_textures import resize
+
+    variants = []
+    for path in sorted(selected):
+        if path.suffix == '.glb' and path.parts[0] in {'assets', 'holiday-assets'}:
+            if resize(SOURCE / path, 1024, output=destination / 'desk-mobile' / path):
+                variants.append(path.as_posix())
+    directory = destination / 'desk-mobile'
+    directory.mkdir(exist_ok=True)
+    catalog = directory / 'catalog.json'
+    catalog.write_text(json.dumps(variants, indent=2) + '\n')
+    return [catalog] + [directory / path for path in variants]
+
+
+def build(destination, desk_only=False, screening_pack=False):
+    if destination == SOURCE or SOURCE in destination.parents:
+        raise ValueError('Build into a separate deployment directory')
+    if destination.exists() and any(destination.iterdir()):
+        raise ValueError('Use an empty output directory so old assets cannot enter the release')
+    destination.mkdir(parents=True, exist_ok=True)
+    selected = select_assets(desk_only, screening_pack)
     chunks, manifest = {}, []
     for relative in sorted(selected):
         source, target = SOURCE / relative, destination / relative
@@ -70,6 +90,11 @@ def build(destination, desk_only=False, screening_pack=False):
         else:
             shutil.copy2(source, target)
         manifest.append({'path': relative.as_posix(), 'bytes': len(data),
+                         'sha256': hashlib.sha256(data).hexdigest()})
+
+    for file in prepare_mobile_models(destination, selected):
+        data = file.read_bytes()
+        manifest.append({'path': file.relative_to(destination).as_posix(), 'bytes': len(data),
                          'sha256': hashlib.sha256(data).hexdigest()})
 
     (destination / 'marble-detail/chunks.js').write_text('export const chunks = ' + json.dumps(chunks) + ';\n')
@@ -142,8 +167,13 @@ async function roomSource(url, onProgress) {
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output', required=True, type=Path)
+    target = parser.add_mutually_exclusive_group(required=True)
+    target.add_argument('--output', type=Path)
+    target.add_argument('--prepare-mobile', action='store_true', help='Prepare phone models for the local dev server')
     parser.add_argument('--desk-only', action='store_true', help='Build the single work for hosts with a 25 MiB file limit.')
     parser.add_argument('--screening-pack', action='store_true', help='Build the desk as a versioned album scene.')
     args = parser.parse_args()
-    build(args.output.resolve(), args.desk_only or args.screening_pack, args.screening_pack)
+    if args.prepare_mobile:
+        prepare_mobile_models(SOURCE, select_assets(True, True))
+    else:
+        build(args.output.resolve(), args.desk_only or args.screening_pack, args.screening_pack)

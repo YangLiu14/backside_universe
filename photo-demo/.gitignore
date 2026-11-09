@@ -8,6 +8,7 @@
 # Spark includes an embedded renderer/WASM payload; restore its pinned package
 # locally instead of committing the multi-megabyte distribution bundle.
 /dist/gs-lab/vendor/spark.module.js
+/dist/desk-mobile/
 
 # Research clones, installation reports, and model output
 /experiments/**/source/
