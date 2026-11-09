@@ -1,6 +1,6 @@
 # 本地资产与仓库边界
 
-Git 保存源码、校准参数、小型来源元数据、许可证、文字结论与 README 演示 GIF。原照片、分割图、纹理、模型、Gaussian 场景、ML 权重、下载归档和运行环境留在本地或私有备份中。
+Git 保存源码、校准参数、小型来源元数据、许可证、文字结论、README 演示 GIF 与流程图 SVG。原照片、分割图、纹理、模型、Gaussian 场景、ML 权重、下载归档和运行环境留在本地或私有备份中。
 
 外层根目录 `.gitignore` 管理共享排除规则，`photo-demo/.gitignore` 补充实验页专属规则。本机文件未删除。旧内层仓库曾跟踪的图片/模型历史已随整个 Git 历史移到项目外备份；外层仅纳入源码快照，没有导入这些历史资产，也没有推送。详见 [迁移记录](GIT_MIGRATION.md)。
 
@@ -79,7 +79,7 @@ npm --prefix photo-demo run check:repo
 git diff --cached --stat
 ```
 
-`check:repo` 无论从哪个目录启动，都检查整个外层仓库索引里的实际对象：源码单文件限制为 2 MiB，唯一文档媒体例外为不超过 16 MiB 的 `docs/media/desk-to-islands.gif`。其他图片、MP4、模型、权重、归档、Git 历史备份、本地环境、实验输出及嵌套仓库 gitlink 仍被拒绝。不要用强制添加绕过忽略规则。运行素材与大型依赖通过本地资产备份恢复。
+`check:repo` 无论从哪个目录启动，都检查整个外层仓库索引里的实际对象：源码单文件限制为 2 MiB；文档媒体仅允许不超过 16 MiB 的 `docs/media/desk-to-islands.gif`，以及 `docs/diagrams/` 下明确列入检查器白名单的两张流程图 SVG（各不超过 128 KiB）。其他图片、MP4、模型、权重、归档、Git 历史备份、本地环境、实验输出及嵌套仓库 gitlink 仍被拒绝。不要用强制添加绕过忽略规则。运行素材与大型依赖通过本地资产备份恢复。
 
 ## Marble 试验资产
 

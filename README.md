@@ -28,13 +28,10 @@
 
 先从照片重建 3D Gaussian Splatting（3DGS）实景，再为照片中的主体及其背后的想象空间建模。将模型的位置、尺度与原始视角对齐后，通过 Three.js 与 Spark 融合实景和网格场景，用连续镜头组织探索、交互与返回。
 
-```mermaid
-flowchart LR
-    A[一张照片] --> B[3DGS 实景重建]
-    B --> C[主体与微缩世界建模]
-    C --> D[Three.js + Spark 场景融合]
-    D --> E[交互、故事与空间循环]
-```
+<picture>
+  <source media="(max-width: 600px)" srcset="docs/diagrams/photo-to-world-mobile.svg">
+  <img src="docs/diagrams/photo-to-world.svg" alt="照片 → 3DGS 实景 → 微缩世界建模 → Three.js 与 Spark 融合 → 交互与故事；从书页返回原始实景。" width="1064">
+</picture>
 
 ## 本地运行
 

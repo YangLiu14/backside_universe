@@ -10,7 +10,11 @@ const sizes=execFileSync('git',['cat-file','--batch-check=%(objectname) %(object
 const media=/\.(?:png|jpe?g|webp|gif|svg|bmp|ico|tiff?|avif|heic|heif|exr|hdr|mp4|mov|webm|mp3|wav|ogg|glb|gltf|obj|fbx|blend|stl|ply|splat|ksplat|spz|rad|usda?|usdc|usdz|bin|npy|npz|pt|pth|ckpt|safetensors|onnx|h5|hdf5|zip|tar|gz|tgz|7z|whl|dmg|bundle)$/i;
 const local=/(?:^|\/)(?:node_modules|\.venv|venv|__pycache__|evidence|checkpoints|wheels)(?:\/|$)/;
 // Explicit README preview exception; scene assets remain local-only.
-const documentationMedia=new Map([['docs/media/desk-to-islands.gif',16*1024*1024]]);
+const documentationMedia=new Map([
+  ['docs/media/desk-to-islands.gif',16*1024*1024],
+  ['docs/diagrams/photo-to-world.svg',128*1024],
+  ['docs/diagrams/photo-to-world-mobile.svg',128*1024],
+]);
 const problems=[];let total=0,largest=0;
 for(let i=0;i<entries.length;i++){
   const e=entries[i],size=Number(sizes[i]?.split(' ')[2]);total+=size;largest=Math.max(largest,size);

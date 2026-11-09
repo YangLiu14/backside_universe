@@ -4,7 +4,7 @@
 
 应用目录 `photo-demo/` 是外层 `backside_universe` 仓库的普通子目录，不再维护独立 `.git`。旧历史已离线备份，见 [迁移记录](GIT_MIGRATION.md)。
 
-**仓库保存代码、校准参数、许可、文字记录与 README 演示 GIF。原始照片、纹理、模型、Gaussian PLY、模型权重与实验截图保存在本地或私有备份中，不随 Git 分发。** 新克隆需先恢复本地资产，不能直接得到完整演示。
+**仓库保存代码、校准参数、许可、文字记录、README 演示 GIF 与流程图 SVG。原始照片、纹理、模型、Gaussian PLY、模型权重与实验截图保存在本地或私有备份中，不随 Git 分发。** 新克隆需先恢复本地资产，不能直接得到完整演示。
 
 ## 本地运行
 
@@ -45,7 +45,7 @@ npm run dev
 ## 检查
 
 ```sh
-# 检查暂存区：无本地资产/模型/环境，源码不超过 2 MiB；README 演示 GIF 特许上限 16 MiB
+# 检查暂存区：无本地资产/模型/环境，源码不超过 2 MiB；README GIF 上限 16 MiB，白名单流程图 SVG 各不超过 128 KiB
 npm run check:repo
 
 # Marble 离线任务保护和镜头检查，不需要 API key 或生成资产
@@ -111,7 +111,7 @@ Marble 的浏览器捕获和验收脚本共用可配置的 Playwright/Chromium �
 
 ## 仓库检查与文档媒体
 
-在仓库根目录提交前运行 `node photo-demo/scripts/check-repository.mjs`，检查实际暂存对象。源码上限为 2 MiB；只有 `docs/media/desk-to-islands.gif` 允许作为不超过 16 MiB 的文档媒体进入 Git。MP4、原始照片、模型和运行环境仍被忽略。
+在仓库根目录提交前运行 `node photo-demo/scripts/check-repository.mjs`，检查实际暂存对象。源码上限为 2 MiB；文档媒体白名单包括 `docs/media/desk-to-islands.gif`（不超过 16 MiB）与两张 `docs/diagrams/photo-to-world*.svg` 流程图（各不超过 128 KiB）。MP4、原始照片、模型和运行环境仍被忽略。
 
 README 的完整循环由真实网页录制。启动本地服务、配置 Playwright/Chrome，并安装 FFmpeg 后，在仓库根目录运行：
 
