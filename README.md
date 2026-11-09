@@ -2,7 +2,11 @@
 
 从一张真实的日常照片，发现物品背面的微缩世界。
 
-项目统一由本目录的 Git 仓库管理，`photo-demo/` 是普通源码子目录。代码、校准参数、许可和文档进入 Git；照片、纹理、模型、Gaussian 场景、权重和本地环境通过忽略规则留在本机。
+[![从 3DGS 工位绕到群岛，日落时进入洞窟书屋，再穿过书页返回工位](docs/media/desk-to-islands.gif)](https://desk-holiday-universe.netlify.app/)
+
+实景工位 → 海上群岛 → 台灯牵动日落、镜头靠近洞窟 → 开门进入书屋 → 走近书桌、进入书页 → 回到 3DGS 工位。点击动图[在线体验「工位背后的假期」](https://desk-holiday-universe.netlify.app/)。
+
+项目统一由本目录的 Git 仓库管理，`photo-demo/` 是普通源码子目录。代码、校准参数、许可、文档和上面的演示 GIF 进入 Git；原始照片、纹理、模型、Gaussian 场景、权重和本地环境通过忽略规则留在本机。
 
 ```sh
 cd photo-demo

@@ -29,6 +29,8 @@ evidence/
 *.[jJ][pP][eE][gG]
 *.[wW][eE][bB][pP]
 *.[gG][iI][fF]
+# The README's compact, public demonstration is the sole tracked media asset.
+!/docs/media/desk-to-islands.gif
 *.[sS][vV][gG]
 *.[bB][mM][pP]
 *.[iI][cC][oO]

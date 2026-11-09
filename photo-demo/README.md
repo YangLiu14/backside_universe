@@ -61,7 +61,7 @@ npm run dev
 ## 检查
 
 ```sh
-# 检查暂存区：无图片/模型/本地环境，单文件不超过 2 MiB
+# 检查暂存区：无本地资产/模型/环境，源码不超过 2 MiB；README 演示 GIF 特许上限 16 MiB
 npm run check:repo
 
 # Marble 离线任务保护和镜头检查，不需要 API key 或生成资产
