@@ -1,42 +1,69 @@
-# 背面宇宙
+# 背后宇宙 · backside-universe
 
-从一张真实的日常照片，发现物品背面的微缩世界。
+一张照片，不仅可以记录当下的瞬间，也可以承载你再次看见它时的希望与想象。**背后宇宙，让照片的背面生长出可以走进去的 3D 世界。**
 
-[![从 3DGS 工位绕到群岛，日落时进入洞窟书屋，再穿过书页返回工位](docs/media/desk-to-islands.gif)](https://desk-holiday-universe.netlify.app/)
+[在线体验「工位背后的假期」](https://desk-holiday-universe.netlify.app/) · [本地运行](#本地运行) · [开发文档](photo-demo/docs/README.md)
 
-实景工位 → 海上群岛 → 台灯牵动日落、镜头靠近洞窟 → 开门进入书屋 → 走近书桌、进入书页 → 回到 3DGS 工位。点击动图[在线体验「工位背后的假期」](https://desk-holiday-universe.netlify.app/)。
+[![从真实工位绕到海上群岛，伴随日落进入洞窟书屋，再穿过书页回到工位](docs/media/desk-to-islands.gif)](https://desk-holiday-universe.netlify.app/)
 
-项目统一由本目录的 Git 仓库管理，`photo-demo/` 是普通源码子目录。代码、校准参数、许可、文档和上面的演示 GIF 进入 Git；原始照片、纹理、模型、Gaussian 场景、权重和本地环境通过忽略规则留在本机。
+绕到照片背后，日常的物件成为岛屿。走进洞窟里的书屋，桌上那一页又把你带回故事的起点。
+
+第一次体验，建议点击「跟随故事」。高清场景首次加载需要一些时间，页面会显示下载进度与准备状态。
+
+## 作品集
+
+| 作品 | 照片背后的世界 | 体验入口 |
+| --- | --- | --- |
+| **工位背后的假期** | 书桌变成海洋，杯子、书本、手机与电脑成为五座岛。放走一艘纸船，拨掉工作的声音，再从书页回到工位。 | [在线体验](https://desk-holiday-universe.netlify.app/) · [作品现状](PROJECT_STATUS.md) |
+| **小狗身体博物馆** | 绕到小狗身侧，发现身体里的六座微缩展馆；沿着食物的旅程，进入器官内部探索。 | 本地体验 · [作品与运行说明](photo-demo/docs/CANINE_MUSEUM.md) |
+
+## 体验亮点
+
+- **亲手发现照片的背面。** 从实景连续绕到微缩世界，通过转动、遮挡与尺度变化逐步揭示它。
+- **小动作改变一片天地。** 咖啡的热气凝成云，台灯牵动日出日落，桌面下延伸出海底。
+- **走进景物，也走进故事。** 在岛屿间游览，走上楼梯、打开房门，把催促工作的纸条折成纸船送走。
+- **回到开始，再次出发。** 书屋里的书页印着原始照片；进入那一页，又回到最初的 3DGS 工位。
+
+## 如何实现
+
+先从照片重建 3D Gaussian Splatting（3DGS）实景，再为照片中的主体及其背后的想象空间建模。将模型的位置、尺度与原始视角对齐后，通过 Three.js 与 Spark 融合实景和网格场景，用连续镜头组织探索、交互与返回。
+
+```mermaid
+flowchart LR
+    A[一张照片] --> B[3DGS 实景重建]
+    B --> C[主体与微缩世界建模]
+    C --> D[Three.js + Spark 场景融合]
+    D --> E[交互、故事与空间循环]
+```
+
+## 本地运行
+
+需要 Node.js 和支持 WebGL2 的浏览器。**新克隆需先按[资产恢复说明](photo-demo/docs/ASSETS.md)恢复照片、模型、Gaussian 场景与运行依赖**，然后在仓库根目录执行：
 
 ```sh
 cd photo-demo
 npm run dev
 ```
 
-**第二件作品：[小狗身体博物馆](http://127.0.0.1:9988/canine-museum/index.html)**。从实拍原照绕到 Hi3D 小狗右侧，打开骨架和六个独立的 Hi3D 微缩展馆，点器官即可推近、斜看、返回。[直接看剖面](http://127.0.0.1:9988/canine-museum/index.html?angle=90)。[制作与资产恢复](photo-demo/docs/CANINE_MUSEUM.md)。项目技能：[实景配准](.agents/skills/photo-gaussian-registration/SKILL.md)、[微缩剖景](.agents/skills/miniature-cutaway/SKILL.md)、[可逆绕行](.agents/skills/reversible-photo-orbit/SKILL.md)。
+服务启动后，打开[工位主体验](http://127.0.0.1:9988/marble-transition-lab/index.html)。其他作品入口、环境配置、检查命令与资产审阅见[开发指南](photo-demo/docs/DEVELOPMENT.md)。
 
-从 3DGS 工位绕到背面，可以自由浏览高清群岛，也可以点「跟随故事」，从蓝杯港湾依次前往蓝书白崖、橙书峡谷、手机潮港和洞窟书屋，再从书页回到工位。[进入主桌面](http://127.0.0.1:9988/marble-transition-lab/index.html)
+## 当前状态与后续方向
 
-点「工位漫步」进入原始空间，或绕到背面点「上岛漫步」。五座岛和桌下海底都有落脚点。走到岛上的建筑门前，点门或按 E 可以入内；也可以从漫步栏选择房间。白崖阁楼、赤岩旅舍与灯塔有可步行的楼梯，电脑书屋里的书页能带你回到工位。WASD 或方向键步行，拖动环顾。
+工位作品已公开上线，可完成五站故事、岛屿与室内漫步，以及书页返回实景的完整循环。小狗身体博物馆可在恢复资产后本地体验。
 
-单件资产也可独立审阅。
+接下来优先打磨近距离模型与通路、降低首屏和场景切换的等待，并在真实移动设备上验证完整旅程。[查看项目状态与计划](PROJECT_STATUS.md)。
 
-- [三件背面展开态](http://127.0.0.1:9988/holiday-assets/islands-unified.html)：蓝书白崖、橙书赤岩峡湾、手机潮汐港；Tripo整体网格与旧版对照。
-- [整体洞窟小岛](http://127.0.0.1:9988/holiday-assets/laptop-unified.html)：洞窟、建筑、岩岸与海湾统一生成的外观模型，可与旧版对照。
-- [可进入的海风书屋](http://127.0.0.1:9988/holiday-assets/bookroom.html)：已接入新版洞窟，可开门进入、阅读原图书页并回到最初的3DGS空间；支持再次进入的循环。
-- [逐物件 3D 资产](http://127.0.0.1:9988/holiday-assets/index.html)与[电脑背面小岛](http://127.0.0.1:9988/holiday-assets/laptop-spatial.html)：真实网格、独立微缩景观和约25°屏幕倾角。
+## 文档
 
-移动台灯可以调节群岛日照，蓝杯的热气会凝成云。早期照片转场及重建实验可供对照。[原版 demo](http://127.0.0.1:9988/) · [FlashWorld 与 Marble 实测](photo-demo/experiments/flashworld/README.md)
+| 想了解什么 | 从这里开始 |
+| --- | --- |
+| 本地开发与检查 | [开发指南](photo-demo/docs/DEVELOPMENT.md) |
+| 恢复完整演示资源 | [资产与依赖](photo-demo/docs/ASSETS.md) |
+| 实景与建模如何衔接 | [转场实现](photo-demo/docs/MARBLE_TRANSITION.md) · [书页循环](photo-demo/docs/BOOKROOM_LOOP.md) |
+| 制作记录、旧版与研究 | [文档索引](photo-demo/docs/README.md) |
 
-新克隆需要恢复本地资产才能运行完整演示。说明与入口见 [photo-demo/README.md](photo-demo/README.md)，资产恢复见 [ASSETS.md](photo-demo/docs/ASSETS.md)。
+## 致谢与许可
 
-## 项目文档
+渲染基于 [Three.js](https://github.com/mrdoob/three.js) 与 [Spark](https://github.com/sparkjsdev/spark)。海底动态参考 [Abyssal Living Deep](https://github.com/emollick/abyssal-living-deep)，材质扫描来自 [Poly Haven](https://polyhaven.com/)。
 
-- [项目现状与下一轮优先级（2026-11-08）](PROJECT_STATUS.md)
-- [产品概要](PRODUCT.md)与[设计讨论](DESIGN.md)
-- [近期实现与验证](photo-demo/docs/PROGRESS.md)
-- [照片转三维方案调研](research/photo-to-world-options.md)
-- [任务计划](task_plan.md)、[进度日志](progress.md)、[技术发现](findings.md)
-- [Git 仓库统一与历史备份](photo-demo/docs/GIT_MIGRATION.md)
-
-提交前从本目录运行 `node photo-demo/scripts/check-repository.mjs`，或在 `photo-demo/` 运行 `npm run check:repo`；两种入口均检查整个外层仓库的暂存区。
+第三方许可证与素材来源见[资产与依赖说明](photo-demo/docs/ASSETS.md)。原始照片、模型及生成素材不随源码仓库分发；仓库目前未设置统一的项目许可证。
