@@ -145,7 +145,7 @@ async function main(){
     await mobile.goto(url);await mobile.tap('#walk-start');await approach(mobile,'phone','baths');
     await mobile.tap('#walk-room');
     await mobile.waitForFunction(()=>window.__marbleTransition.state.walk?.room==='baths'&&!document.querySelector('#walk-room').disabled);
-    assert(await mobile.locator('#visit-move-pad').isVisible());await mobile.tap('#walk-room');
+    await mobile.locator('[data-stick=move]').waitFor({state:'visible'});await mobile.tap('#walk-room');
     await mobile.waitForFunction(()=>!window.__marbleTransition.state.walk?.room&&!document.querySelector('#walk-room').disabled);
     assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await mobile.close();
     assert.deepEqual(errors,[]);

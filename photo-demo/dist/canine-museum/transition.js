@@ -1,3 +1,5 @@
+import {createModelPreparation} from '../cinema/prepare-model.js';
+import {createJoysticks} from '../cinema/joysticks.js';
 import {onRoomVisibility} from '../cinema/room.js';
 import * as T from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
@@ -19,7 +21,8 @@ let angle=0, journey=null, ready=false, dirty=true, lastTime=0;
 let museum=null,viewCamera=null,selected=null,pending=null,focus=0,focusGoal=0,showSkin=false;
 let foodTour=null,routeMap=null;
 let sideRig=null,galleryRig=null,returnRig=null;
-const drawnTarget=vec(),usesTouch=matchMedia('(pointer: coarse)');
+const drawnTarget=vec(),usesTouch=matchMedia('(any-pointer: coarse)');
+const joysticks=createJoysticks(stage);
 const inspectingRoom=()=>foodTour?.visiting||selected;
 const browsing=()=>ready&&(foodTour?.active?foodTour.inspecting:(selected?focus===1&&focusGoal===1:angle>=89.99&&!journey));
 function rig(){
@@ -58,7 +61,7 @@ const updateControls=()=>{
   document.querySelector('#degrees').textContent=String(Math.round(angle)).padStart(3,'0')+'°';
   plate.textContent=selected?museum.exhibits.get(selected).room.name:angle===0?'原照':angle>=89.99?(showSkin?'右侧外观':'内脏博物馆'):'向右绕行';
   const free=Boolean(selected)||angle>=89.99;stage.dataset.browsing=String(free);
-  if(ready)hint.textContent=free?(usesTouch.matches?'单指环绕 · 双指捏合或张开缩放 · 双指移动平移':'拖动环绕 · 滚轮或触控板捏合缩放 · 右键或 Shift 拖动平移')+(selected?' · 双击展品对焦':' · 点器官进入'):'向右拖动画面绕到剖面，也可用滑杆原路返回。';
+  if(ready)hint.textContent=free?(usesTouch.matches?'左摇杆平移或推近，右摇杆环绕':'拖动环绕 · 滚轮或触控板捏合缩放 · 右键或 Shift 拖动平移 · 按住 WASD 移动、方向键环绕')+(selected?' · 双击展品对焦':' · 点器官进入'):'向右拖动画面绕到剖面，也可用滑杆原路返回。';
   label.textContent=journey?'暂停':angle>=89.99?'回到原照':angle===0?'开始放映':'继续放映';
   mark.dataset.icon=journey?'pause':angle>=89.99?'return':'play';
 };
@@ -79,13 +82,38 @@ bindBrowseGestures(stage,{
   pick:ndc=>{if(!showSkin&&viewCamera&&!routeMap?.enabled){const id=museum.hit(ndc,viewCamera);if(id)selectGallery(id);}}
 });
 for(const id of ['gallery-reset','side-reset'])document.getElementById(id).onclick=resetView;
+const movementKeys=new Set(['arrowleft','arrowright','arrowup','arrowdown','w','a','s','d','q','e']);
+const heldKeys=new Set();
+function advanceNavigation(dt){
+  const sticks=joysticks.activate(browsing() ? inspectingRoom() || 'overview' : null);
+  if(!heldKeys.size && !(sticks && (sticks.move.x||sticks.move.y||sticks.look.x||sticks.look.y)))return;
+  if(!browsing()){heldKeys.clear();return;}
+  const axis=(positive,negative)=>Number(heldKeys.has(positive))-Number(heldKeys.has(negative));
+  const turn=axis('arrowleft','arrowright')-(sticks?.look.x||0),tilt=axis('arrowup','arrowdown')-(sticks?.look.y||0);
+  const across=axis('d','a')+(sticks?.move.x||0),up=axis('e','q'),forward=axis('w','s')-(sticks?.move.y||0);
+  const stride=dt/Math.max(1,Math.hypot(across,up,forward));
+  if(turn||tilt)orbit(turn*1.35*dt,tilt*1.15*dt);
+  if(across||up)pan(across*1.35*stride,up*1.35*stride);
+  if(forward)zoom(Math.exp(-forward*1.15*stride));
+}
+window.addEventListener('keyup',e=>heldKeys.delete(e.key.toLowerCase()));
+stage.addEventListener('blur',()=>heldKeys.clear());
+window.addEventListener('blur',()=>heldKeys.clear());
+document.addEventListener('visibilitychange',()=>{if(document.hidden)heldKeys.clear();});
 stage.addEventListener('keydown',e=>{
-  if(!ready||(foodTour?.active&&!foodTour.inspecting)||e.target!==stage)return;
+  if(!ready||(foodTour?.active&&!foodTour.inspecting)||e.target!==stage||e.ctrlKey||e.metaKey||e.altKey)return;
   if(browsing()){
-    const k=e.key.toLowerCase(),moves={arrowleft:()=>orbit(.13,0),arrowright:()=>orbit(-.13,0),
-      arrowup:()=>orbit(0,.12),arrowdown:()=>orbit(0,-.12),a:()=>pan(-.16,0),d:()=>pan(.16,0),
-      q:()=>pan(0,-.16),e:()=>pan(0,.16),w:()=>zoom(.83),s:()=>zoom(1.2),r:resetView};
-    if(moves[k]){e.preventDefault();moves[k]();return;}
+    const key=e.key.toLowerCase();
+    if(movementKeys.has(key)){
+      e.preventDefault();
+      if(!e.repeat&&!heldKeys.has(key)){
+        const first=heldKeys.size===0;
+        heldKeys.add(key);
+        if(first)advanceNavigation(1/60); // A tap between frames still moves the camera.
+      }
+      return;
+    }
+    if(key==='r'){e.preventDefault();heldKeys.clear();resetView();return;}
   }
   if(foodTour?.active)return;
   if(e.code==='Space'){e.preventDefault();playOrbit();return;}
@@ -146,9 +174,10 @@ outgoingLight=mix(outgoingLight,texture2D(photoMap,clamp(sourceUv,0.,1.)).rgb,ph
 async function start(){
   const decoder=new DRACOLoader().setDecoderPath('../vendor/draco/');
   const gltf=new GLTFLoader().setDRACOLoader(decoder);
+  const dogFile=usesTouch.matches?'hi3d-orbit-mobile.glb':'hi3d-orbit.glb';
   const [reg,fit,marble,model,source,warp,surface,shadow,aperture,ring,{SparkRenderer,SplatMesh}]=await Promise.all([
     json('registration.json'),json('transition/dog-fit.json'),json('marble/registration.json'),
-    gltf.loadAsync(assets+'transition/hi3d-orbit.glb'),texture('original.jpg',true),texture('transition/source-warp.png'),texture('transition/source-surface.png'),texture('transition/contact.png'),texture('hi3d-galleries/flank-mask.png'),json('hi3d-galleries/rim.json'),import('@sparkjsdev/spark')
+    gltf.loadAsync(assets+'transition/'+dogFile),texture('original.jpg',true),texture('transition/source-warp.png'),texture('transition/source-surface.png'),texture('transition/contact.png'),texture('hi3d-galleries/flank-mask.png'),json('hi3d-galleries/rim.json'),import('@sparkjsdev/spark')
   ]);
 
   if(fit.worldId!==marble.world_id)throw Error('Room and dog registrations differ');
@@ -235,9 +264,16 @@ void main(){
  #include <colorspace_fragment>
 }`});
   const patch=new T.Mesh(rug,rugMat);patch.renderOrder=-2;dogScene.add(patch);
+  const prepareGallery=createModelPreparation(renderer,model=>renderer.compileAsync(model,camera,dogScene));
   museum=createFlankMuseum({dog,fit,origin,ring,requestFrame:()=>{dirty=true;},onSelect:selectGallery,onExit:leaveGallery,
     onReveal:()=>{showSkin=!showSkin;dirty=true;updateControls();},
-    load:(id,lod)=>gltf.loadAsync(assets+'hi3d-galleries/'+id+'-'+lod+'.glb')});
+    load:async(id,lod)=>{
+      const variant=usesTouch.matches&&lod==='detail'?'detail-mobile':lod;
+      const result=await gltf.loadAsync(assets+'hi3d-galleries/'+id+'-'+variant+'.glb');
+      if(lod==='overview')await prepareGallery(result.scene);
+      return result;
+    }});
+  await renderer.compileAsync(museum.group,camera,dogScene);
   viewCamera=camera;
   const [stops,profile,captions]=await Promise.all([json('digestion/stops.json'),json('digestion/profile.json'),json('digestion/galleries/captions.json')]);
   foodTour=createFoodTour({stops,profile,captions,museum,onExit:()=>{if(selected)museum.loadDetail(selected);},onChange:()=>{dirty=true;}});
@@ -293,6 +329,7 @@ void main(){
   let settle=0;
   function renderFrame(time){
     const elapsedSeconds=Math.max(0,(time-lastTime)*.001),dt=Math.min(.08,elapsedSeconds);lastTime=time;if(document.hidden)return;
+    advanceNavigation(dt);
     if(foodTour.active){
       if(foodTour.moving){foodTour.advance(Math.min(.5,elapsedSeconds));dirty=true;}
       if(dirty){draw();dirty=false;}
@@ -308,7 +345,7 @@ void main(){
     if(settle>0){settle--;draw();}
   }
   onRoomVisibility(active=>{
-    lastTime=performance.now();dirty=true;
+    heldKeys.clear();lastTime=performance.now();dirty=true;
     renderer.setAnimationLoop(active?renderFrame:null);
   });
   const ids=[...museum.exhibits.keys()];

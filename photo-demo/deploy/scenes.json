@@ -5,7 +5,7 @@
   "canine": {
     "entry": "canine-museum/index.html",
     "files": [
-      "cinema/premiere.css", "cinema/room.js", "vendor/**/*", "gs-lab/vendor/*",
+      "cinema/premiere.css", "cinema/room.js", "cinema/joysticks.js", "cinema/prepare-model.js", "vendor/**/*", "gs-lab/vendor/*",
       "holiday-assets/model-viewer.js",
       "canine-museum/index.html", "canine-museum/dog.html", "canine-museum/*.css",
       "canine-museum/transition.js", "canine-museum/browse-camera.js",

@@ -143,9 +143,9 @@ export async function createIslandWalk({id,model,frame,camera,sea,aspect,reduced
   function clear(){keys.clear();speedX=speedZ=0;}
   const held=k=>keys.has(k)||keys.has(arrows[k]);
   const axis=(positive,negative)=>Number(held(positive))-Number(held(negative));
-  function tick(dt){
-    yaw+=axis('j','l')*dt*1.65;pitch=T.MathUtils.clamp(pitch+axis('i','k')*dt*1.3,-1.38,1.38);
-    const right=axis('d','a'),forward=axis('w','s');
+  function tick(dt,sticks){
+    yaw+=(axis('j','l')-(sticks?.look.x||0))*dt*1.65;pitch=T.MathUtils.clamp(pitch+(axis('i','k')-(sticks?.look.y||0))*dt*1.3,-1.38,1.38);
+    const right=axis('d','a')+(sticks?.move.x||0),forward=axis('w','s')-(sticks?.move.y||0);
     const length=Math.max(1,Math.hypot(right,forward)),speed=height*.99/length;
     const ease=1-Math.exp(-dt*16);
     speedX+=((right*Math.cos(yaw)-forward*Math.sin(yaw))*speed-speedX)*ease;

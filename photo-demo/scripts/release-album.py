@@ -61,6 +61,9 @@ def build_pack(key, settings, store):
                             '--screening-pack', '--output', str(stage)], check=True)
         else:
             copy_scene(settings, stage)
+            if key == 'canine':
+                from glb_textures import prepare_mobile_museum_models
+                prepare_mobile_museum_models(SOURCE, stage)
         if not (stage / settings['entry']).is_file():
             raise ValueError(f'Missing scene entry for {key}')
         version = digest_tree(stage)

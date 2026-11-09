@@ -114,6 +114,12 @@ export function createCompositor(renderer,shared,realScene,dreamScene,holiday){
   function capture(target,parent,view){attach(parent);if(parent===dreamScene)prepareLight();renderer.setRenderTarget(target);renderer.render(parent,view);passes++;}
   const focal=new THREE.Vector3();
   return{resize(w,h){const ratio=renderer.getPixelRatio(),W=Math.round(w*ratio),H=Math.round(h*ratio);for(const t of [real,dream,mask,discovery])t.setSize(W,H);uniforms.resolution.value.set(W,H);uniforms.ratio.value=ratio;},
+    compileModel(model,view){
+      const previous=renderer.getRenderTarget();
+      renderer.setRenderTarget(dream);
+      try{return renderer.compileAsync(model,view,dreamScene);}
+      finally{renderer.setRenderTarget(previous);}
+    },
     render(view,state,variant='transition',soft=true){
       const handoff=variant==='real'?0:variant==='dream'?1:state.handoff;
       uniforms.handoff.value=handoff;uniforms.angle.value=state.angle;uniforms.softness.value=soft?1:0;uniforms.near.value=view.near;uniforms.far.value=view.far;

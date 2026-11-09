@@ -146,27 +146,41 @@ async function touch(browser){
   try{
     await page.goto(url+'?progress=1');await page.waitForSelector('#stage[data-browsing="true"]');
     const desk=await state(page);await page.tap('#walk-start');await arrived(page,'orange-book');
-    const button=await page.locator('#visit-move-pad [data-walk=w]').boundingBox(),canvas=await page.locator('#world').boundingBox();
+    const bar=page.locator('.scene-sticks');
+    await bar.scrollIntoViewIfNeeded();
     const client=await page.context().newCDPSession(page);
-    const finger={x:button.x+button.width/2,y:button.y+button.height/2,id:1};
     const gesture=(type,points)=>client.send('Input.dispatchTouchEvent',{type,touchPoints:points});
+    async function fingers(){
+      const boxes=await Promise.all(['move','look'].map(id=>page.locator(`[data-stick="${id}"]`).boundingBox()));
+      return boxes.map((box,i)=>({x:box.x+box.width/2,y:box.y+box.height/2,id:i+1}));
+    }
+    let [move,look]=await fingers();
+    assert(move.x<195 && look.x>195);
     const from=await walk(page);
-    await gesture('touchStart',[finger]);await page.waitForTimeout(430);
-    const look={x:canvas.x+canvas.width*.30,y:canvas.y+canvas.height*.45,id:2};
-    await gesture('touchStart',[finger,look]);await gesture('touchMove',[finger,{...look,x:look.x+42}]);await gesture('touchEnd',[]);
-    const to=await walk(page);assert(Math.abs(to.yaw-from.yaw)>.05);
-    assert(Math.hypot(to.foot[0]-from.foot[0],to.foot[2]-from.foot[2])>from.height*.08);
+    await gesture('touchStart',[move,look]);
+    await gesture('touchMove',[{...move,y:move.y-24},{...look,x:look.x+24}]);
+    await page.waitForFunction(p=>{
+      const w=window.__marbleTransition.state.walk;
+      return Math.abs(w.yaw-p.yaw)>.05 && Math.hypot(w.foot[0]-p.foot[0],w.foot[2]-p.foot[2])>p.height*.08;
+    },from);
+    await gesture('touchEnd',[]);
+    assert.equal(await page.locator('[data-held]').count(),0);
     await page.tap('#walk-exit');assert.deepEqual((await state(page)).camera,desk.camera);
     await page.selectOption('#explore-island','phone');
     await page.getByRole('button',{name:'游览手机小镇'}).tap();await arrived(page,'phone');
     const landing=await walk(page);
-    await gesture('touchStart',[finger]);
+    await page.setViewportSize({width:844,height:390});
+    await page.locator('#stage').scrollIntoViewIfNeeded();
+    [move,look]=await fingers();
+    assert(move.x<180 && look.x>660 && Math.abs(move.y-look.y)<1);
+    await gesture('touchStart',[move]);
+    await gesture('touchMove',[{...move,y:move.y-24}]);
     await page.waitForFunction(p=>{
       const w=window.__marbleTransition.state.walk;
       return Math.hypot(w.foot[0]-p.foot[0],w.foot[2]-p.foot[2])>p.height*.12;
     },landing);
     await gesture('touchEnd',[]);await page.tap('#walk-exit');
-    console.log('Touch movement and simultaneous drag-to-look passed.');
+    console.log('Portrait dual-stick walking and looking, release, and landscape controls passed.');
   }finally{await page.close();}
 }
 (async()=>{const browser=await launchBrowser();try{await desktop(browser);await touch(browser);}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

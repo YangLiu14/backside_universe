@@ -36,7 +36,7 @@ def select_assets(desk_only, screening_pack):
     for path in SOURCE.glob('*.js'):
         selected.add(path.relative_to(SOURCE))
 
-    collect('cinema', lambda p: not desk_only or p.name in {'premiere.css', 'room.js'})
+    collect('cinema', lambda p: not desk_only or p.name in {'premiere.css', 'room.js', 'joysticks.js', 'prepare-model.js'})
     if screening_pack:
         selected.update(map(Path, ['legacy.html', 'style.css']))
     if not desk_only:
@@ -45,7 +45,7 @@ def select_assets(desk_only, screening_pack):
         # Raw reconstruction inputs and duplicate production films stay local.
         omitted = {'source-gaussian.ply','inference-reference.jpg','profile-reference.png',
                    'world-pano.jpg','world-collider.glb','photo-to-hi3d.mp4','museum-tour.mp4'}
-        collect('canine-museum', lambda p: p.name not in omitted)
+        collect('canine-museum', lambda p: p.name not in omitted and not p.name.endswith('-mobile.glb'))
 
     return selected
 
@@ -92,7 +92,11 @@ def build(destination, desk_only=False, screening_pack=False):
         manifest.append({'path': relative.as_posix(), 'bytes': len(data),
                          'sha256': hashlib.sha256(data).hexdigest()})
 
-    for file in prepare_mobile_models(destination, selected):
+    mobile_files = prepare_mobile_models(destination, selected)
+    if not desk_only:
+        from glb_textures import prepare_mobile_museum_models
+        mobile_files.extend(prepare_mobile_museum_models(SOURCE, destination))
+    for file in mobile_files:
         data = file.read_bytes()
         manifest.append({'path': file.relative_to(destination).as_posix(), 'bytes': len(data),
                          'sha256': hashlib.sha256(data).hexdigest()})
@@ -175,5 +179,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.prepare_mobile:
         prepare_mobile_models(SOURCE, select_assets(True, True))
+        if (SOURCE / 'canine-museum/assets/transition/hi3d-orbit.glb').is_file():
+            from glb_textures import prepare_mobile_museum_models
+            prepare_mobile_museum_models(SOURCE, SOURCE)
     else:
         build(args.output.resolve(), args.desk_only or args.screening_pack, args.screening_pack)

@@ -42,6 +42,7 @@ def check(driver, args):
     wait.until(lambda d: d.execute_script("return !!document.querySelector('[data-work]') && document.querySelector('.preview-switch')?.hidden===false"),
                'Safari lost the album or it never opened')
     album_start = driver.execute_script('return performance.timeOrigin')
+    loaded_frames = {}
     for i, work in enumerate(works):
         started = time.monotonic()
         print('Testing', work, flush=True)
@@ -63,8 +64,11 @@ def check(driver, args):
                   ready:!!doc?.querySelector(key==='desk'?'#world[data-ready=true]':'#stage[data-ready=true]'),
                   browsing:!!doc?.querySelector('#stage[data-browsing=true]'),
                   error:!!doc?.querySelector('#loading[data-error=true],#retry-film:not([hidden])'),
-                  mobileModel:loaded && frame.contentWindow.performance.getEntriesByType('resource').some(
-                      entry=>entry.name.includes('/desk-mobile/') && new URL(entry.name).pathname.endsWith('.glb')),
+                  mobileModel:loaded && frame.contentWindow.performance.getEntriesByType('resource').some(entry=>{
+                      const path = new URL(entry.name).pathname;
+                      return key==='desk' ? path.includes('/desk-mobile/') && path.endsWith('.glb')
+                                          : path.endsWith('/hi3d-orbit-mobile.glb');
+                  }),
                   status:doc?.querySelector('#status,#hint')?.textContent || '',
                   percent:doc?.querySelector('#load-value')?.textContent || ''
                 };
@@ -81,8 +85,12 @@ def check(driver, args):
             return state
 
         wait.until(lambda d: scene_state(d)['ready'], f'{work}: did not reach its ready state')
-        if work == 'desk' and not scene_state(driver)['mobileModel']:
-            raise RuntimeError('desk: no mobile GLB was loaded in iPhone Safari')
+        loaded = scene_state(driver)
+        if not loaded['mobileModel']:
+            raise RuntimeError(f'{work}: no mobile GLB was loaded in iPhone Safari')
+        if work in loaded_frames and loaded_frames[work] != loaded['frame']:
+            raise RuntimeError(f'{work}: Safari recreated the scene on reentry')
+        loaded_frames[work] = loaded['frame']
         print(f'{work} ready in {time.monotonic()-started:.1f}s', flush=True)
 
         def tap_in_scene(selector):

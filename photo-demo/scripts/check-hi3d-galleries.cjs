@@ -6,6 +6,9 @@ const ids=['heart','lungs','liver','stomach','kidney','gut'];
 const p=await b.newPage({viewport:small?{width:390,height:844}:{width:1220,height:960},deviceScaleFactor:1,reducedMotion:'reduce',isMobile:small,hasTouch:small});const errors=[];
 p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
 await p.goto(baseURL+'/canine-museum/index.html?angle=90');await p.locator('#stage[data-ready=true]').waitFor({timeout:50000});
+const dogFiles=await p.evaluate(()=>performance.getEntriesByType('resource')
+  .map(entry=>new URL(entry.name).pathname.split('/').pop()).filter(name=>/^hi3d-orbit(?:-mobile)?\.glb$/.test(name)));
+assert.deepEqual(dogFiles,[small?'hi3d-orbit-mobile.glb':'hi3d-orbit.glb']);
 const state=()=>p.evaluate(()=>window.__photoOrbit.state),stage=p.locator('#stage'),slider=p.locator('#angle');
 const snap=async file=>{await p.evaluate(async()=>{for(let i=0;i<3;i++)await new Promise(requestAnimationFrame)});await stage.screenshot({path:path.join(dir,(small?'mobile-':'')+file+'.jpg'),quality:93})};
 if(process.env.SHELL_ONLY==='1'){await snap('shell');console.log(errors);return}
@@ -34,6 +37,17 @@ async function drag(pan=false){
 }
 const full=(await state()).camera;
 if(!small){
+  await stage.focus();
+  await p.keyboard.down('w');await frame();
+  const firstZoom=(await state()).focusZoom;
+  await frame();assert.ok((await state()).focusZoom<firstZoom,'holding W continues to move');
+  await p.keyboard.down('ArrowRight');await p.keyboard.up('w');await frame();
+  const turning=await state();await frame();
+  assert.equal((await state()).focusZoom,turning.focusZoom);
+  assert.ok((await state()).focusYaw>turning.focusYaw,'holding the arrow continues to orbit');
+  await p.keyboard.up('ArrowRight');await frame();
+  const released=(await state()).camera;await frame();assert.deepEqual((await state()).camera,released);
+  await p.locator('#side-reset').click();await frame();
   // Approach a real gallery from the unselected overview; its high-resolution model should stream in.
   const pin=p.getByRole('button',{name:'胃 · 旋流陶坊',exact:true});
   await pin.scrollIntoViewIfNeeded();const bounds=await pin.boundingBox();
@@ -68,5 +82,8 @@ await p.locator('#side-reset').click();await frame();assert.deepEqual((await sta
 await slider.fill('25');await p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));const first=await state();await slider.fill('84');await slider.fill('25');await p.waitForTimeout(100);assert.deepEqual((await state()).camera,first.camera);
 await slider.fill('0');await p.waitForFunction(()=>window.__photoOrbit.state.photoOpacity==='1');await snap('photo');assert.equal(await p.locator('.organ-pin:visible').count(),0);
 await p.locator('[data-gallery=heart]').click();await p.waitForFunction(()=>window.__photoOrbit.state.focus===1);await stage.focus();await p.keyboard.press('Escape');await p.waitForFunction(()=>!window.__photoOrbit.state.selected);
+const details=await p.evaluate(()=>performance.getEntriesByType('resource')
+  .map(entry=>new URL(entry.name).pathname.split('/').pop()).filter(name=>/-detail(?:-mobile)?\.glb$/.test(name)));
+assert.deepEqual([...new Set(details)].sort(),ids.map(id=>id+(small?'-detail-mobile.glb':'-detail.glb')).sort());
 assert.deepEqual(errors,[]);await fs.writeFile(path.join(dir,(small?'mobile-':'')+'check.json'),JSON.stringify({rows,errors},null,2));console.log(rows)
 }finally{await b.close()}})().catch(e=>{console.error(e);process.exitCode=1});

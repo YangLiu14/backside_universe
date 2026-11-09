@@ -1,5 +1,11 @@
 // Reviewed English copy keyed by the original Chinese phrases.
 export const messages = {
+  "游览摇杆": "Navigation sticks",
+  "移动": "Move",
+  "视角": "Look",
+  "左摇杆移动，右摇杆环顾。": "Move with the left stick. Look around with the right.",
+  "左摇杆移动，右摇杆环顾。拖动灯头调日照。轻点手机可游览潮港，轻点蓝杯可走到海滩。": "Move with the left stick and look around with the right. Drag the lamp to change daylight. Tap the phone to explore the port or the blue cup to visit the beach.",
+  "左摇杆平移或推近，右摇杆环绕": "Left stick to move sideways or zoom · Right stick to orbit",
   "重新打开放映": "Reopen experience",
   "三维画面已中断。": "The 3D view was interrupted.",
   "继续放映": "Resume",

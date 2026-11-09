@@ -131,3 +131,49 @@
 }
 .projection-recovery button,#retry-film {border:1px solid #8c7757;padding:8px 12px;background:var(--gold);color:#241f16;cursor:pointer;}
 .premiere #reduce-motion[aria-pressed=true] {background:#e8c993;color:#291f13;}
+
+.scene-sticks { display:none; }
+@media (any-pointer:coarse) {
+  .scene-sticks:not([hidden]) {
+    --stick-size:clamp(76px,20vmin,96px);
+    display:flex; position:relative; align-items:center; justify-content:space-between;
+    padding:12px max(24px,env(safe-area-inset-right)) 30px max(24px,env(safe-area-inset-left));
+    border-top:1px solid var(--edge); background:var(--rail);
+    pointer-events:none; user-select:none; -webkit-user-select:none;
+  }
+  .scene-stick {
+    position:relative; width:var(--stick-size); height:var(--stick-size); box-sizing:border-box;
+    display:grid; place-items:center; touch-action:none; pointer-events:auto; -webkit-touch-callout:none;
+    border:1px solid #ac9774; border-radius:50%; background:rgba(31,29,24,.84); color:var(--ivory);
+  }
+  .scene-stick::before {
+    content:""; position:absolute; inset:6px; border:1px solid #766a55; border-radius:50%;
+  }
+  .stick-knob {
+    width:40%; height:40%; border:1px solid #d5b78b; border-radius:50%; background:#6a5840;
+    pointer-events:none;
+  }
+  .scene-stick[data-held] .stick-knob { background:var(--gold); }
+  .stick-label {
+    position:absolute; top:calc(100% + 3px); color:var(--gold); font:500 12px/18px "PingFang SC",sans-serif;
+    white-space:nowrap; pointer-events:none;
+  }
+  .premiere #visit-move-pad { display:none; }
+}
+@media (any-pointer:coarse) and (orientation:portrait) {
+  .premiere:not(.book-portal) #stage[data-joysticks] { min-height:50svh; }
+}
+@media (any-pointer:coarse) and (orientation:landscape) {
+  .premiere:not(.book-portal) #stage[data-joysticks] { height:76svh; min-height:0; max-height:76svh; }
+  .premiere:not(.book-portal) .projection-head:has(.language-switch) {
+    grid-template-columns:auto 1fr auto auto; min-height:48px; padding-block:2px;
+  }
+  .scene-sticks:not([hidden]) {
+    height:0; padding:0; border:0; z-index:5;
+  }
+  .scene-stick { position:absolute; bottom:clamp(56px,20svh,140px); }
+  .scene-stick:first-child { left:max(18px,env(safe-area-inset-left)); }
+  .scene-stick:last-child { right:max(18px,env(safe-area-inset-right)); }
+  .stick-label { top:calc(100% + 2px); padding:0 5px; border-radius:2px;
+    font-size:11px; line-height:16px; color:#ffefd7; background:#201e19dc; }
+}

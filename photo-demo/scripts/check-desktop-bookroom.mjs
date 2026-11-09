@@ -54,6 +54,20 @@ test('the offshore approach keeps the bookroom door in view',async()=>{
  await entry;
 });
 
+test('dragging right and left turns toward that side on the terrace and inside',async()=>{
+ const {visit,camera,run}=harness({reduced:true});
+ for(const action of [visit.start,visit.actions.enter]){
+  await run(action);
+  for(const dx of [40,-40]){
+   const position=camera.position.clone();
+   const right=new T.Vector3(1,0,0).applyQuaternion(camera.quaternion);
+   visit.rotate(dx,0);
+   assert(camera.getWorldDirection(new T.Vector3()).dot(right)*Math.sign(dx)>.05,'turn toward the dragged side');
+   assert(camera.position.equals(position),'turn in place');
+  }
+ }
+});
+
 test('same camera completes repeated door, room, book and original-GS loops',async()=>{
  for(const reduced of [false,true]){
   const h=harness({reduced}),{visit:v}=h;

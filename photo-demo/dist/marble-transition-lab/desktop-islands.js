@@ -83,7 +83,7 @@ function clearanceAboveDesk(object, lateral, surface, extreme) {
   return clearance;
 }
 
-export function createDesktopIslands({scene, registered, details, fit, desk, surface, loader, anisotropy, invalidate, report}) {
+export function createDesktopIslands({scene, registered, details, fit, desk, surface, loader, anisotropy, invalidate, report, prepareGPU}) {
   desk.updateWorldMatrix(true,true);
   registered.group.updateWorldMatrix(true,true);
   const delta = ([x,z]) => new V(x,0,z).applyMatrix4(desk.matrixWorld).sub(new V().applyMatrix4(desk.matrixWorld));
@@ -116,7 +116,7 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
     return {...entry,id,body,accessory,submergedAt,models:{},requests:{},failed:new Set(),level:'ordinary',amount:0};
   });
 
-  let warming, prepared=false, currentSea=0;
+  let warming, currentSea=0;
   function warn(){
     const names={'blue-book':'蓝书','orange-book':'橙书',phone:'手机'};
     const missing=entries.filter(e=>e.failed.has('hd')).map(e=>names[e.id]);
@@ -125,7 +125,7 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
   function load(entry,level){
     if(entry.requests[level])return entry.requests[level];
     const file=level==='hd'?'desktop-visit.glb':'desktop-near.glb';
-    entry.requests[level]=loader.loadAsync('../holiday-assets/assets/'+entry.id+'/'+file).then(({scene:model})=>{
+    entry.requests[level]=loader.loadAsync('../holiday-assets/assets/'+entry.id+'/'+file).then(async({scene:model})=>{
       if(harborFits[entry.id])seatHarborBase(model,entry.berthMatrix,surface,harborFits[entry.id]);
       if(entry.id==='phone')fitCoastToCase(model);
       model.traverse(o=>{
@@ -139,6 +139,7 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
       });
       if(level==='hd')dressCoast(model,entry.id);
       addIslandPassages(model,entry.id);
+      await prepareGPU(model);
       const first=!entry.models.hd&&!entry.models.near;
       if(first&&entry.id==='phone')entry.root.add(createPhoneCase());
       model.visible=false;entry.root.add(model);entry.models[level]=model;
@@ -158,7 +159,7 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
     warn();
   }
   function prepare(){
-    if(!warming)warming=Promise.all(entries.map(e=>prepareModel(e))).then(()=>{prepared=true;invalidate();});
+    if(!warming)warming=Promise.all(entries.map(e=>prepareModel(e))).then(invalidate);
     return warming;
   }
   function update(amount,seaMaterial,reduced){
@@ -193,7 +194,7 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
       if(!e.models.hd&&!e.models.near)throw Error('岛屿模型未能载入');
       e.lateArrival=0;
     },
-    prepare, get prepared(){return prepared;},
+    prepare,
     retryMissing(){
       for(const entry of entries)if(entry.failed.has('hd'))prepareModel(entry,true);
     },

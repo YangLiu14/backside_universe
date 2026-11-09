@@ -171,7 +171,7 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
     transition={action:'exit',time:0,moved:false};
     if(reduced())tick(duration);changed();
   }
-  function tick(dt){
+  function tick(dt,sticks){
     if(transition){
       const trip=transition;trip.time+=dt;
       const t=reduced()?1:Math.min(1,trip.time/duration);
@@ -200,16 +200,16 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
     }
     if(mode==='inside'){
       const oldZ=roomCamera.position.z;
-      inside.tick(dt);syncCamera(roomCamera);
+      inside.tick(dt,sticks);syncCamera(roomCamera);
       if(roomCamera.position.z>-.21&&roomCamera.position.z>oldZ&&Math.abs(roomCamera.position.x)<.67)exitRoom();
     }else{
-      outside.tick(dt);
+      outside.tick(dt,sticks);
       if(pending)return;
       const nearby=doors.filter(d=>near(d)).sort((a,b)=>a.aim.distanceToSquared(camera.position)-b.aim.distanceToSquared(camera.position));
       if(nearby.length&&!manualChoice&&!arrivalAnchor&&choice!==nearby[0]){choice=nearby[0];changed();}
       if(arrivalAnchor&&camera.position.distanceTo(arrivalAnchor)>choice.height*.32)arrivalAnchor=null;
       const now=!!atDoor();if(now!==lastNear){lastNear=now;changed();}
-      if((keys.has('w')||keys.has('arrowup'))&&nearby.includes(choice)){
+      if((keys.has('w')||keys.has('arrowup')||sticks?.move.y<-.15)&&nearby.includes(choice)){
         const rel=camera.position.clone().sub(choice.sill),forward=camera.getWorldDirection(v(0,0,0));
         if(Math.abs(rel.x*choice.facing.z-rel.z*choice.facing.x)<choice.scale*.53
           &&rel.dot(choice.facing)>-choice.scale*.15&&rel.dot(choice.facing)<choice.scale*.57&&forward.dot(choice.facing)<-.65)enter();
@@ -233,6 +233,7 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
     choice=d;enter();
   }
   return {id:outside.id,tick,action,select,hitDoor,
+    get busy(){return Boolean(transition||pending);},
     get rooms(){return doors;},get scene(){return mode==='inside'?room?.scene:null;},
     get info(){return {key:choice.key,name:choice.name,inside:mode==='inside',near:!!atDoor(),busy:!!(transition||pending),notice};},
     get state(){return {...active().state,id:outside.id,room:mode==='inside'?choice.id:null,entrance:choice.key,furnishings:mode==='inside'?room.furnishings:null};},

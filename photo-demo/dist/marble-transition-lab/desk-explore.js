@@ -127,6 +127,15 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     const previousY=view.position.y;constrain(view.position.add(step),previousY);manualChange();
   }
 
+  function steer(dt,{move,look:turn}){
+    cancelMotion();
+    rotate(turn.x*dt*1.65,turn.y*dt*1.3);
+    step.set(move.x,0,move.y).applyQuaternion(view.rotation)
+      .multiplyScalar(dt*clamp(view.distance*.75,.12,.75));
+    const previousY=view.position.y;
+    if(step.lengthSq())constrain(view.position.add(step),previousY);
+    manualChange();
+  }
   function advanceKeys(now){
     // Account for the part of a frame before keyup as well as held frames.
     const dt=clamp((now-lastKeyTime)/1000,0,.05);
@@ -196,7 +205,7 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     while(hit&&!roots.has(hit))hit=hit.parent;
     return roots.get(hit);
   }
-  return {setHome,stop,cancelMotion,clearKeys,tick,key,look,pan,zoom,focus,pick,move,
+  return {setHome,stop,cancelMotion,clearKeys,tick,steer,key,look,pan,zoom,focus,pick,move,
     bounds:id=>destinations.get(id).bounds,
     resume(){if(!view.modified)view=copy(overview);apply();},
     overview:()=>move(overview),get distance(){return view.distance;},get projectionY(){return camera.projectionMatrix.elements[5];},

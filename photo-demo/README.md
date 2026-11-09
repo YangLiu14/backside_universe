@@ -1,6 +1,8 @@
 # 背后宇宙 · 本地应用
 
-这里是照片实景与微缩世界的浏览器应用源码。[项目介绍与在线体验](../README.md)位于仓库首页。
+这里是照片实景与微缩世界的浏览器应用源码。
+
+[在线放映相簿](https://backside-universe.netlify.app/?lang=zh) · [工位背后的假期](https://backside-universe.netlify.app/?lang=zh#desk) · [小狗的内脏博物馆](https://backside-universe.netlify.app/?lang=zh#canine) · [项目介绍](../README.md)
 
 新克隆需先按[资产恢复说明](docs/ASSETS.md)恢复照片、模型、Gaussian 场景与 Spark 运行库。安装 Node.js 后，在本目录执行：
 

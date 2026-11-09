@@ -1,4 +1,6 @@
 import {t,onLanguageChange} from '../i18n/core.js';
+import {createModelPreparation} from '../cinema/prepare-model.js';
+import {createJoysticks} from '../cinema/joysticks.js';
 import {onRoomVisibility,roomVisible} from '../cinema/room.js';
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
@@ -22,6 +24,7 @@ import {createLoadingProgress} from './loading-progress.js';
 
 const $=id=>document.getElementById(id),canvas=$('world'),stage=$('stage');
 const loadingProgress=createLoadingProgress();
+const joysticks=createJoysticks(stage);
 const embedded=new URLSearchParams(location.search).get('portal')==='book'&&parent!==window;
 document.body.classList.toggle('book-portal',embedded);
 let embedActive=!embedded,spark,visit,islandVisit,cupHarbor,lastTick=performance.now();
@@ -29,10 +32,6 @@ const tellParent=(type,detail={})=>{if(embedded)parent.postMessage({type,...deta
 let visitReturnProgress=1,visitReturnView,explore,gestures,islandOptions,entryFeedback=false;
 let officeCollider,walker=null,walkRequest=null,walkOrigin=null,walkDrag=null;
 const browsing=()=>ready&&progress===1&&!visit?.active&&!islandVisit?.active&&!walkOrigin;
-// Direct seeks may arrive before the HD islands. Hold the last dry
-// frame and honour the latest seek (including Home) when decoding completes.
-const islandGate=.33;
-let pendingIslandSeek=null,waitingForIslands=false,islandGateReleased=false;
 let ready=false,progress=0,playing=null,variant='transition',meta,modelLoader,renderer,camera,compositor,objects,desktop,holiday,realScene,dreamScene;
 let width=1,height=1,frameTimes=[],visitFrames=[],lastFrame=0,settleUntil=0;
 onLanguageChange(()=>{settleUntil=performance.now()+500;});
@@ -97,38 +96,17 @@ function visitUI(state){
  $('reduce-motion').setAttribute('aria-pressed',String(reduce));
  if(active){$('gesture').hidden=true;$('angle').hidden=true;$('phase').textContent={approaching:'沿海湾，走向电脑背后的书屋',terrace:'二层露台 · 绿门前',inside:'海风书屋',book:'第一页 · 故事的起点',returning:'又回到熟悉的书桌',departing:'沿原路回到群岛'}[state.stage];}
  else{$('angle').hidden=false;$('phase').textContent=sampleJourney(progress).label;$('gesture').hidden=progress>.03;}
- $('visit-hint').textContent=state.stage==='book'?'点击右页照片，走进最初的空间':state.busy?'慢慢靠近，看看这一段风景':'拖动环顾 · WASD / 方向键移动';
+ $('visit-hint').textContent=state.stage==='book'?'点击右页照片，走进最初的空间':state.busy?'慢慢靠近，看看这一段风景':matchMedia('(any-pointer: coarse)').matches?'左摇杆移动，右摇杆环顾。':'拖动环顾 · WASD / 方向键移动';
  browseUI();
  tour.refresh();
  if(active&&!state.busy&&!tour.active)canvas.focus({preventScroll:true});
 }
-function stop(cancelSeek=true){if(cancelSeek){pendingIslandSeek=null;if(!visit?.active)explore?.stop();}playing=null;$('play-icon').innerHTML='<svg viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></svg>';$('play-label').textContent=progress>=1?'返回实景':progress>0?'继续放映':'开始放映';$('play').setAttribute('aria-pressed','false');$('play').setAttribute('aria-label',progress>=1?'返回实景':progress>0?'继续放映':'开始放映');canvas.dataset.frameTimes=JSON.stringify(frameTimes);settleUntil=performance.now()+450;}
+function stop(stopExplore=true){if(stopExplore&&!visit?.active)explore?.stop();playing=null;$('play-icon').innerHTML='<svg viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></svg>';$('play-label').textContent=progress>=1?'返回实景':progress>0?'继续放映':'开始放映';$('play').setAttribute('aria-pressed','false');$('play').setAttribute('aria-label',progress>=1?'返回实景':progress>0?'继续放映':'开始放映');canvas.dataset.frameTimes=JSON.stringify(frameTimes);settleUntil=performance.now()+450;}
 function setProgress(value,manual=true){
   if(walkOrigin||islandVisit?.active)return;
   if(visit?.active&&visit.state.stage!=='returning')return;
-  if(!ready||!Number.isFinite(Number(value)))return;if(manual)stop();let requested=clamp01(Number(value));
+  if(!ready||!Number.isFinite(Number(value)))return;if(manual)stop();const requested=clamp01(Number(value));
   if(requested<.97)visit?.cancelEntry();
-  if(requested>0&&!holiday.islands.prepared){
-    const loading=holiday.islands.prepare();
-    if(requested>islandGate&&!islandGateReleased){
-      pendingIslandSeek=requested;
-      requested=islandGate;
-      if(playing&&!playing.waitStart)playing.waitStart=performance.now();
-      if(!waitingForIslands){
-        waitingForIslands=true;
-        const release=()=>{
-          if(!waitingForIslands)return;
-          islandGateReleased=true;
-          if(playing?.waitStart){playing.start+=performance.now()-playing.waitStart;delete playing.waitStart;}
-          waitingForIslands=false;
-          const target=pendingIslandSeek;pendingIslandSeek=null;
-          if(target!==null)setProgress(target,false);
-        };
-        const deadline=setTimeout(release,850);
-        loading.then(()=>{clearTimeout(deadline);release();});
-      }
-    }
-  }
   if(requested!==1){explore?.stop();gestures?.clear();entryFeedback=false;}
   const arriving=progress<1&&requested===1;
   const atEndpoint=progress===1||requested===1;
@@ -179,8 +157,11 @@ function animateOcean(dt,amount){
 function frame(now){
   const frameMs=now-lastTick,dt=Math.min(frameMs/1000,.05);lastTick=now;
   if(!roomVisible()||!embedActive)return;
+  const owner = walkOrigin ? (walker && !walker.busy ? walker : null)
+    : visit?.canWalk ? visit : browsing() && !tour.active && !playing ? explore : null;
+  const sticks = joysticks.activate(owner);
   if(walkOrigin){
-    walker?.tick(dt);renderer.info.reset();
+    walker?.tick(dt,sticks);renderer.info.reset();
     if(walker?.scene){renderer.setRenderTarget(null);renderer.render(walker.scene,camera);return;}
     if(stage.dataset.walk==='office'){compositor.render(camera,sampleJourney(0),'real',false);return;}
     animateOcean(dt,1);holiday.update(sampleJourney(1).time,camera,1);updateIslands(1);
@@ -205,7 +186,11 @@ function frame(now){
     else compositor.render(camera,sampleJourney(1),'dream',false);
     canvas.dataset.camera=JSON.stringify(camera.matrixWorld.toArray());return;
   }
-  explore?.tick(dt,now);visit?.tick(dt);
+  if (owner === explore && sticks && (sticks.move.x || sticks.move.y || sticks.look.x || sticks.look.y)) {
+    visit?.cancelEntry();
+    explore.steer(dt,sticks);
+  }
+  explore?.tick(dt,now);visit?.tick(dt,owner===visit ? sticks : null);
   if(visit?.active){
     const phase=visit.state.stage;holiday.update(sampleJourney(progress).time,camera,phase==='returning'?0:1);
     updateIslands(phase==='returning'?0:1);
@@ -219,9 +204,9 @@ function frame(now){
     visitFrames.push(frameMs);if(visitFrames.length>180)visitFrames.shift();canvas.dataset.visitFrames=JSON.stringify(visitFrames);return;
   }
   // A hidden tab pauses playback; resume the guided crossing on its next visible frame.
-  if(guideArrival&&!playing&&pendingIslandSeek===null&&progress!==1)travel(1);
+  if(guideArrival&&!playing&&progress!==1)travel(1);
   const wasPlaying=!!playing;
-  if(playing&&pendingIslandSeek===null){const t=clamp01((now-playing.start)/playing.duration),{from,to}=playing;setProgress(THREE.MathUtils.lerp(from,to,smooth(0,1,t)),false);if(t===1&&pendingIslandSeek===null)stop();}
+  if(playing){const t=clamp01((now-playing.start)/playing.duration),{from,to}=playing;setProgress(THREE.MathUtils.lerp(from,to,smooth(0,1,t)),false);if(t===1)stop();}
   if(!ready)return;
   const journey=sampleJourney(progress),live=journey.sea>0&&!reduce&&variant!=='real';
   if(!playing&&!live&&now>settleUntil)return;
@@ -252,6 +237,7 @@ async function boot(){
   modelLoader=await createDeskModelLoader();
   const registered=createObjects(renderer,realScene,meta,sourceCamera,modelLoader,!baseline);
   [objects,desktop,holiday]=await Promise.all([registered,createDesktop(realScene),registered.then(o=>createHoliday(dreamScene,meta,o,renderer,modelLoader,{
+    prepareGPU:createModelPreparation(renderer,model=>compositor.compileModel(model,camera)),
     invalidate:()=>{settleUntil=performance.now()+450;},
     report:message=>{$('island-feedback').textContent=message;$('island-retry').hidden=!message;},
   })),roomReady]);
@@ -282,12 +268,23 @@ async function boot(){
     onReturn:async()=>{visitReturnView=null;camera.up.set(0,1,0);camera.near=.012;camera.far=30;variant='transition';setProgress(0);await spark.update({scene:realScene,camera});compositor.render(camera,sampleJourney(0),'transition',false);settleUntil=performance.now()+1200;},
   });
   status('正在准备转场画面…');
+  holiday.islands.prepare();
   dreamScene.add(objects.group);await renderer.compileAsync(dreamScene,camera);realScene.add(objects.group);await renderer.compileAsync(realScene,camera);
   ready=true;setProgress(0);
   await spark.update({scene:realScene,camera});
   onRoomVisibility(active=>renderer.setAnimationLoop(active?frame:null));
-  // A first dream frame uploads model textures before the user can scrub there.
-  renderer.shadowMap.needsUpdate=true;compositor.render(camera,sampleJourney(0),'dream');compositor.render(camera,sampleJourney(0),'real');
+  // Draw the revealed coast while the loading cover is still up. Use its real
+  // camera, materials and shadow passes, then restore the source before paint.
+  const back=sampleJourney(.75),preview=camera.clone();
+  const pose=cameraPose(p,back.progress,width/height);
+  preview.position.copy(pose.position);preview.quaternion.copy(pose.quaternion);
+  preview.updateMatrixWorld(true);applyProjection(preview,p,back.progress,width/height);
+  holiday.update(back.time,preview,back.sea);holiday.animateOcean(0,back.sea);
+  updateIslands(back.sea);renderer.shadowMap.needsUpdate=true;
+  compositor.render(preview,back,'dream');
+  const front=sampleJourney(0);
+  holiday.update(front.time,camera,0);holiday.animateOcean(0,0);updateIslands(0);
+  compositor.render(camera,front,'real');
   settleUntil=performance.now()+1200;
   document.querySelectorAll('button:disabled,input:disabled').forEach(el=>el.disabled=false);loadingProgress.finish();delete stage.dataset.loading;
   $('diagnostic-status').textContent='从蓝书白崖、橙书峡谷和手机潮港，可以望见电脑洞窟。绕到背后即可进入书屋。';
@@ -525,7 +522,7 @@ function roomUI(){
  const label=menu.hidden?info.name:'';
  action.textContent=info.inside?'出门回到岛上':info.near?'进入'+info.name:'前往'+label+'门口';
  $('phase').textContent=info.inside?info.name:$('walk-place').selectedOptions[0].textContent+' · 漫步';
- $('walk-hint').textContent=info.notice||(info.inside?'步行探索，走出门口或按 Esc 返回岛上。':info.near?'点门或按 E 进入。':matchMedia('(pointer:coarse)').matches?'按住方向键步行，拖动画面环顾。':'WASD 或方向键步行，拖动或 IJKL 环顾。');
+ $('walk-hint').textContent=info.notice||(info.inside?'步行探索，走出门口或按 Esc 返回岛上。':info.near?'点门或按 E 进入。':matchMedia('(pointer:coarse)').matches?'左摇杆移动，右摇杆环顾。':'WASD 或方向键步行，拖动或 IJKL 环顾。');
  stage.dataset.room=info.inside?info.key:'';
 }
 function discardWalk(){
@@ -602,7 +599,7 @@ async function startWalk(id){
   }
   walker.tick(0);$('visit-move-pad').hidden=false;$('walk-story').disabled=false;
   $('phase').textContent=$('walk-place').selectedOptions[0].textContent+' · 漫步';
-  $('walk-hint').textContent=matchMedia('(pointer:coarse)').matches?'按方向键步行，拖动画面环顾。':'WASD 或方向键步行，拖动或 IJKL 环顾。';
+  $('walk-hint').textContent=matchMedia('(pointer:coarse)').matches?'左摇杆移动，右摇杆环顾。':'WASD 或方向键步行，拖动或 IJKL 环顾。';
   $('walk-room-choice').replaceChildren(...(walker.rooms||[]).map(r=>new Option(r.name,r.key)));roomUI();
   canvas.focus({preventScroll:true});
  }catch(error){if(!signal.aborted){leaveWalk();entryFeedback=true;browseUI();$('visit-feedback').textContent='步行入口未能打开。请重新选择岛屿后再试。';console.error(error);}}
@@ -640,7 +637,7 @@ window.addEventListener('message',async event=>{
  if(!embedded||event.origin!==location.origin||event.source!==parent||!ready)return;
  const data=event.data;
  if(data?.type==='book-world:active'){
-  embedActive=!!data.active;if(!embedActive){stop();islandVisit?.audio?.stop();soundUI();}else{settleUntil=performance.now()+1000;canvas.focus({preventScroll:true});}
+  embedActive=!!data.active;if(!embedActive){joysticks.activate(null);stop();islandVisit?.audio?.stop();soundUI();}else{settleUntil=performance.now()+1000;canvas.focus({preventScroll:true});}
  }else if(data?.type==='book-world:motion'){
   reduce=!!data.reduced;if(reduce)stop();
  }else if(data?.type==='book-world:prepare'){

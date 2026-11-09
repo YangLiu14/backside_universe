@@ -7,12 +7,13 @@ const out = path.join(__dirname, '../evidence/desktop-islands');
 const modelURL = /\/(blue-book|orange-book|phone)\/desktop-(near|far|visit)\.glb$/;
 const url = baseURL+'/marble-transition-lab/index.html';
 
-async function open(browser, options={}) {
+async function open(browser, options={}, beforeLoad) {
   const page = await browser.newPage(options);
   const errors=[],requests=[];
   page.on('request',r=>{if(modelURL.test(r.url()))requests.push(r.url().match(modelURL).slice(1).join('/'));});
   page.on('pageerror',e=>errors.push(e.message));
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+  if(beforeLoad)await beforeLoad(page);
   await page.goto(url);
   await page.waitForSelector('#world[data-ready=true]',{timeout:90000});
   return {page,errors,requests};
@@ -70,10 +71,10 @@ async function imageStats(page) {
         if(!o.isMesh)return;
         const g=o.geometry;
         for(const a of Object.values(g.attributes))loadedGeometryBytes+=a.array.byteLength;
-        loadedGeometryBytes+=g.index.array.byteLength;
+        loadedGeometryBytes+=g.index?.array.byteLength??0;
         for(const material of [].concat(o.material))for(const value of Object.values(material))if(value?.isTexture)textures.add(value);
       });
-      root.traverseVisible(o=>{if(o.isMesh){triangles+=o.geometry.index.count/3;meshes.push([o,o.layers.mask]);o.layers.mask=0;}});
+      root.traverseVisible(o=>{if(o.isMesh){triangles+=(o.geometry.index?.count??o.geometry.attributes.position.count)/3;meshes.push([o,o.layers.mask]);o.layers.mask=0;}});
       const hidden=await snapshot();
       for(const [o,mask] of meshes)o.layers.mask=mask;
       // Long sunrise shadows can reach the edge of the desk. Test framing
@@ -193,37 +194,40 @@ async function checkSubmergedCover(page){
     cover.removeFromParent();
     const hidden=await render();
     const corners=[0,1,2,3].map(i=>new T.Vector3().fromBufferAttribute(cover.geometry.attributes.position,i).applyMatrix4(transform));
-    let samples=0,maxDifference=0,totalDifference=0,changed=0;
+    let samples=0,waterSamples=0,waterMaxDifference=0,totalDifference=0,changed=0;
+    const registered=[];
+    t.objects.group.traverseVisible(o=>{if(o.isMesh&&t.camera.layers.test(o.layers))registered.push(o);});
     const ray=new T.Raycaster();
     for(let i=1;i<9;i++)for(let j=1;j<9;j++){
       const p=corners[0].clone().lerp(corners[1],i/9).lerp(corners[3].clone().lerp(corners[2],i/9),j/9);
       const ndc=p.clone().project(t.camera);ray.setFromCamera(ndc,t.camera);
       const hit=ray.intersectObject(table,false)[0];
       if(!hit||hit.distance+.008>=ray.ray.origin.distanceTo(p)||Math.max(Math.abs(ndc.x),Math.abs(ndc.y))>=.95)continue;
-      const offset=(Math.floor((1-ndc.y)*tmp.height/2)*tmp.width+Math.floor((1+ndc.x)*tmp.width/2))*4;
+      const x=Math.floor((1+ndc.x)*tmp.width/2),y=Math.floor((1-ndc.y)*tmp.height/2);
+      const offset=(y*tmp.width+x)*4;
       const difference=Math.max(...[0,1,2].map(c=>Math.abs(visible[offset+c]-hidden[offset+c])));
-      totalDifference+=difference;changed+=Number(difference>2);maxDifference=Math.max(maxDifference,difference);
+      totalDifference+=difference;changed+=Number(difference>2);
       samples++;
+      // Keep foreground silhouettes in the overall mean. Their MSAA coverage
+      // blends adjacent surfaces, so apply the water-only limit on clear rays.
+      ray.setFromCamera({x:2*(x+.5)/tmp.width-1,y:1-2*(y+.5)/tmp.height},t.camera);
+      const sea=ray.intersectObject(table,false)[0];
+      const foreground=ray.intersectObjects(registered,false)[0];
+      if(sea&&(!foreground||foreground.distance>sea.distance)){
+        waterSamples++;waterMaxDifference=Math.max(waterMaxDifference,difference);
+      }
     }
-    await render();return {samples,maxDifference,mean:totalDifference/samples,changed};
+    await render();return {samples,waterSamples,waterMaxDifference,mean:totalDifference/samples,changed};
   });
 }
 
 async function checkViewport(browser, mobile){
   const {page,errors,requests}=await open(browser,mobile?{viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,reducedMotion:'reduce'}:{viewport:{width:1280,height:800}});
   try{
-    assert.deepEqual(requests,[],'No new island request should block the source frame');
+    assert.equal(await page.evaluate(()=>window.__marbleTransition.state.progress),0);
     const source=await page.evaluate(()=>{const t=window.__marbleTransition;return {camera:t.state.camera,projection:t.state.projection};});
     const sourceFile=mobile?'mobile-source.png':'desktop-source.png';
     await page.locator('#world').screenshot({path:path.join(out,sourceFile)});
-    // Slow reads followed by Home must not later take the user back to the sea.
-    if(!mobile){
-      await page.route('**/desktop-visit.glb',async route=>{await new Promise(r=>setTimeout(r,420));await route.continue();});
-      await page.evaluate(()=>{const t=window.__marbleTransition;t.setProgress(1);t.setProgress(0);});
-      await page.waitForFunction(()=>window.__marbleTransition.islands.every(e=>e.loaded.includes('hd')));
-      assert.equal(await page.evaluate(()=>window.__marbleTransition.state.progress),0);
-      await page.unroute('**/desktop-visit.glb');
-    }
     await page.click('[data-progress="1"]');
     await settled(page);
     // Freeze the independent ocean clock for same-frame occlusion comparisons.
@@ -256,7 +260,7 @@ async function checkViewport(browser, mobile){
     const submerged=await checkSubmergedCover(page);
     // A mip-filtered edge may sample neighbouring uncovered pixels. A solid
     // rectangle would affect the interior samples together, far above 1/255.
-    assert(submerged.samples>10&&submerged.mean<1&&submerged.maxDifference<=6,JSON.stringify(submerged));
+    assert(submerged.waterSamples>10&&submerged.mean<1&&submerged.waterMaxDifference<=6,JSON.stringify(submerged));
     await page.locator('#world').screenshot({path:path.join(out,mobile?'mobile-mid.png':'desktop-mid.png')});
     await page.click('[data-progress="1"]');await settled(page);
     assert(endpoint.equals(await page.locator('#world').screenshot()),'endpoint must be pixel-reversible');
@@ -288,21 +292,33 @@ async function checkViewport(browser, mobile){
 }
 
 async function checkMissing(browser){
-  const {page}=await open(browser,{viewport:{width:1000,height:700}});
-  try{
+  let release;
+  const delayed=new Promise(resolve=>{release=resolve;});
+  const {page}=await open(browser,{viewport:{width:1000,height:700}},async page=>{
     await page.route('**/phone/desktop-visit.glb',r=>r.fulfill({status:404,body:''}));
-    await page.route('**/orange-book/desktop-visit.glb',async r=>{await new Promise(ok=>setTimeout(ok,2200));await r.continue();});
+    await page.route('**/orange-book/desktop-visit.glb',async route=>{await delayed;await route.continue();});
+  });
+  try{
+    const seek=await page.locator('#progress').evaluate(slider=>{
+      slider.value=600;slider.dispatchEvent(new Event('input',{bubbles:true}));
+      return window.__marbleTransition.state.progress;
+    });
+    assert.equal(seek,.6,'The camera must follow the slider while an island is downloading');
     await page.click('[data-progress="1"]');
     await page.waitForFunction(()=>window.__marbleTransition.state.progress===1);
     const slow=await page.evaluate(()=>window.__marbleTransition.islands);
     assert(!slow.find(i=>i.id==='orange-book').loaded.includes('hd'),'a slow island must not block arrival');
-    await page.waitForFunction(()=>window.__marbleTransition.islands.find(i=>i.id==='orange-book').amount===1);
+    await page.click('#home');release();
+    await page.waitForFunction(()=>window.__marbleTransition.islands.every(e=>e.loaded.length));
+    assert.equal(await page.evaluate(()=>window.__marbleTransition.state.progress),0,'Late arrivals must not replay a previous seek');
+    await page.click('[data-progress="1"]');
+    await settled(page);
     const fallback=await page.evaluate(()=>window.__marbleTransition.islands.find(i=>i.id==='phone'));
     assert.equal(fallback.level,'near');assert(fallback.failed.includes('hd'));
     await page.unroute('**/phone/desktop-visit.glb');await page.click('#island-retry');await page.waitForFunction(()=>window.__marbleTransition.islands.every(e=>e.level==='hd'));
     assert(await page.locator('#island-retry').isHidden());
     return {detailFallback:true,slowIslandIndependent:true,retryRecovered:true};
-  }finally{await page.close();}
+  }finally{release();await page.close();}
 }
 
 (async()=>{

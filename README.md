@@ -4,9 +4,9 @@
 
 一张照片，不仅可以记录当下的瞬间，也可以承载你再次看见它时的希望与想象。**背后宇宙，让照片的背面生长出可以走进去的 3D 世界。**
 
-[打开放映相簿](https://backside-universe.netlify.app/) · [本地运行](#本地运行) · [开发文档](photo-demo/docs/README.md)
+[打开放映相簿](https://backside-universe.netlify.app/?lang=zh) · [本地运行](#本地运行) · [开发文档](photo-demo/docs/README.md)
 
-[![从真实工位绕到海上群岛，伴随日落进入洞窟书屋，再穿过书页回到工位](docs/media/desk-to-islands.gif)](https://backside-universe.netlify.app/#desk)
+[![从真实工位绕到海上群岛，伴随日落进入洞窟书屋，再穿过书页回到工位](docs/media/desk-to-islands.gif)](https://backside-universe.netlify.app/?lang=zh#desk)
 
 绕到照片背后，日常的物件成为岛屿。走进洞窟里的书屋，桌上那一页又把你带回故事的起点。
 
@@ -16,8 +16,8 @@
 
 | 作品 | 照片背后的世界 | 体验入口 |
 | --- | --- | --- |
-| **工位背后的假期** | 书桌变成海洋，杯子、书本、手机与电脑成为五座岛。放走一艘纸船，拨掉工作的声音，再从书页回到工位。 | [在线体验](https://backside-universe.netlify.app/#desk) · [作品现状](PROJECT_STATUS.md) |
-| **小狗身体博物馆** | 绕到小狗身侧，发现身体里的六座微缩展馆；沿着食物的旅程，进入器官内部探索。 | [在线体验](https://backside-universe.netlify.app/#canine) · [作品与运行说明](photo-demo/docs/CANINE_MUSEUM.md) |
+| **工位背后的假期** | 书桌变成海洋，杯子、书本、手机与电脑成为五座岛。放走一艘纸船，拨掉工作的声音，再从书页回到工位。 | [在线体验](https://backside-universe.netlify.app/?lang=zh#desk) · [作品现状](PROJECT_STATUS.md) |
+| **小狗身体博物馆** | 绕到小狗身侧，发现身体里的六座微缩展馆；沿着食物的旅程，进入器官内部探索。 | [在线体验](https://backside-universe.netlify.app/?lang=zh#canine) · [作品与运行说明](photo-demo/docs/CANINE_MUSEUM.md) |
 
 ## 体验亮点
 

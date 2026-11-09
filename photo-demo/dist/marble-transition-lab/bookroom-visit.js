@@ -116,7 +116,7 @@ export function createBookroomVisit(grotto,camera,{aspect,reduced,onChange,onSta
    });
   },
   resize(){if(!api.active)return;camera.aspect=aspect();if(stage==='book'&&!busy)apply(bookView(interior.book.frame(),aspect(),false));else camera.updateProjectionMatrix();},
-  rotate(dx,dy){if(busy||!['terrace','inside'].includes(stage))return;yaw-=dx*.005;pitch=THREE.MathUtils.clamp(pitch-dy*.004,-1.1,1.1);look();},
+  rotate(dx,dy){if(busy||!['terrace','inside'].includes(stage))return;yaw+=dx*.005;pitch=THREE.MathUtils.clamp(pitch-dy*.004,-1.1,1.1);look();},
   key(key,pressed){if(pressed)keys.add(key);else keys.delete(key);},clearKeys(){keys.clear();},
   click(ndc){
    if(busy||!['terrace','inside','book'].includes(stage))return;
@@ -124,11 +124,18 @@ export function createBookroomVisit(grotto,camera,{aspect,reduced,onChange,onSta
    if(hit?.object===interior.book.photo){if(stage==='book')actions.photo();else if(stage==='inside')actions.read();}
    else if(hit){let object=hit.object;while(object&&object!==interior.pivot)object=object.parent;if(object===interior.pivot)actions.door();}
   },
-  tick(dt){
+  get canWalk(){return !busy&&(stage==='terrace'||stage==='inside');},
+  tick(dt,sticks){
    if(tween){tween.time+=dt*1000;const t=Math.min(1,tween.time/tween.duration);tween.update(t*t*(3-2*t));if(t===1){const done=tween.resolve;tween=null;done();}}
-   if(busy||!['terrace','inside'].includes(stage))return;
+   if(!api.canWalk)return;
+   if(sticks&&(sticks.look.x||sticks.look.y)){
+    yaw+=sticks.look.x*dt*1.65;
+    pitch=THREE.MathUtils.clamp(pitch-sticks.look.y*dt*1.3,-1.1,1.1);
+    look();
+   }
    let f=Number(keys.has('w')||keys.has('arrowup'))-Number(keys.has('s')||keys.has('arrowdown')),r=Number(keys.has('d')||keys.has('arrowright'))-Number(keys.has('a')||keys.has('arrowleft'));
-   if(!f&&!r)return;const n=Math.hypot(f,r);f/=n;r/=n;
+   f-=sticks?.move.y||0;r+=sticks?.move.x||0;
+   if(!f&&!r)return;const n=Math.max(1,Math.hypot(f,r));f/=n;r/=n;
    const p=toRoom(camera.position),dx=(Math.sin(yaw)*f+Math.cos(yaw)*r)*dt*.055,dz=(-Math.cos(yaw)*f+Math.sin(yaw)*r)*dt*.055;
    if(walkable(p.x+dx,-p.z))p.x+=dx;if(walkable(p.x,-p.z-dz))p.z+=dz;p.y=eyeHeight(-p.z);camera.position.copy(toWorld(p));look();
    const next=-p.z<.66?'inside':-p.z>.716?'terrace':stage;if(next!==stage){stage=next;changed();}

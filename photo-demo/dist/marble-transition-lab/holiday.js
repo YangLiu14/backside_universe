@@ -11,7 +11,7 @@ import {createDesktopSea} from './desktop-sea.js';
 
 // The original art direction and complete Hi3D island, registered to Marble.
 // No replacement toy landscape; the old room and coast remain the source.
-export async function createHoliday(scene,meta,registeredObjects,renderer,modelLoader,{invalidate,report}){
+export async function createHoliday(scene,meta,registeredObjects,renderer,modelLoader,{invalidate,report,prepareGPU}){
   const json=path=>fetch('../assets/'+path+'.json').then(r=>{if(!r.ok)throw Error('缺少原版场景资产：'+path);return r.json();});
   const loader=new THREE.TextureLoader();
   const texture=async path=>{const t=await loader.loadAsync('../assets/'+path);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;};
@@ -55,7 +55,7 @@ export async function createHoliday(scene,meta,registeredObjects,renderer,modelL
 
   const coast=await createHiddenWorld(scene,registeredObjects,surface,modelLoader);
   const islands=createDesktopIslands({scene,registered:registeredObjects,details:room.details,fit:detailFit,
-    desk:legacy,surface,loader:modelLoader,anisotropy:Math.min(8,renderer.capabilities.getMaxAnisotropy()),invalidate,report});
+    desk:legacy,surface,loader:modelLoader,prepareGPU,anisotropy:Math.min(8,renderer.capabilities.getMaxAnisotropy()),invalidate,report});
 
   // Render the original desk texture on its photographed outline, not a giant
   // blank polygon enlarged to accommodate a different landscape.

@@ -2,9 +2,24 @@
 import io
 import json
 import os
+import shutil
 import struct
 import tempfile
 from PIL import Image
+
+
+def prepare_mobile_museum_models(source, destination):
+    assets = source / 'canine-museum/assets'
+    originals = [assets / 'transition/hi3d-orbit.glb', *sorted((assets / 'hi3d-galleries').glob('*-detail.glb'))]
+    outputs = []
+    for original in originals:
+        mobile = destination / original.relative_to(source).with_name(original.stem + '-mobile.glb')
+        if not resize(original, 1024, output=mobile):
+            mobile.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(original, mobile)
+        outputs.append(mobile)
+    return outputs
+
 
 def resize(path, size=None, *, output=None):
     if size is None:
