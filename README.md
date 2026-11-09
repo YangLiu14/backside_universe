@@ -1,5 +1,7 @@
 # 背后宇宙 · backside-universe
 
+**简体中文** | [English](README.en.md)
+
 一张照片，不仅可以记录当下的瞬间，也可以承载你再次看见它时的希望与想象。**背后宇宙，让照片的背面生长出可以走进去的 3D 世界。**
 
 [在线体验「工位背后的假期」](https://desk-holiday-universe.netlify.app/) · [本地运行](#本地运行) · [开发文档](photo-demo/docs/README.md)

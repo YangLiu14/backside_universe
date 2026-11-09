@@ -34,6 +34,8 @@ evidence/
 *.[sS][vV][gG]
 !/docs/diagrams/photo-to-world.svg
 !/docs/diagrams/photo-to-world-mobile.svg
+!/docs/diagrams/photo-to-world.en.svg
+!/docs/diagrams/photo-to-world-mobile.en.svg
 *.[bB][mM][pP]
 *.[iI][cC][oO]
 *.[tT][iI][fF]

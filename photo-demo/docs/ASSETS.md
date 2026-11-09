@@ -81,7 +81,7 @@ npm --prefix photo-demo run check:repo
 git diff --cached --stat
 ```
 
-`check:repo` 无论从哪个目录启动，都检查整个外层仓库索引里的实际对象：源码单文件限制为 2 MiB；文档媒体仅允许不超过 16 MiB 的 `docs/media/desk-to-islands.gif`，以及 `docs/diagrams/` 下明确列入检查器白名单的两张流程图 SVG（各不超过 128 KiB）。其他图片、MP4、模型、权重、归档、Git 历史备份、本地环境、实验输出及嵌套仓库 gitlink 仍被拒绝。不要用强制添加绕过忽略规则。运行素材与大型依赖通过本地资产备份恢复。
+`check:repo` 无论从哪个目录启动，都检查整个外层仓库索引里的实际对象：源码单文件限制为 2 MiB；文档媒体仅允许不超过 16 MiB 的 `docs/media/desk-to-islands.gif`，以及 `docs/diagrams/` 下明确列入检查器白名单的中英文流程图 SVG（各不超过 128 KiB）。其他图片、MP4、模型、权重、归档、Git 历史备份、本地环境、实验输出及嵌套仓库 gitlink 仍被拒绝。不要用强制添加绕过忽略规则。运行素材与大型依赖通过本地资产备份恢复。
 
 ## Marble 试验资产
 

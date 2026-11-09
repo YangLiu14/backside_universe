@@ -113,7 +113,7 @@ Marble 的浏览器捕获和验收脚本共用可配置的 Playwright/Chromium �
 
 ## 仓库检查与文档媒体
 
-在仓库根目录提交前运行 `node photo-demo/scripts/check-repository.mjs`，检查实际暂存对象。源码上限为 2 MiB；文档媒体白名单包括 `docs/media/desk-to-islands.gif`（不超过 16 MiB）与两张 `docs/diagrams/photo-to-world*.svg` 流程图（各不超过 128 KiB）。MP4、原始照片、模型和运行环境仍被忽略。
+在仓库根目录提交前运行 `node photo-demo/scripts/check-repository.mjs`，检查实际暂存对象。源码上限为 2 MiB；文档媒体白名单包括 `docs/media/desk-to-islands.gif`（不超过 16 MiB）与中英文的 `docs/diagrams/photo-to-world*.svg` 流程图（各不超过 128 KiB）。MP4、原始照片、模型和运行环境仍被忽略。
 
 README 的完整循环由真实网页录制。启动本地服务、配置 Playwright/Chrome，并安装 FFmpeg 后，在仓库根目录运行：
 

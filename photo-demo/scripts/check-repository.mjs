@@ -14,6 +14,8 @@ const documentationMedia=new Map([
   ['docs/media/desk-to-islands.gif',16*1024*1024],
   ['docs/diagrams/photo-to-world.svg',128*1024],
   ['docs/diagrams/photo-to-world-mobile.svg',128*1024],
+  ['docs/diagrams/photo-to-world.en.svg',128*1024],
+  ['docs/diagrams/photo-to-world-mobile.en.svg',128*1024],
 ]);
 const problems=[];let total=0,largest=0;
 for(let i=0;i<entries.length;i++){
