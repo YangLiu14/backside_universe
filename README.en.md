@@ -4,9 +4,9 @@
 
 A photograph can hold more than a moment. It can carry the hopes and imagination you bring to it. **Backside Universe lets the other side of a photograph grow into a 3D world you can step inside.**
 
-[Play A Holiday Behind the Desk](https://desk-holiday-universe.netlify.app/) · [Run locally](#run-locally) · [Developer documentation](photo-demo/docs/README.md)
+[Open the photo album](https://backside-universe.netlify.app/) · [Run locally](#run-locally) · [Developer documentation](photo-demo/docs/README.md)
 
-[![Travel from a real desk to miniature islands, enter a cave bookroom at sunset, and return through a page to the original scene](docs/media/desk-to-islands.gif)](https://desk-holiday-universe.netlify.app/)
+[![Travel from a real desk to miniature islands, enter a cave bookroom at sunset, and return through a page to the original scene](docs/media/desk-to-islands.gif)](https://backside-universe.netlify.app/#desk)
 
 Move around the photographed scene and discover everyday objects transformed into islands. Step inside a bookroom in the cave, where a page on the desk leads back to the beginning.
 
@@ -16,8 +16,8 @@ For your first visit, click **“跟随故事” (Follow the story)**. The live 
 
 | Project | The world behind the photograph | Explore |
 | --- | --- | --- |
-| **A Holiday Behind the Desk** | A desk becomes an ocean, with a cup, two books, a phone, and a laptop forming five islands. Send a paper boat out to sea, silence the demands of work, and return to your desk through a book page. | [Play online](https://desk-holiday-universe.netlify.app/) · [Project status](PROJECT_STATUS.md) |
-| **The Dog's Body Museum** | Move around a dog to discover six miniature galleries inside its body. Follow the journey of food and explore the worlds within its organs. | Local experience · [Project and setup notes](photo-demo/docs/CANINE_MUSEUM.md) |
+| **A Holiday Behind the Desk** | A desk becomes an ocean, with a cup, two books, a phone, and a laptop forming five islands. Send a paper boat out to sea, silence the demands of work, and return to your desk through a book page. | [Play online](https://backside-universe.netlify.app/#desk) · [Project status](PROJECT_STATUS.md) |
+| **The Dog's Body Museum** | Move around a dog to discover six miniature galleries inside its body. Follow the journey of food and explore the worlds within its organs. | [Play online](https://backside-universe.netlify.app/#canine) · [Project and setup notes](photo-demo/docs/CANINE_MUSEUM.md) |
 
 ## Experience
 
@@ -48,7 +48,7 @@ Once the server starts, open [the photo album](http://127.0.0.1:9988/) and choos
 
 ## Status and next steps
 
-The desk experience is publicly available, with a complete five-stop story, island and interior exploration, and a return to the original scene through the book page. The Dog's Body Museum can be explored locally after restoring its assets.
+Both works are live in the album. Scenes ship independently. The [deployment guide](photo-demo/deploy/README.md) covers publishing a new photograph, storage and rollback.
 
 Our next priorities are improving models and paths at close range, reducing initial loading and scene transition waits, and validating the complete journey on real mobile devices. See the [project status and plan](PROJECT_STATUS.md).
 

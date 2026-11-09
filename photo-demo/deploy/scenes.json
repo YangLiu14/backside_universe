@@ -1,0 +1,24 @@
+{
+  "desk": {
+    "entry": "marble-transition-lab/index.html"
+  },
+  "canine": {
+    "entry": "canine-museum/index.html",
+    "files": [
+      "cinema/premiere.css", "cinema/room.js", "vendor/**/*", "gs-lab/vendor/*",
+      "holiday-assets/model-viewer.js",
+      "canine-museum/index.html", "canine-museum/dog.html", "canine-museum/*.css",
+      "canine-museum/transition.js", "canine-museum/browse-camera.js",
+      "canine-museum/digestive-map.js", "canine-museum/food-tour.js", "canine-museum/flank-museum.js",
+      "canine-museum/clay-channels.js", "canine-museum/digestive-tract.js", "canine-museum/organ-passages.js",
+      "canine-museum/gallery-foyer.js", "canine-museum/collection.js",
+      "canine-museum/assets/registration.json", "canine-museum/assets/original.jpg",
+      "canine-museum/assets/marble/registration.json",
+      "canine-museum/assets/transition/*.png", "canine-museum/assets/transition/dog-fit.json",
+      "canine-museum/assets/transition/hi3d-orbit.glb", "canine-museum/assets/transition/room.spz",
+      "canine-museum/assets/hi3d-galleries/*-detail.glb", "canine-museum/assets/hi3d-galleries/*-overview.glb",
+      "canine-museum/assets/hi3d-galleries/flank-mask.png", "canine-museum/assets/hi3d-galleries/rim.json",
+      "canine-museum/assets/digestion/**/*", "canine-museum/assets/dog/*.glb"
+    ]
+  }
+}

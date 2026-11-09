@@ -3,6 +3,7 @@ const album = document.querySelector('#album');
 const container = document.querySelector('#rooms');
 const photos = new Map([...album.querySelectorAll('[data-work]')].map(a=>[a.dataset.work,a]));
 const rooms = new Map();
+album.querySelector('.edition b').textContent = String(photos.size);
 const albumTitle = document.title;
 let current = null;
 let returning = false;
@@ -36,6 +37,12 @@ function show(key) {
   album.hidden = Boolean(link);
   document.body.classList.toggle('in-room', Boolean(link));
   if (link && !rooms.has(key)) {
+    if (rooms.size >= 2) {
+      const oldest = rooms.keys().next().value;
+      rooms.get(oldest).remove();
+      rooms.delete(oldest);
+      photos.get(oldest).querySelector('.entry-label').textContent = '进入放映';
+    }
     const room = document.createElement('iframe');
     room.title = link.querySelector('h2').textContent;
     room.dataset.screeningRoom = key;
@@ -43,6 +50,11 @@ function show(key) {
     rooms.set(key,room);
     container.append(room);
     link.querySelector('.entry-label').textContent = '继续放映';
+  }
+  if (link) {
+    const active = rooms.get(key);
+    rooms.delete(key);
+    rooms.set(key, active);
   }
   for (const [id, room] of rooms) {
     room.inert = id!==current;

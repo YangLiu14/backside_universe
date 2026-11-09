@@ -14,7 +14,7 @@ SOURCE = APP / 'dist'
 CHUNK_BYTES = 16 * 1024 * 1024
 
 
-def build(destination, desk_only=False):
+def build(destination, desk_only=False, screening_pack=False):
     if destination == SOURCE or SOURCE in destination.parents:
         raise ValueError('Build into a separate deployment directory')
     if destination.exists() and any(destination.iterdir()):
@@ -42,6 +42,8 @@ def build(destination, desk_only=False):
         selected.add(path.relative_to(SOURCE))
 
     collect('cinema', lambda p: not desk_only or p.name in {'premiere.css', 'room.js'})
+    if screening_pack:
+        selected.update(map(Path, ['legacy.html', 'style.css']))
     if not desk_only:
         selected.update(map(Path, ['index.html','legacy.html','style.css']))
         # Include the dog tours, voiced galleries and independent model viewer.
@@ -76,12 +78,14 @@ def build(destination, desk_only=False):
 import {chunks} from './chunks.js';
 
 async function roomSource(url, onProgress) {
-  const path = new URL(url, location.href).pathname;
+  const root = new URL('../', import.meta.url);
+  const absolute = new URL(url, location.href);
+  const path = '/' + absolute.pathname.slice(root.pathname.length);
   const split = chunks[path];
   if (!split) return {url, lod: false, onProgress};
   let loaded = 0;
   const buffers = await Promise.all(split.parts.map(async part => {
-    const response = await fetch(part);
+    const response = await fetch(new URL(part.slice(1), root));
     if (!response.ok) throw new Error('Scene download failed: ' + response.status);
     const reader = response.body.getReader();
     const received = [];
@@ -119,7 +123,9 @@ async function roomSource(url, onProgress) {
     start = page.index('<p data-local-review>')
     end = page.index('</p>', start) + len('</p>')
     page = page[:start] + page[end:]
-    if desk_only:
+    if screening_pack:
+        page = page.replace('href="../index.html" data-album-back', 'href="/" data-album-back')
+    elif desk_only:
         start = page.index('<a href="../index.html" data-album-back')
         end = page.index('</a>', start) + len('</a>')
         page = page[:start] + '<span></span>' + page[end:]
@@ -138,5 +144,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--desk-only', action='store_true', help='Build the single work for hosts with a 25 MiB file limit.')
+    parser.add_argument('--screening-pack', action='store_true', help='Build the desk as a versioned album scene.')
     args = parser.parse_args()
-    build(args.output.resolve(), args.desk_only)
+    build(args.output.resolve(), args.desk_only or args.screening_pack, args.screening_pack)

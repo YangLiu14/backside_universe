@@ -18,7 +18,7 @@ async function checkAlbum(browser) {
   assert.deepEqual(await sources(), await prints.evaluateAll(images => images.map(image => image.dataset.still)));
   await page.getByRole('button',{name:'原照片'}).click();
   assert.deepEqual(await sources(), fronts);
-  assert.equal(await page.locator('iframe').count(),0);
+  assert.equal(await page.locator('iframe[data-screening-room]').count(),0);
   assert.deepEqual(binaries,[]);
 
   const open = async (id, ready) => {
