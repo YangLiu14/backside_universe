@@ -29,6 +29,7 @@
     "check:desk-explore": "node scripts/check-desk-explore.cjs",
     "check:desktop-islands": "node scripts/check-desktop-islands.cjs",
     "check:desktop-bookroom": "node --test scripts/check-desktop-bookroom.mjs",
-    "check:bookroom-loop": "node --test scripts/check-bookroom-loop.mjs"
+    "check:bookroom-loop": "node --test scripts/check-bookroom-loop.mjs",
+    "check:language": "node scripts/check-language.cjs"
   }
 }

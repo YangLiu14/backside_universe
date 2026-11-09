@@ -10,7 +10,7 @@ A photograph can hold more than a moment. It can carry the hopes and imagination
 
 Move around the photographed scene and discover everyday objects transformed into islands. Step inside a bookroom in the cave, where a page on the desk leads back to the beginning.
 
-For your first visit, click **“跟随故事” (Follow the story)**. The live experience currently uses a Chinese interface. High-resolution scenes take time to load on the first visit; download progress and preparation stages appear on screen.
+Use the **中文 / English** control in the header to choose your language; your choice is remembered. For your first visit, select **Follow the story**. High-resolution scenes take time to load on the first visit; download progress and preparation stages appear on screen.
 
 ## Projects
 

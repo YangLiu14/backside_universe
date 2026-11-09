@@ -1,3 +1,4 @@
+import {t,localizedTexture} from '../i18n/core.js';
 import * as THREE from 'three';
 import {handset,silenceKey} from './phone-case.js';
 import {piece,surface,vec} from './island-props.js';
@@ -19,12 +20,16 @@ function roundedCase(x,y,z,segments,radius){
 
 function notificationTexture(){
   const c=document.createElement('canvas');c.width=640;c.height=192;
-  const g=c.getContext('2d');g.fillStyle='#f5ecda';g.beginPath();g.roundRect(5,5,630,182,32);g.fill();
+  const g=c.getContext('2d');
+  const draw=()=>{
+  g.clearRect(0,0,640,192);g.fillStyle='#f5ecda';g.beginPath();g.roundRect(5,5,630,182,32);g.fill();
   g.fillStyle='#ce7659';g.beginPath();g.arc(69,93,29,0,2*Math.PI);g.fill();
   g.fillStyle='#fff4d9';g.beginPath();g.roundRect(55,83,27,17,5);g.fill();g.beginPath();g.moveTo(59,98);g.lineTo(59,106);g.lineTo(69,98);g.fill();
-  g.fillStyle='#687468';g.font='31px "PingFang SC",sans-serif';g.fillText('工作群',123,72);
-  g.fillStyle='#233b38';g.font='500 48px "PingFang SC",sans-serif';g.fillText('有人提到了你',120,139);
-  const map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;return map;
+  g.fillStyle='#687468';g.font='31px "PingFang SC",sans-serif';g.fillText(t('工作群'),123,72,480);
+  g.fillStyle='#233b38';g.font='500 48px "PingFang SC",sans-serif';g.fillText(t('有人提到了你'),120,139,490);
+
+  };
+  const map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;return localizedTexture(map,draw);
 }
 
 // Generate quiet knocking with short, damped resonances; all nodes belong to

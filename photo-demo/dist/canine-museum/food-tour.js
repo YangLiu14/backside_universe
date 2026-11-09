@@ -1,3 +1,4 @@
+import {isEnglish,onLanguageChange} from '../i18n/core.js';
 import {onRoomVisibility,roomVisible} from '../cinema/room.js';
 import {createClayChannels} from './clay-channels.js';
 import {BrowseCamera} from './browse-camera.js';
@@ -95,7 +96,7 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
       byId('tour-room-title').textContent=e.room.name+(e.detail?'':e.overview?' · 轻量模型':' · 载入失败，可返回重试');
       onChange();
     });
-    galleryAudio.src=assets+'galleries/'+id+'.m4a';
+    galleryAudio.src=assets+(isEnglish()?'en/':'')+'galleries/'+id+'.m4a';
     if(!muted&&roomVisible())galleryAudio.play().catch(()=>{});
     show();onChange();root.focus({preventScroll:true});
   }
@@ -177,7 +178,7 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
     drawEntrances(camera);
   }
   function audioState(){
-    const file=stops[index].id;
+    const file=(isEnglish()?'en/':'')+stops[index].id;
     if(chapterKey!==file){audio.src=assets+file+'.m4a';chapterKey=file;}
     const time=Math.min(elapsed,Number.isFinite(audio.duration)?audio.duration:elapsed);
     if(Math.abs(audio.currentTime-time)>.20)audio.currentTime=time;
@@ -205,6 +206,14 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
     mute.textContent=muted?'打开旁白':'关闭旁白';mute.setAttribute('aria-pressed',String(!muted));
     buttons.forEach((button,i)=>{if(i===index)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current');});
   }
+  onLanguageChange(()=>{
+    audio.pause();galleryAudio.pause();chapterKey=null;
+    if(visit){
+      galleryAudio.src=assets+(isEnglish()?'en/':'')+'galleries/'+visit.id+'.m4a';
+      if(!muted&&roomVisible()&&!visit.leaving)galleryAudio.play().catch(()=>{});
+    }
+    if(active){audioState();show();onChange();}
+  });
   function setIndex(i,offset=0){index=i;channels.prepare(i);elapsed=offset;yaw=0;pitch=0;finished=false;audioState();show();}
   function begin(auto=true,station=0){
     if(active)return;

@@ -1,3 +1,4 @@
+import {t,isEnglish,localizedTexture} from '../i18n/core.js';
 import * as THREE from '../vendor/three.module.js';
 import {sourceCrop} from '../marble-transition-lab/journey.js';
 
@@ -43,13 +44,16 @@ export async function printBook(desk){
  const {width,height,z}=surface.photo;
  const photo=ink('input-photograph-on-open-book',texture,surface.photo);
  const canvas=document.createElement('canvas');canvas.width=660;canvas.height=870;
- const ctx=canvas.getContext('2d');ctx.fillStyle='#574c3b';ctx.textAlign='center';
- ctx.font='23px Georgia, serif';ctx.fillText('A HOLIDAY BEHIND THE DESK',330,190);
- ctx.font='42px "Songti SC", serif';ctx.fillText('工位背后的年假',330,300);
- ctx.fillStyle='#8b7860';ctx.font='27px "Songti SC", serif';
- for(const [i,line] of ['一张书桌，一片海。','翻过日常，','又回到日常。'].entries())ctx.fillText(line,330,420+i*52);
- ctx.fillRect(290,616,80,1);ctx.font='21px Georgia, serif';ctx.fillText('01',330,680);
+ const ctx=canvas.getContext('2d');
  const words=new THREE.CanvasTexture(canvas);words.colorSpace=THREE.SRGBColorSpace;words.anisotropy=8;
+ localizedTexture(words,()=>{
+  ctx.clearRect(0,0,660,870);ctx.fillStyle='#574c3b';ctx.textAlign='center';
+  ctx.font='23px Georgia,serif';ctx.fillText('A HOLIDAY BEHIND THE DESK',330,190,580);
+  ctx.font=isEnglish()?'38px Georgia,serif':'42px "Songti SC",serif';ctx.fillText(t('工位背后的年假'),330,300,580);
+  ctx.fillStyle='#8b7860';ctx.font=isEnglish()?'27px Georgia,serif':'27px "Songti SC",serif';
+  for(const [i,line] of ['一张书桌，一片海。','翻过日常，','又回到日常。'].entries())ctx.fillText(t(line),330,420+i*52,580);
+  ctx.fillRect(290,616,80,1);ctx.font='21px Georgia,serif';ctx.fillText('01',330,680);
+ });
  ink('book-dedication',words,surface.dedication);
  const center=new THREE.Vector3(surface.centerX,surface.centerY,z);
  return {photo,width,height,center,

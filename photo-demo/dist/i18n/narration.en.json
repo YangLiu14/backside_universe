@@ -1,0 +1,80 @@
+{
+  "language": "en",
+  "voice": "Daniel",
+  "rate": 185,
+  "generator": "macOS say + FFmpeg",
+  "clips": [
+    {
+      "file": "canine-museum/assets/digestion/en/mouth.m4a",
+      "text": "I am a bite of dog food. Teeth break me into small pieces, and saliva moistens me. The tongue pushes me back. I pass through the throat and am swallowed.",
+      "seconds": 10.1,
+      "sha256": "1f2a1af4e614899781dcd3c52c21c2724a0b91c271aaf0a3d847346dbe0e53b9"
+    },
+    {
+      "file": "canine-museum/assets/digestion/en/esophagus.m4a",
+      "text": "I enter the esophagus. The wall tightens behind me and relaxes ahead. Wave after wave of muscle contractions carries me toward the stomach.",
+      "seconds": 8.4,
+      "sha256": "4782534a908dbe85cdb135466a1cf0e363f2649702b642e0ed087ed5bb170bc2"
+    },
+    {
+      "file": "canine-museum/assets/digestion/en/stomach.m4a",
+      "text": "The stomach squeezes and churns, mixing me with gastric juices. Acid and pepsin begin digesting proteins. I become semi-liquid chyme and pass through the pylorus in small batches.",
+      "seconds": 11.5,
+      "sha256": "d6665cc1a84d9cd3b35aeafc90fcb7a63f53ed9f47ac65299317dc691e8b268b"
+    },
+    {
+      "file": "canine-museum/assets/digestion/en/small-intestine.m4a",
+      "text": "In the duodenum, bile made by the liver helps emulsify fats. Digestive enzymes from the pancreas break food down further. Villi lining the small intestine absorb nutrients into the blood or lymph.",
+      "seconds": 12.5,
+      "sha256": "42583e29824d70cd2d11abf48a579ccb6d87cf78750057694f87a933250cc99b"
+    },
+    {
+      "file": "canine-museum/assets/digestion/en/colon.m4a",
+      "text": "The remaining material enters the large intestine. Its walls absorb water and electrolytes, while bacteria ferment some of the fiber. The residue gradually forms feces.",
+      "seconds": 10.3,
+      "sha256": "d82914391d4e5f9bdc203a68854f6fe32d9247a708db0493c15ed45b52f590ed"
+    },
+    {
+      "file": "canine-museum/assets/digestion/en/rectum.m4a",
+      "text": "Feces reach the rectum and are stored briefly. During defecation, the rectum contracts and the anal sphincters relax. What remains of this bite of food leaves the dog.",
+      "seconds": 11.3,
+      "sha256": "04538b97b3d05c286328776fced1e62e2b23243188349b02635cdbb715f1bf5a"
+    },
+    {
+      "file": "canine-museum/assets/digestion/en/galleries/lungs.m4a",
+      "text": "We leave the esophagus for Bellows Hall inside the lungs. Look toward the center, where organ pipes of different lengths follow the two lung lobes.",
+      "seconds": 8.105986,
+      "sha256": "fff3acc20c057df0a518085135bd53807afde57edbe4572c1eebdcc3f7eed843"
+    },
+    {
+      "file": "canine-museum/assets/digestion/en/galleries/heart.m4a",
+      "text": "Welcome to the Pulse Clock. Look down past the gears to find a brass pendulum beneath the frame. The heart pumps blood to the lungs and the rest of the body.",
+      "seconds": 8.500998,
+      "sha256": "7e84dda48edff573f5b11eea40160bad96a8f64070662de6f56a377b135f3034"
+    },
+    {
+      "file": "canine-museum/assets/digestion/en/galleries/liver.m4a",
+      "text": "This is the liver's Amber Gallery. Another arcade lies behind the specimen tables. Bile made by the liver travels to the small intestine to help digest fats.",
+      "seconds": 9.193016,
+      "sha256": "e47b08d113682ec1bea6410590d4bce358a26266794fc57640e7f6e84b2ee6f8"
+    },
+    {
+      "file": "canine-museum/assets/digestion/en/galleries/stomach.m4a",
+      "text": "Enter the Churn Studio inside the stomach. Workbenches stand in front; follow the stairs with your eyes to find the kiln farther inside. Here, food is churned into chyme.",
+      "seconds": 10.521995,
+      "sha256": "191d7c405b06094f70b9d892854d399009a9298c066a7a69d213b18e6709391e"
+    },
+    {
+      "file": "canine-museum/assets/digestion/en/galleries/kidney.m4a",
+      "text": "Beside the intestine, we reach the Filter Works. A central arched bridge connects two water halls. The kidneys filter waste from blood and regulate the body's water balance.",
+      "seconds": 10.254014,
+      "sha256": "ada28f8edb5409945b71d3de11c1d57d713669b032deec17ce49f14981e2d83c"
+    },
+    {
+      "file": "canine-museum/assets/digestion/en/galleries/gut.m4a",
+      "text": "This is the Coiled Archive inside the intestines. Beyond the front reading tables are shelves and stairs. Return to the food route to continue exploring how the intestines absorb nutrients.",
+      "seconds": 10.922993,
+      "sha256": "6016703812cfb48085c7e9bcf374ea0aec25079c25cd66502b06c5eb1cd3fb0d"
+    }
+  ]
+}

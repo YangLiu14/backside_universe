@@ -1,3 +1,4 @@
+import {t,onLanguageChange} from '../i18n/core.js';
 import {onRoomVisibility,roomVisible} from '../cinema/room.js';
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
@@ -34,6 +35,7 @@ const islandGate=.33;
 let pendingIslandSeek=null,waitingForIslands=false,islandGateReleased=false;
 let ready=false,progress=0,playing=null,variant='transition',meta,modelLoader,renderer,camera,compositor,objects,desktop,holiday,realScene,dreamScene;
 let width=1,height=1,frameTimes=[],visitFrames=[],lastFrame=0,settleUntil=0;
+onLanguageChange(()=>{settleUntil=performance.now()+500;});
 let oceanTime=0;
 let reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function status(message){loadingProgress.phase(message);}
@@ -64,9 +66,9 @@ tour.refresh();
 function updateIslandEntrances(focus){
  const entry=$('enter-island-story'),label=storyEntries[focus];
  const walk=$('walk-start'),walkLabel=focus==='phone'?'游览手机小镇':'上岛漫步';
- if(walk.textContent!==walkLabel)walk.textContent=walkLabel;
+ if(walk.textContent!==t(walkLabel))walk.textContent=t(walkLabel);
  entry.hidden=!label||!browsing()||variant==='real';
- if(label&&entry.textContent!==label)entry.textContent=label;
+ if(label&&entry.textContent!==t(label))entry.textContent=t(label);
 }
 function browseUI(){
  const free=browsing();

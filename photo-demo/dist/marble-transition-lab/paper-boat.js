@@ -1,3 +1,4 @@
+import {isEnglish,localizedTexture} from '../i18n/core.js';
 import * as THREE from 'three';
 
 export const noteText='这个需求今天能改完吗？';
@@ -16,9 +17,14 @@ function notepaper(){
   ctx.lineWidth=2;ctx.strokeStyle='#859faa75';ctx.beginPath();
   for(let y=75;y<576;y+=79){ctx.moveTo(0,y);ctx.lineTo(1024,y);}
   ctx.stroke();ctx.strokeStyle='#c683788f';ctx.beginPath();ctx.moveTo(86,0);ctx.lineTo(86,576);ctx.stroke();
-  ctx.rotate(-.017);ctx.fillStyle='#243d50';ctx.font='600 91px "Kaiti SC","STKaiti","Songti SC",serif';
-  ctx.fillText(noteText.slice(0,4),140,244);ctx.fillText(noteText.slice(4),218,408);
-  const map=new THREE.CanvasTexture(sheet);map.colorSpace=THREE.SRGBColorSpace;map.anisotropy=4;return map;
+  const base=ctx.getImageData(0,0,1024,576);
+  const map=new THREE.CanvasTexture(sheet);map.colorSpace=THREE.SRGBColorSpace;map.anisotropy=4;
+  return localizedTexture(map,()=>{
+    ctx.putImageData(base,0,0);ctx.save();ctx.rotate(-.017);ctx.fillStyle='#243d50';
+    ctx.font=isEnglish()?'600 68px Georgia,serif':'600 91px "Kaiti SC","STKaiti","Songti SC",serif';
+    const lines=isEnglish()?['Can you finish','this request today?']:[noteText.slice(0,4),noteText.slice(4)];
+    ctx.fillText(lines[0],140,244,800);ctx.fillText(lines[1],isEnglish()?140:218,408,800);ctx.restore();
+  });
 }
 
 // Seven longitudinal creases turn the same printed surface into an open hull.

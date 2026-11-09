@@ -27,7 +27,7 @@ def build(destination, desk_only=False, screening_pack=False):
             if path.is_file() and path.name != '.DS_Store' and predicate(path):
                 selected.add(path.relative_to(SOURCE))
 
-    for directory in ['marble-transition-lab', 'assets', 'vendor', 'gs-lab/vendor']:
+    for directory in ['i18n', 'marble-transition-lab', 'assets', 'vendor', 'gs-lab/vendor']:
         collect(directory)
     collect('marble-detail', lambda p: p.name in {'room.js', 'room-detail.spz'})
     collect('marble-lab', lambda p: p.name in {'camera.js', 'world-collider.glb'})

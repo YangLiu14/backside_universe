@@ -1160,6 +1160,66 @@
       "path": "dist/style-study/stills/stomach.webp",
       "bytes": 56770,
       "sha256": "2416e4247075c2cf0d93d29853b0cefd84f83155e882e2bcf2df25ffd28fe426"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/en/colon.m4a",
+      "bytes": 140028,
+      "sha256": "d82914391d4e5f9bdc203a68854f6fe32d9247a708db0493c15ed45b52f590ed"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/en/esophagus.m4a",
+      "bytes": 113359,
+      "sha256": "4782534a908dbe85cdb135466a1cf0e363f2649702b642e0ed087ed5bb170bc2"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/en/galleries/gut.m4a",
+      "bytes": 148937,
+      "sha256": "6016703812cfb48085c7e9bcf374ea0aec25079c25cd66502b06c5eb1cd3fb0d"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/en/galleries/heart.m4a",
+      "bytes": 113494,
+      "sha256": "7e84dda48edff573f5b11eea40160bad96a8f64070662de6f56a377b135f3034"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/en/galleries/kidney.m4a",
+      "bytes": 137155,
+      "sha256": "ada28f8edb5409945b71d3de11c1d57d713669b032deec17ce49f14981e2d83c"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/en/galleries/liver.m4a",
+      "bytes": 125381,
+      "sha256": "e47b08d113682ec1bea6410590d4bce358a26266794fc57640e7f6e84b2ee6f8"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/en/galleries/lungs.m4a",
+      "bytes": 108636,
+      "sha256": "fff3acc20c057df0a518085135bd53807afde57edbe4572c1eebdcc3f7eed843"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/en/galleries/stomach.m4a",
+      "bytes": 141440,
+      "sha256": "191d7c405b06094f70b9d892854d399009a9298c066a7a69d213b18e6709391e"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/en/mouth.m4a",
+      "bytes": 131730,
+      "sha256": "1f2a1af4e614899781dcd3c52c21c2724a0b91c271aaf0a3d847346dbe0e53b9"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/en/rectum.m4a",
+      "bytes": 151144,
+      "sha256": "04538b97b3d05c286328776fced1e62e2b23243188349b02635cdbb715f1bf5a"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/en/small-intestine.m4a",
+      "bytes": 166666,
+      "sha256": "42583e29824d70cd2d11abf48a579ccb6d87cf78750057694f87a933250cc99b"
+    },
+    {
+      "path": "dist/canine-museum/assets/digestion/en/stomach.m4a",
+      "bytes": 155831,
+      "sha256": "d6665cc1a84d9cd3b35aeafc90fcb7a63f53ed9f47ac65299317dc691e8b268b"
     }
   ]
 }

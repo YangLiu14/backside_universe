@@ -1,7 +1,9 @@
+import {getLanguage} from '../i18n/core.js';
 // Retain the live documents, including decoded meshes, textures and camera position.
 const album = document.querySelector('#album');
 const container = document.querySelector('#rooms');
 const photos = new Map([...album.querySelectorAll('[data-work]')].map(a=>[a.dataset.work,a]));
+const projectTitles=new Map([...photos].map(([key,link])=>[key,link.querySelector('h2').textContent]));
 const rooms = new Map();
 album.querySelector('.edition b').textContent = String(photos.size);
 const albumTitle = document.title;
@@ -44,9 +46,10 @@ function show(key) {
       photos.get(oldest).querySelector('.entry-label').textContent = '进入放映';
     }
     const room = document.createElement('iframe');
-    room.title = link.querySelector('h2').textContent;
+    room.title = projectTitles.get(key);
     room.dataset.screeningRoom = key;
-    room.src = link.href;
+    const url=new URL(link.href);url.searchParams.set('lang',getLanguage());
+    room.src = url;
     rooms.set(key,room);
     container.append(room);
     link.querySelector('.entry-label').textContent = '继续放映';
@@ -60,7 +63,7 @@ function show(key) {
     room.inert = id!==current;
     room.contentWindow.postMessage({type:'album:visibility'},location.origin);
   }
-  document.title = link ? rooms.get(key).title+' · 背面宇宙' : albumTitle;
+  document.title = link ? projectTitles.get(key)+' · 背面宇宙' : albumTitle;
   if (link) rooms.get(key).focus({preventScroll:true});
   else if (previous) photos.get(previous)?.focus({preventScroll:true});
 }

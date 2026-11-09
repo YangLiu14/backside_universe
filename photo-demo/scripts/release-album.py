@@ -70,6 +70,11 @@ def build_pack(key, settings, store):
         else:
             stage.rename(dest)
     (store / '_headers').write_text('/releases/*\n  Cache-Control: public, max-age=31536000, immutable\n')
+    # The first release lives in a preserved Netlify deploy. Keep its immutable
+    # URLs available even when publishing from a fresh local release store.
+    redirects = APP / 'deploy/scene-redirects.txt'
+    if redirects.is_file():
+        (store / '_redirects').write_text(redirects.read_text())
     (store / 'index.html').write_text('<!doctype html><meta charset="utf-8"><title>Backside Universe</title>'
                                       '<a href="https://backside-universe.netlify.app/">Backside Universe · 放映相簿</a>')
     return version

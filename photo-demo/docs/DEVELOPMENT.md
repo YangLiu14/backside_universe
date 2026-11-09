@@ -26,6 +26,8 @@ npm run dev
 
 ## 文档与资产
 
+- [中英文界面与英文音频](LANGUAGES.md)
+
 - [逐物件资产与当前缺陷](HOLIDAY_ASSETS.md)
 - [电脑背面空间迭代与可进入书屋](LAPTOP_MINIATURE_REVISION.md)
 - [书页回到原空间的循环](BOOKROOM_LOOP.md)

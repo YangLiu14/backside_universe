@@ -40,6 +40,10 @@ blender --background --python scripts/package-room-prop.py -- evidence/tripo-roo
 
 石灰灰泥和木地板使用 Poly Haven 的 CC0 扫描。运行 `python3 scripts/build-room-surfaces.py` 可用 FFmpeg 重建调色后的漫反射、法线和粗糙度贴图。[灰泥扫描](https://polyhaven.com/a/plaster_grey_04) · [木板扫描](https://polyhaven.com/a/wood_floor_deck)
 
+## 英文旁白
+
+小狗导览的十二段英文音频保存在 `dist/canine-museum/assets/digestion/en/`，不进入 Git。按清单恢复并核对哈希，或在 macOS 与 FFmpeg 环境运行 `python3 photo-demo/scripts/build-english-narration.py` 重新生成。文本、声线和时长见 [英文音频元数据](../dist/i18n/narration.en.json)，切换与验收见 [中英文界面](LANGUAGES.md)。
+
 ## Spark 运行依赖
 
 版本固定为 `@sparkjsdev/spark@2.4.0`。本地运行文件等同官方包的 `dist/spark.module.min.js`，重命名为 `spark.module.js`。其 SHA256 为：
