@@ -1,3 +1,4 @@
+import {onRoomVisibility} from '../cinema/room.js';
 import * as T from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
@@ -51,13 +52,15 @@ function pan(dx,dy){moveCamera(r=>r.translate(dx,dy,viewCamera.projectionMatrix)
 function orbit(dx,dy){moveCamera(r=>r.orbit(dx,dy));}
 function frame(ndc){const hit=museum.surface(ndc,viewCamera,inspectingRoom());if(hit)moveCamera(r=>r.frame(hit.point));}
 const updateControls=()=>{
+  stage.toggleAttribute('data-cover',angle===0&&!journey&&!selected);
+  slider.style.setProperty('--progress',angle/90*100+'%');
   slider.value=angle;
   document.querySelector('#degrees').textContent=String(Math.round(angle)).padStart(3,'0')+'°';
   plate.textContent=selected?museum.exhibits.get(selected).room.name:angle===0?'原照':angle>=89.99?(showSkin?'右侧外观':'内脏博物馆'):'向右绕行';
   const free=Boolean(selected)||angle>=89.99;stage.dataset.browsing=String(free);
   if(ready)hint.textContent=free?(usesTouch.matches?'单指环绕 · 双指捏合或张开缩放 · 双指移动平移':'拖动环绕 · 滚轮或触控板捏合缩放 · 右键或 Shift 拖动平移')+(selected?' · 双击展品对焦':' · 点器官进入'):'向右拖动画面绕到剖面，也可用滑杆原路返回。';
-  label.textContent=journey?'暂停':angle>=89.99?'回到原照':angle===0?'播放转场':'继续绕行';
-  mark.textContent=journey?'Ⅱ':angle>=89.99?'↶':'↻';
+  label.textContent=journey?'暂停':angle>=89.99?'回到原照':angle===0?'开始放映':'继续放映';
+  mark.dataset.icon=journey?'pause':angle>=89.99?'return':'play';
 };
 function seek(a){resetInspection();sideRig=null;returnRig=null;document.querySelector('#side-reset').hidden=true;journey=null;angle=clamp(a,0,90);dirty=true;updateControls();}
 function playOrbit(){
@@ -267,7 +270,8 @@ void main(){
     }
     drawnTarget.copy(target);
     camera.lookAt(target);camera.updateMatrixWorld();
-    let hy=mix(H/(2*fy)*Math.max(1,(W/H)/aspect),Math.max(.325,.40/aspect),b);
+    // Match the opening photograph's centered cover crop as the splats take over.
+    let hy=mix(H/(2*fy)*Math.min(1,(W/H)/aspect),Math.max(.325,.40/aspect),b);
     hy=inCutaway?mix(Math.max(.44,.52/aspect),.40,foodTour.visitWeight):mix(hy,.375,smooth(0,1,focus));
     const hx=hy*aspect*(inCutaway?1:mix(fy/fx,1,b)),n=camera.near=inCutaway?.0015:mix(.025,.0015,Math.max(focus,sideRig?smooth(74,90,angle):0));
     camera.projectionMatrix.makePerspective(-hx*n,hx*n,hy*n,-hy*n,n,camera.far);camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
@@ -287,7 +291,7 @@ void main(){
   }
   // Allow Spark to finish camera-dependent sorting at a stationary slider position.
   let settle=0;
-  renderer.setAnimationLoop(time=>{
+  function renderFrame(time){
     const elapsedSeconds=Math.max(0,(time-lastTime)*.001),dt=Math.min(.08,elapsedSeconds);lastTime=time;if(document.hidden)return;
     if(foodTour.active){
       if(foodTour.moving){foodTour.advance(Math.min(.5,elapsedSeconds));dirty=true;}
@@ -302,6 +306,10 @@ void main(){
     if(selected&&focusGoal===0&&focus===0){selected=null;galleryRig=null;museum.showTitle(null);if(pending)selectGallery(pending);updateControls();}
     if(dirty){settle=18;dirty=false;}
     if(settle>0){settle--;draw();}
+  }
+  onRoomVisibility(active=>{
+    lastTime=performance.now();dirty=true;
+    renderer.setAnimationLoop(active?renderFrame:null);
   });
   const ids=[...museum.exhibits.keys()];
   const loadNext=async()=>{while(ids.length)await museum.loadOverview(ids.shift());};
@@ -315,7 +323,11 @@ void main(){
     foodTour.begin(false,station<0?0:station);
     if(query.has('stop'))foodTour.startAtLanding(query.get('stop'));
   }
-  ready=true;stage.dataset.ready='true';play.disabled=false;slider.disabled=false;updateControls();
+  ready=true;stage.removeAttribute('aria-busy');stage.dataset.ready='true';play.disabled=false;slider.disabled=false;updateControls();
   window.__photoOrbit={get state(){return{tour:foodTour.state,angle,selected,focus,free:browsing(),focusYaw:(selected?galleryRig:sideRig)?.yaw||0,focusZoom:(selected?galleryRig:sideRig)?.zoom??1,target:drawnTarget.toArray(),open:uniforms.openAmount.value,installed:[...museum.exhibits].filter(([,e])=>e.overview).map(([id])=>id),detail:[...museum.exhibits].filter(([,e])=>e.detail).map(([id])=>id),world:fit.worldId,dogTriangles:dog.getObjectByName('geometry_0').geometry.index.count/3,splats:splats.numSplats,photoOpacity:photo.style.opacity,camera:camera.matrixWorld.toArray()};}};
 }
-start().catch(err=>{console.error(err);hint.textContent='三维场景载入失败，请刷新重试。原照仍可查看。';});
+document.querySelector('#retry-film').addEventListener('click',()=>location.reload());
+start().catch(err=>{
+  console.error(err);stage.removeAttribute('aria-busy');hint.textContent='三维场景暂未载入。';
+  document.querySelector('#retry-film').hidden=false;
+});

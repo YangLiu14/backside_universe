@@ -507,6 +507,56 @@
       "sha256": "8deeda5271db755e44b3fd2073a373c28e8ecfe9dc9315fece50056d642624bf"
     },
     {
+      "path": "dist/cinema/album-art/canyon.webp",
+      "bytes": 5680,
+      "sha256": "3f7580d14d06cdde5ebbd02874ed4604ef3ad340fc254cce1eb88a7a141cf1f7"
+    },
+    {
+      "path": "dist/cinema/album-art/desk.webp",
+      "bytes": 57994,
+      "sha256": "26d6c7f4de85733343d9f120c562b61093beebd2673bc45173e87c8d83cb0ee3"
+    },
+    {
+      "path": "dist/cinema/album-art/dog.webp",
+      "bytes": 36874,
+      "sha256": "ed9bc34fdd2e209a05794e9600e9a9542c875349739d40dc16cbf69a36053ebb"
+    },
+    {
+      "path": "dist/cinema/album-art/harbor.webp",
+      "bytes": 4766,
+      "sha256": "b63b0c8be368186aeb2c835a5254717f4e62eb40f461296f58134b3d931aa82b"
+    },
+    {
+      "path": "dist/cinema/album-art/heart.webp",
+      "bytes": 6596,
+      "sha256": "34e32fdf640edb6929d4edde0a0fba9e528161d9fcdc32eae5beb26f871dc4c0"
+    },
+    {
+      "path": "dist/cinema/album-art/islands.webp",
+      "bytes": 24674,
+      "sha256": "062b016ddd7c53c1e73f794802ae4fe6ffd725a9e53f583faf97603e8caa48aa"
+    },
+    {
+      "path": "dist/cinema/album-art/kidney.webp",
+      "bytes": 6080,
+      "sha256": "4ba630858c705e76989ea06c6939e55cf49cc876a5af45edae25ce03ff36bc50"
+    },
+    {
+      "path": "dist/cinema/album-art/overview.webp",
+      "bytes": 34048,
+      "sha256": "4cf9f18c8860a0b168a4a16167ab3b194973f48a29ebf7372a7093e5fa4e3355"
+    },
+    {
+      "path": "dist/cinema/album-art/paper-grain.webp",
+      "bytes": 4594,
+      "sha256": "a33882a3d05d323cd015fdbd659b0d1f727fb437ebca9b66d3d7a64ae2348a27"
+    },
+    {
+      "path": "dist/cinema/album-art/projection-booth.webp",
+      "bytes": 43460,
+      "sha256": "883b67aa245aad761285bf7c2ccb16589a564d670410671944147ead77feca7b"
+    },
+    {
       "path": "dist/gs-lab/assets/desk-gaussian.ply",
       "bytes": 52084404,
       "sha256": "c36a8b8a7ab3dfe92be212e4c2a2c4ab2bab10abc5ee53bf03f85821abf2c60d"
@@ -1025,6 +1075,91 @@
       "path": "dist/solid-object-lab/assets/objects.json",
       "bytes": 232342,
       "sha256": "4dbe4f152130a36f202b52b2b4ae8f7f16dfd4cdfa97fa8f101be48e8497eff9"
+    },
+    {
+      "path": "dist/style-study/films/canine.jpg",
+      "bytes": 47112,
+      "sha256": "ff8af003ec3f99773a3d71d6dda8710c05e6e4ef677d217f7d748928a37fcd86"
+    },
+    {
+      "path": "dist/style-study/films/canine.mp4",
+      "bytes": 3699868,
+      "sha256": "d26dd73adabf93490e3dfa88ba75d31fe8b8f8973e04ff085ce2945433e3e890"
+    },
+    {
+      "path": "dist/style-study/films/desk.jpg",
+      "bytes": 72048,
+      "sha256": "c492337a10106d040a9ff0b1af0a5ae228f347bc4e27809735bc1df828166da0"
+    },
+    {
+      "path": "dist/style-study/films/desk.mp4",
+      "bytes": 4607464,
+      "sha256": "66d81a622e5b24850d17346c58b47452d18478d975f3c1c5094a03dd093653db"
+    },
+    {
+      "path": "dist/style-study/stills/canyon.webp",
+      "bytes": 56488,
+      "sha256": "d76d8cff16265fbd4cb29b850cd0fdc3f00bc791501920fd6840fec45bbf0e53"
+    },
+    {
+      "path": "dist/style-study/stills/cave.webp",
+      "bytes": 41274,
+      "sha256": "b5a9c66b12fa3f5df9b3a2f983aa29bc891f2db8450dcfe9b4e5a790a1f80a54"
+    },
+    {
+      "path": "dist/style-study/stills/cliff.webp",
+      "bytes": 38974,
+      "sha256": "05a753b22d56891f62a5c0481fd6a4fcd068172360d472f0ef2a192b70930736"
+    },
+    {
+      "path": "dist/style-study/stills/gut.webp",
+      "bytes": 58482,
+      "sha256": "db8dba727962058b04f1e5534757523a4bd3d47fe80d43b9d46c3c5c114fb30c"
+    },
+    {
+      "path": "dist/style-study/stills/harbor.webp",
+      "bytes": 29956,
+      "sha256": "108d50323c2852ef9d8e2ce534f9dce26aec28be6d4b85c48f7059d959bb8cdc"
+    },
+    {
+      "path": "dist/style-study/stills/heart.webp",
+      "bytes": 70802,
+      "sha256": "f31812cc3f66e399e0d6e4136c527395f98ff18910ca8c4554a5069e5832ec99"
+    },
+    {
+      "path": "dist/style-study/stills/islands.webp",
+      "bytes": 36176,
+      "sha256": "5f01524ecdc658178e7b28e5e13ede28b43d904bbcc4f00d369b6dd9d1543eb1"
+    },
+    {
+      "path": "dist/style-study/stills/kidney.webp",
+      "bytes": 60930,
+      "sha256": "7f73e44277e81deb202aa5ff65a8f8189bdb25614daa5bcdeb3c79c87606c16f"
+    },
+    {
+      "path": "dist/style-study/stills/liver.webp",
+      "bytes": 73798,
+      "sha256": "bfe52fd1c582d7cbbf0717173c71f213df09afd74405f3329a7600970279678f"
+    },
+    {
+      "path": "dist/style-study/stills/lungs.webp",
+      "bytes": 70364,
+      "sha256": "3968966ae65c6901ec824caecebcfd7d3aeb1cc0edffd8d23add026fd6b9b516"
+    },
+    {
+      "path": "dist/style-study/stills/overview.webp",
+      "bytes": 51038,
+      "sha256": "ce293c12347202cf65c2e17212fd2b1d7dc8d749cbfe6e6c8ea55f17a7039815"
+    },
+    {
+      "path": "dist/style-study/stills/port.webp",
+      "bytes": 35914,
+      "sha256": "93865d6e2189ddfae91087dfc5762df18adffe82e4c877b93b9ccfa62fc884a5"
+    },
+    {
+      "path": "dist/style-study/stills/stomach.webp",
+      "bytes": 56770,
+      "sha256": "2416e4247075c2cf0d93d29853b0cefd84f83155e882e2bcf2df25ffd28fe426"
     }
   ]
 }

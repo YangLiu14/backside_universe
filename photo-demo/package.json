@@ -10,6 +10,7 @@
     "check:canine-museum": "node scripts/check-canine-museum.cjs",
     "check:digestive-tour": "node scripts/check-digestive-tour.cjs",
     "check:tour-gallery-visits": "node scripts/check-tour-gallery-visits.cjs",
+    "check:album": "node scripts/check-album.cjs",
     "check:repo": "node scripts/check-repository.mjs",
     "check:marble": "python3 scripts/test-marble-runner.py && node scripts/check-marble-camera.mjs && node scripts/check-marble-refined.mjs",
     "check:marble-assets": "python3 scripts/check-marble-hybrid.py && python3 scripts/check-marble-refined.py",

@@ -18,12 +18,14 @@ main.orbit{width:min(1080px,94%)}.orbit .title{padding:20px 0 14px}.orbit h1{fon
 </style>
 <script type="importmap">{"imports":{"three":"../vendor/three.module.js","three/addons/":"../vendor/addons/","@sparkjsdev/spark":"../gs-lab/vendor/spark.module.js"}}</script>
 <link rel="stylesheet" href="./food-tour.css">
-</head><body><main class="orbit">
-<header><div class="brand"><b>背面宇宙</b><i></i><span>小狗身体博物馆</span></div><a href="./dog.html?model=hi3d">查看独立模型 ↗</a></header>
-<div class="title"><h1>小狗的内脏博物馆<span>。</span></h1><p>跟随一口食物，在沿途的器官展馆停靠参观。</p><button id="food-start" class="food-primary" type="button" disabled>▶ 食物的第一视角之旅</button></div>
+<link rel="stylesheet" href="../cinema/premiere.css">
+<script type="module" src="../cinema/room.js"></script>
+</head><body class="premiere canine-film"><main class="orbit">
+<header class="projection-head"><a href="../index.html" data-album-back aria-label="返回放映相簿"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 12H5m6-6-6 6 6 6"/></svg>返回相簿</a><span class="projection-house">背面宇宙</span><span class="screen-number">第 02 场</span></header>
 <section aria-label="小狗照片与三维实景转场">
-<div id="stage" tabindex="0" aria-describedby="hint" aria-label="左右拖动或按方向键绕行，Home 回到原照，End 查看右侧">
+<div id="stage" data-cover aria-busy="true" tabindex="0" aria-describedby="hint" aria-label="左右拖动或按方向键绕行，Home 回到原照，End 查看右侧">
 <canvas id="world" aria-hidden="true"></canvas><img id="photo" src="./assets/original.jpg" alt="白毛黄耳的小狗坐在地毯上，歪着头看向镜头。" draggable="false">
+<div class="film-loading" role="status">正在准备放映…</div><div class="projection-title"><h1>小狗的内脏博物馆</h1><p>绕到小狗身侧，探访藏在身体里的六间展馆。</p></div>
 <div class="plate"><i></i><span id="viewName">原照</span></div>
 <div id="tour-shade" hidden></div>
 <div id="tour-overlay" hidden><div class="tour-map-card"><canvas id="tour-map" width="352" height="286" aria-label="小狗侧身图，红点表示食物的当前位置"></canvas></div>
@@ -36,8 +38,9 @@ main.orbit{width:min(1080px,94%)}.orbit .title{padding:20px 0 14px}.orbit h1{fon
 <div id="gallery-focus" hidden><button id="gallery-back" type="button">← 返回全景</button><span id="gallery-title"></span><button id="gallery-reset" type="button" hidden>复位视角</button></div></div>
 <div id="tour-panel" hidden><div id="tour-room-tools"><button id="tour-room-sound" type="button">关闭旁白</button><span>拖动环绕，滚轮或双指缩放。双击展品对焦。</span></div><nav id="tour-stops" aria-label="消化道六站"></nav>
 <label class="tour-timeline">游览进度 <input type="range" id="tour-time" min="0" step=".01" value="0"></label><div class="tour-controls"><button id="tour-prev" type="button">上一站</button><button id="tour-play" class="food-primary" type="button">暂停</button><button id="tour-next" type="button">下一站</button><label class="tour-docking"><input type="checkbox" id="tour-autostop" checked> 到馆停靠</label><button id="tour-sound" type="button">关闭旁白</button><button id="tour-exit" type="button">退出导览</button></div></div>
-<div class="tools"><button id="turn" disabled><span id="playMark" aria-hidden="true">↻</span><span id="playLabel">播放转场</span></button>
+<div class="tools"><button id="turn" disabled><span id="playMark" aria-hidden="true"></span><span id="playLabel">开始放映</span></button>
 <div class="track"><div><label for="angle">正面原照</label><span>右侧剖景</span></div><input id="angle" type="range" min="0" max="90" step=".1" value="0" disabled aria-label="向右绕行"></div>
 <output for="angle" id="degrees">000°</output></div>
-<div class="caption"><p id="hint" role="status">正在载入小狗和房间…</p><span><a href="./assets/digestion/food-tour.mp4" download>下载消化导览短片</a></span></div>
+<div class="film-guide"><span>跟随一口食物，沿途探访六馆</span><button id="food-start" class="food-primary" type="button" disabled>食物的第一视角之旅 →</button></div>
+<div class="caption"><p id="hint" role="status">正在载入小狗和房间…</p><button type="button" id="retry-film" hidden>重新加载</button><span><a href="./dog.html?model=hi3d" target="_blank" rel="noopener">查看独立模型 ↗</a> · <a href="./assets/digestion/food-tour.mp4" download>下载消化导览短片</a></span></div>
 <nav id="galleries" aria-label="六个器官展区"></nav><p id="gallery-note" aria-live="polite"></p></section></main><script type="module" src="./transition.js"></script></body></html>

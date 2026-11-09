@@ -1,7 +1,11 @@
 ---
 name: 背面宇宙
-description: 保留日常照片的真实质感，连续进入蓝杯背面的微缩假期。
+description: 背面宇宙放映相簿、两件作品的宽银幕首映，以及早期工位样片的设计记录。
 colors:
+  cinema-screen: "#11110f"
+  cinema-rail: "#1c1b18"
+  cinema-title: "#f7f1e6"
+  cinema-action: "#f2ce94"
   cup-cobalt: "#0731aa"
   ink: "#eee9de"
   muted: "#b9beb9"
@@ -101,7 +105,22 @@ components:
 
 # Design System: 背面宇宙
 
-## Overview
+## 放映相簿与宽银幕首映
+
+相簿是两个作品的主入口。首页以暗房放映机的光束作页眉，暖纸对页各贴一张原照和两格场景胶片。整页可点击进入放映，窄屏按场次纵向排列。作品采用 B1 宽银幕首映的近黑舞台、暖金放映键和居中宋体片名。播放或拖动实际绕行时，片名淡出，原照位置与时间轴均可找回。工位的五站故事与小狗的食物导览都位于主放映控制下方。
+
+页面通过 `photo-demo/dist/cinema/premiere.css` 共用首映样式。首页先展示原照缩略图和局部剧照，切换到「背面剧照」时才载入两张全景预览。点击作品后才加载对应的三维资产。相簿在本标签页内按需保留场景，回到相簿时暂停渲染与声音。刷新后重新初始化场景，本地开发服务器使用 ETag 校验文件版本。
+
+<details>
+<summary>放映机封面的生成记录</summary>
+
+内置 ImageGen 生成的放映机静物保存在 `photo-demo/dist/cinema/album-art/projection-booth.webp`。相簿里的照片与胶片取自两个项目的原照和场景截图，可用 `photo-demo/scripts/prepare-style-study.py` 重新导出。以下为封面的最终提示词。
+
+> A single horizontal panoramic editorial still-life photograph for a small independent cinema’s photo album masthead. Landscape canvas, compose all important details within a very wide central horizontal strip for a shallow website banner crop. At far right: a beautifully worn dark metal 16mm film projector in three-quarter profile pointing LEFT, one large, unmistakable silver spoked film reel visible above its dark cast-metal housing, a smaller take-up reel and the lens with one controlled steady amber glow. The two reels and front of the machine read as a real crafted object, not esoteric gears. A thin strip of perforated brown celluloid curls loosely near the base on a dark wooden projection booth desk. Right third has sculptural silver, bronze and champagne highlights, strong chiaroscuro. Left half fades into deep warm charcoal negative space with a single delicately visible warm beam angled slightly left through suspended dust. Cinematheque archive editorial photography, analogue film texture, tactile materials, thoughtful naturalistic art direction, same warmth as an old movie theater. Very dark edges, clear sculptural definition at the right. No people, no lettering, no captions, no printed numbers, no logos, no overlays, no framed artwork, no UI. This is a cinematic photograph, not a graphic design composition.
+
+</details>
+
+## 早期工位样片
 
 **Creative North Star: "照片的另一面"**
 

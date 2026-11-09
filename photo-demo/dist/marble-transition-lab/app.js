@@ -1,3 +1,4 @@
+import {onRoomVisibility,roomVisible} from '../cinema/room.js';
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
@@ -16,8 +17,10 @@ import {approachPath,createBookroomVisit} from './bookroom-visit.js';
 import {createStoryTour} from './story-tour.js';
 import {islandCrossing} from './island-crossing.js';
 import {createCupHarbor} from './cup-harbor.js';
+import {createLoadingProgress} from './loading-progress.js';
 
 const $=id=>document.getElementById(id),canvas=$('world'),stage=$('stage');
+const loadingProgress=createLoadingProgress();
 const embedded=new URLSearchParams(location.search).get('portal')==='book'&&parent!==window;
 document.body.classList.toggle('book-portal',embedded);
 let embedActive=!embedded,spark,visit,islandVisit,cupHarbor,lastTick=performance.now();
@@ -33,7 +36,7 @@ let ready=false,progress=0,playing=null,variant='transition',meta,modelLoader,re
 let width=1,height=1,frameTimes=[],visitFrames=[],lastFrame=0,settleUntil=0;
 let oceanTime=0;
 let reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-function status(message){$('status').textContent=message;}
+function status(message){loadingProgress.phase(message);}
 function fitBookPhoto(){const [x,y,w,h]=sourceCrop(width/height);Object.assign($('book-photo').style,{width:`${100/w}%`,height:`${100/h}%`,left:`${-x/w*100}%`,top:`${-y/h*100}%`});}
 const storyEntries={'blue-book':'走到白崖望远镜前','orange-book':'走近峡谷里的书签',phone:'走到手机静音键旁'};
 const storyVisits=new Map();
@@ -97,7 +100,7 @@ function visitUI(state){
  tour.refresh();
  if(active&&!state.busy&&!tour.active)canvas.focus({preventScroll:true});
 }
-function stop(cancelSeek=true){if(cancelSeek){pendingIslandSeek=null;if(!visit?.active)explore?.stop();}playing=null;$('play-icon').innerHTML='<svg viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></svg>';$('play-label').textContent=progress>=1?'返回实景':'播放转场';$('play').setAttribute('aria-pressed','false');$('play').setAttribute('aria-label',progress>=1?'返回实景':'播放转场');canvas.dataset.frameTimes=JSON.stringify(frameTimes);settleUntil=performance.now()+450;}
+function stop(cancelSeek=true){if(cancelSeek){pendingIslandSeek=null;if(!visit?.active)explore?.stop();}playing=null;$('play-icon').innerHTML='<svg viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></svg>';$('play-label').textContent=progress>=1?'返回实景':progress>0?'继续放映':'开始放映';$('play').setAttribute('aria-pressed','false');$('play').setAttribute('aria-label',progress>=1?'返回实景':progress>0?'继续放映':'开始放映');canvas.dataset.frameTimes=JSON.stringify(frameTimes);settleUntil=performance.now()+450;}
 function setProgress(value,manual=true){
   if(walkOrigin||islandVisit?.active)return;
   if(visit?.active&&visit.state.stage!=='returning')return;
@@ -128,6 +131,7 @@ function setProgress(value,manual=true){
   const arriving=progress<1&&requested===1;
   const atEndpoint=progress===1||requested===1;
   progress=requested;
+  stage.toggleAttribute('data-cover',progress===0);
   settleUntil=performance.now()+450;
   const state=sampleJourney(progress),pose=cameraPose(meta.calibration.parameters,progress,width/height);
   camera.position.copy(pose.position);camera.quaternion.copy(pose.quaternion);camera.updateMatrixWorld(true);
@@ -172,7 +176,7 @@ function animateOcean(dt,amount){
 }
 function frame(now){
   const frameMs=now-lastTick,dt=Math.min(frameMs/1000,.05);lastTick=now;
-  if(document.hidden||!embedActive)return;
+  if(!roomVisible()||!embedActive)return;
   if(walkOrigin){
     walker?.tick(dt);renderer.info.reset();
     if(walker?.scene){renderer.setRenderTarget(null);renderer.render(walker.scene,camera);return;}
@@ -237,10 +241,10 @@ async function boot(){
   spark=new SparkRenderer({renderer,apertureAngle:0,blurAmount:.3,enableLod:false,sortRadial:false});realScene.add(spark);
   const originalRoom = '../marble-refined-lab/assets/room-without-objects.spz';
   const baseline = new URLSearchParams(location.search).get('detail') === '0';
-  const loadRoom = path => loadMarbleRoom(path, meta.semantics_metadata);
+  const loadRoom = path => loadMarbleRoom(path, meta.semantics_metadata, loadingProgress.download);
   const roomReady = (baseline ? loadRoom(originalRoom) :
     loadRoom('../marble-detail/assets/room-detail.spz').catch(() => loadRoom(originalRoom)))
-    .then(room => realScene.add(room));
+    .then(room => {realScene.add(room);status('正在搭建桌面与群岛…');});
   const sourceCamera=camera.clone();sourceCamera.projectionMatrix.makePerspective(...projectionBounds(p,[0,0,1,1],1320,1739,sourceCamera.near),sourceCamera.near,sourceCamera.far);sourceCamera.projectionMatrixInverse.copy(sourceCamera.projectionMatrix).invert();sourceCamera.updateMatrixWorld(true);
   status('正在对齐电脑、书本和杯子…');
   modelLoader=new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('../vendor/draco/').setWorkerLimit(2));
@@ -279,11 +283,11 @@ async function boot(){
   dreamScene.add(objects.group);await renderer.compileAsync(dreamScene,camera);realScene.add(objects.group);await renderer.compileAsync(realScene,camera);
   ready=true;setProgress(0);
   await spark.update({scene:realScene,camera});
-  renderer.setAnimationLoop(frame);
+  onRoomVisibility(active=>renderer.setAnimationLoop(active?frame:null));
   // A first dream frame uploads model textures before the user can scrub there.
   renderer.shadowMap.needsUpdate=true;compositor.render(camera,sampleJourney(0),'dream');compositor.render(camera,sampleJourney(0),'real');
   settleUntil=performance.now()+1200;
-  document.querySelectorAll('button:disabled,input:disabled').forEach(el=>el.disabled=false);$('loading').hidden=true;delete stage.dataset.loading;
+  document.querySelectorAll('button:disabled,input:disabled').forEach(el=>el.disabled=false);loadingProgress.finish();delete stage.dataset.loading;
   $('diagnostic-status').textContent='从蓝书白崖、橙书峡谷和手机潮港，可以望见电脑洞窟。绕到背后即可进入书屋。';
   canvas.dataset.island=holiday.islandSource;canvas.dataset.sceneRevision='desktop-grotto-and-three-islands';
   canvas.dataset.grottoRegistration=JSON.stringify(holiday.grotto.registration.matrix.toArray());
@@ -294,6 +298,7 @@ async function boot(){
   const value=new URLSearchParams(location.search).get('progress');if(value!==null)setProgress(Number(value));
   canvas.dataset.ready='true';tellParent('book-world:ready');
   visitUI(visit.state);
+  if(!embedded&&new URLSearchParams(location.search).get('tour')==='start')$('tour-next').click();
 }
 function islandVisitUI(phase,hint){
   settleUntil=performance.now()+300;
@@ -746,6 +751,6 @@ window.addEventListener('keyup',event=>{
 });
 canvas.addEventListener('blur',()=>{walker?.clear();explore?.clearKeys();});
 window.addEventListener('blur',()=>{walker?.clear();walkDrag=null;islandVisit?.cancelHand();drag=null;canvas.classList.remove('moving-lamp');gestures?.clear();explore?.clearKeys();visit?.clearKeys();});
-new ResizeObserver(resize).observe(stage);document.addEventListener('visibilitychange',()=>{if(document.hidden){walker?.clear();walkDrag=null;stop();visit?.clearKeys();islandVisit?.cancelHand();islandVisit?.audio?.stop();soundUI();}else{lastTick=performance.now();settleUntil=lastTick+450;}});
+new ResizeObserver(resize).observe(stage);onRoomVisibility(active=>{if(!active){walker?.clear();walkDrag=null;stop();visit?.clearKeys();islandVisit?.cancelHand();islandVisit?.audio?.stop();soundUI();}else{lastTick=performance.now();settleUntil=lastTick+450;}});
 window.__marbleTransition={setProgress,setVariant,stop,get visit(){return visit;},get grotto(){return holiday?.grotto;},get state(){return{ready,progress,variant,walk:walker?.state||null,browsing:browsing(),playing:!!playing,...sampleJourney(progress),visit:visit?.state,camera:camera?.matrixWorld.toArray(),projection:camera?.projectionMatrix.toArray(),compositor:compositor?.stats,houseReady:holiday?.houseReady,frames:frameTimes.slice()};},get islands(){return holiday?.islands.state;},get renderer(){return renderer;},get scene(){return realScene;},get dreamScene(){return dreamScene;},get camera(){return camera;},get objects(){return objects;}};
-boot().catch(error=>{console.error(error);status(`加载未完成：${error.message}。请恢复本地资产后刷新。`);$('loading').dataset.error='true';tellParent('book-world:error');});
+boot().catch(error=>{console.error(error);loadingProgress.fail();tellParent('book-world:error');});

@@ -1,3 +1,4 @@
+import {onRoomVisibility,roomVisible} from '../cinema/room.js';
 import {createClayChannels} from './clay-channels.js';
 import {BrowseCamera} from './browse-camera.js';
 import {boundaries,createTract,nativeAt} from './digestive-tract.js';
@@ -95,7 +96,7 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
       onChange();
     });
     galleryAudio.src=assets+'galleries/'+id+'.m4a';
-    if(!muted&&!document.hidden)galleryAudio.play().catch(()=>{});
+    if(!muted&&roomVisible())galleryAudio.play().catch(()=>{});
     show();onChange();root.focus({preventScroll:true});
   }
   function leaveGallery(){
@@ -181,7 +182,7 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
     const time=Math.min(elapsed,Number.isFinite(audio.duration)?audio.duration:elapsed);
     if(Math.abs(audio.currentTime-time)>.20)audio.currentTime=time;
     audio.muted=muted;
-    if(playing&&!visit&&!muted&&!document.hidden){audio.play().catch(()=>{});}else audio.pause();
+    if(playing&&!visit&&!muted&&roomVisible()){audio.play().catch(()=>{});}else audio.pause();
   }
   function show(){
     const s=stops[index];
@@ -317,14 +318,14 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
     if(id)enterGallery(id,true);
   });
   for(const event of ['pointercancel','lostpointercapture'])root.addEventListener(event,()=>{touch=null;});
-  document.addEventListener('visibilitychange',()=>{
+  onRoomVisibility(visible=>{
     if(!active)return;
     if(visit){
-      if(document.hidden)galleryAudio.pause();
+      if(!visible)galleryAudio.pause();
       else if(!muted&&!visit.leaving&&!galleryAudio.ended)galleryAudio.play().catch(()=>{});
       return;
     }
-    if(document.hidden){pendingSound=playing;audio.pause();}
+    if(!visible){pendingSound=playing;audio.pause();}
     else if(pendingSound){pendingSound=false;audioState();}
   });
   timeline.oninput=()=>{
@@ -338,7 +339,7 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
   };
   byId('tour-room-sound').onclick=()=>{
     muted=!muted;
-    if(muted)galleryAudio.pause();else if(visit&&!visit.leaving)galleryAudio.play().catch(()=>{});
+    if(muted)galleryAudio.pause();else if(roomVisible()&&visit&&!visit.leaving)galleryAudio.play().catch(()=>{});
     show();
   };
   byId('tour-first-landing').onclick=()=>startAtLanding('chest');

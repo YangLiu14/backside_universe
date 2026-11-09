@@ -11,6 +11,8 @@ Git 保存源码、校准参数、小型来源元数据、许可证、文字结�
 | 本地路径 | 用途 / 来源 |
 | --- | --- |
 | `dist/assets/desk-original.jpg` | 用户提供的原始照片；须恢复同一输入 |
+| `dist/cinema/album-art/*.webp` | 放映相簿使用的放映机封面、纸纹、原照缩略图和剧照。整组可按清单从私有备份恢复。 |
+| `dist/style-study/stills/`、`dist/style-study/films/` | 风格方案试映所用的截图和短片。原始截图与录影就绪后，也可运行 `scripts/prepare-style-study.py` 与 `scripts/prepare-screening-films.py` 重新导出。 |
 | `dist/assets/desk-depth*.png` | 主 demo 的深度纹理；对应 `desk-depth.json` |
 | `dist/assets/objects/*.png` | SAM 遮罩、裁切和原照材质；对应 `objects/manifest.json` |
 | `dist/assets/*-hi3d.glb` | 已授权生成并优化的电脑、椅子、灯和纸页模型 |

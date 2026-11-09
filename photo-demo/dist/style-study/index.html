@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>背面宇宙 · 三种界面风格</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./study.css">
+  <script defer src="./work-data.js"></script>
+  <script defer src="./study.js"></script>
+</head>
+<body>
+<main>
+  <header class="review-head">
+    <h1>背面宇宙 <span>界面风格提案</span></h1>
+    <nav aria-label="跳到风格"><a href="#folio">袖珍图鉴</a><a href="#cinema">暗房放映</a><a href="#map">口袋路线图</a></nav>
+  </header>
+  <div class="review-tools">
+    <p>用两件作品试读同一套界面。点画面中的按钮，可以翻看项目实拍与场景截图。</p>
+    <div role="group" aria-label="同步切换全部样稿"><span>全部样稿</span><button type="button" data-all="front" aria-pressed="true">原照</button><button type="button" data-all="back" aria-pressed="false">背面</button></div>
+  </div>
+  <section class="proposal" id="folio" aria-labelledby="folio-title">
+    <div class="section-head"><h2 id="folio-title"><em>A</em>袖珍图鉴</h2><p>米白书页把原照与局部图版并置。每翻一页，就走近一座岛或一间展馆。</p></div>
+    <div class="pair"></div>
+  </section>
+  <section class="proposal" id="cinema" aria-labelledby="cinema-title">
+    <div class="section-head"><h2 id="cinema-title"><em>B</em>暗房放映</h2><p>黑场把目光留给照片。放映键揭开背面，底片带可以跳到想看的镜头。 <a href="./screening-room.html">查看三种放映变体 →</a></p></div>
+    <div class="pair"></div>
+  </section>
+  <section class="proposal" id="map" aria-labelledby="map-title">
+    <div class="section-head"><h2 id="map-title"><em>C</em>口袋路线图</h2><p>把工位五岛和小狗六馆印成两条线路。点站名就能查看目的地。</p></div>
+    <div class="pair"></div>
+  </section>
+</main>
+</body>
+</html>

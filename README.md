@@ -42,7 +42,7 @@ cd photo-demo
 npm run dev
 ```
 
-服务启动后，打开[工位主体验](http://127.0.0.1:9988/marble-transition-lab/index.html)。其他作品入口、环境配置、检查命令与资产审阅见[开发指南](photo-demo/docs/DEVELOPMENT.md)。
+服务启动后，打开[放映相簿](http://127.0.0.1:9988/)，点选照片进入作品。在同一标签页返回相簿再进入，可以继续上次的放映。也可以直接打开[工位主体验](http://127.0.0.1:9988/marble-transition-lab/index.html)。环境配置与检查命令见[开发指南](photo-demo/docs/DEVELOPMENT.md)。
 
 ## 当前状态与后续方向
 

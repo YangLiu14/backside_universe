@@ -2,23 +2,20 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>背面宇宙 · 桌上的假期</title><link rel="icon" href="data:,">
+  <title>工位背后的假期 · 背面宇宙</title><link rel="icon" href="data:,">
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="../cinema/premiere.css">
+  <script type="module" src="../cinema/room.js"></script>
   <script type="importmap">{"imports":{"three":"../vendor/three.module.js","three/addons/":"../vendor/addons/","@sparkjsdev/spark":"../gs-lab/vendor/spark.module.js"}}</script>
 </head>
-<body>
+<body class="premiere desk-film">
 <main>
-  <header><a href="../marble-refined-lab/index.html?mode=wide&angle=60">← 保留的 Marble 融合版</a><span>背面宇宙 <i> / </i> 转场试映</span></header>
-  <section class="intro"><div><h1>假期，就藏在书桌背面。</h1><p>绕到电脑背后，走进海风书屋；翻到那一页，又回到故事的起点。</p></div><span class="duration">4.8 秒，绕到书桌背面</span></section>
+  <header class="projection-head"><a href="../index.html" data-album-back aria-label="返回放映相簿"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 12H5m6-6-6 6 6 6"/></svg>返回相簿</a><span class="projection-house">背面宇宙</span><span class="screen-number">第 01 场</span></header>
   <section class="experience" aria-label="Marble 实景到度假世界的连续转场">
-    <nav id="story-tour" class="story-tour" aria-label="群岛故事导览">
-      <div class="tour-location" role="status"><span id="tour-position" hidden></span><span id="tour-title">从工位出发，游览五站</span></div>
-      <button id="tour-exit" hidden>退出导览</button>
-      <button id="tour-next" aria-disabled="true"><span id="tour-label">跟随故事</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13m-5-5 5 5-5 5"/></svg></button>
-    </nav>
-    <div class="stage" id="stage" data-loading>
+    <div class="stage" id="stage" data-cover data-loading aria-busy="true">
       <canvas id="world" tabindex="0" aria-label="左右拖动探索书桌背面；方向键微调，Home回到实景，End到度假世界，空格播放或暂停"></canvas>
       <div id="book-photo-bridge" aria-hidden="true"><img id="book-photo" fetchpriority="high" src="../assets/desk-original.jpg" alt=""></div>
+      <div class="projection-title"><h1>工位背后的假期</h1><p>绕过桌上的蓝杯，去群岛度过一个假期。</p></div>
       <div class="scene-caption"><span id="phase">熟悉的书桌</span><small id="angle">0°</small></div>
       <div id="explore-tools" aria-label="群岛自由浏览" hidden>
         <select id="explore-island" aria-label="浏览群岛或潜入海底"><option value="" disabled selected>选择目的地</option><option value="reef">桌下 · 潜入海底</option><option value="blue-book">蓝书 · 白崖</option><option value="orange-book">橙书 · 峡谷</option><option value="phone">手机 · 潮港</option><option value="grotto">电脑 · 洞窟</option><option value="cup">蓝杯 · 走到海滩</option></select>
@@ -34,7 +31,16 @@
       <p id="harbor-ending" aria-live="polite" hidden>至少在这里，你可以下班了。</p>
       <div id="crossing-veil" aria-hidden="true"></div>
       <div id="room-veil" aria-hidden="true"></div>
-      <div id="loading" role="status"><span class="loading-dot"></span><p id="status">正在准备房间与桌上的假期…</p></div>
+      <div id="loading">
+        <div class="loading-card">
+          <h2>正在准备放映</h2>
+          <div class="loading-status"><p id="status" role="status">正在连接场景资源…</p><strong id="load-value"></strong></div>
+          <div id="load-progress" role="progressbar" aria-label="正在连接场景资源" aria-valuemin="0" aria-valuemax="100" data-indeterminate="true"><span></span></div>
+          <div class="loading-meta"><span id="load-detail">准备下载高清实景</span><span id="load-elapsed">已等待 0 秒</span></div>
+          <p id="load-note">首次打开需要下载高清场景，请稍等。</p>
+          <button id="load-retry" type="button" hidden>重新加载</button>
+        </div>
+      </div>
     </div>
     <nav id="walk-tools" aria-label="第一人称漫步" hidden>
       <select id="walk-place" aria-label="步行地点"><option value="office">3DGS 工位</option><option value="reef">桌下海底</option><option value="cup">蓝杯港湾</option><option value="blue-book">蓝书白崖</option><option value="orange-book">橙书峡谷</option><option value="phone">手机潮港</option><option value="grotto">电脑洞窟</option></select>
@@ -49,10 +55,15 @@
       <span>日落</span><output id="lamp-time" for="lamp-position"></output>
     </div>
     <div class="transport" id="desk-transport">
-      <button id="play" disabled aria-label="播放转场" aria-pressed="false"><span id="play-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></svg></span><span id="play-label">播放转场</span></button>
+      <button id="play" disabled aria-label="开始放映" aria-pressed="false"><span id="play-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></svg></span><span id="play-label">开始放映</span></button>
       <div class="timeline"><div class="ticks"><button data-progress="0" disabled>实景</button><button data-progress="0.32" disabled>交界</button><button data-progress="1" disabled>背面的假期</button></div><input id="progress" type="range" min="0" max="1000" step="1" value="0" disabled aria-label="转场进度"></div>
       <output id="elapsed">0.0 / 4.8 s</output><button id="office-walk" hidden>工位漫步</button><button id="home" disabled aria-label="回到实景"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/></svg><span>回到实景</span></button>
     </div>
+    <nav id="story-tour" class="story-tour" aria-label="群岛故事导览">
+      <div class="tour-location" role="status"><span id="tour-position" hidden></span><span id="tour-title">从工位出发，游览五站</span></div>
+      <button id="tour-exit" hidden>退出导览</button>
+      <button id="tour-next" aria-disabled="true"><span id="tour-label">跟随故事</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13m-5-5 5 5-5 5"/></svg></button>
+    </nav>
     <nav id="harbor-controls" aria-label="蓝杯港湾" hidden>
       <p id="harbor-hint" role="status"></p>
       <div id="scope-optics" hidden>
@@ -72,8 +83,8 @@
   <div class="visit-feedback"><span id="explore-help" hidden><span class="mouse-help">拖动灯头调日照，拖动空处环顾。按住方向键或 WASD 移动。Q 下潜、E 上浮，滚轮推近拉远。点手机可上岸游览潮港，点蓝杯可走到海滩。</span><span class="touch-help">拖动灯头调日照。单指环顾，双指平移或捏合靠近。轻点手机可游览潮港，轻点蓝杯可走到海滩。</span></span><span id="visit-feedback" role="status" aria-live="polite">绕到电脑背后，可以走进洞窟里的书屋。</span><button id="reduce-motion" aria-pressed="false">减少动态</button></div>
   <div class="island-feedback"><span id="island-feedback" role="status"></span><button id="island-retry" hidden>重新载入景观</button></div>
   <div class="footnote"><span>拖动时间轴或点「回到实景」，可以原路返回。</span><span>一张桌子，一片海。蓝书是白崖，橙书是峡谷，手机边框里藏着一座潮港。</span></div>
-  <details class="inspection"><summary>同机位检查交界</summary><div class="inspection-inner"><div class="variants" aria-label="对照画面"><button data-variant="transition" aria-pressed="true" disabled>完整转场</button><button data-variant="real" aria-pressed="false" disabled>仅实景</button><button data-variant="dream" aria-pressed="false" disabled>仅建模世界</button></div><label><input id="softness" type="checkbox" checked disabled>背景景深</label><p>切换画面保持同一镜头。纯实景在大角度仍有未观测的空洞；度假世界的背面是创作内容。海浪和鱼群会在镜头停下后继续活动。打开「减少动态」可冻结海况，方便同机位比较。</p><p id="diagnostic-status"></p><p><a href="../index.html">原版度假场景</a> · <a href="../marble-islands-before-sea/index.html">海面前对照</a> · <a href="../marble-transition-restored/index.html">隐藏布局对照</a> ·
-          <a href="../marble-transition-first-pass/index.html">保留的首版转场</a></p></div></details>
+  <details class="inspection"><summary>同机位检查交界</summary><div class="inspection-inner"><div class="variants" aria-label="对照画面"><button data-variant="transition" aria-pressed="true" disabled>完整转场</button><button data-variant="real" aria-pressed="false" disabled>仅实景</button><button data-variant="dream" aria-pressed="false" disabled>仅建模世界</button></div><label><input id="softness" type="checkbox" checked disabled>背景景深</label><p>切换画面保持同一镜头。纯实景在大角度仍有未观测的空洞；度假世界的背面是创作内容。海浪和鱼群会在镜头停下后继续活动。打开「减少动态」可冻结海况，方便同机位比较。</p><p id="diagnostic-status"></p><p data-local-review><a target="_blank" rel="noopener" href="../legacy.html">原版度假场景</a> · <a target="_blank" rel="noopener" href="../marble-refined-lab/index.html?mode=wide&amp;angle=60">Marble 融合版</a> · <a target="_blank" rel="noopener" href="../marble-islands-before-sea/index.html">海面前对照</a> · <a target="_blank" rel="noopener" href="../marble-transition-restored/index.html">隐藏布局对照</a> ·
+          <a target="_blank" rel="noopener" href="../marble-transition-first-pass/index.html">保留的首版转场</a></p></div></details>
 </main>
 <script type="module" src="./app.js"></script>
 </body>
