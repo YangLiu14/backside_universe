@@ -23,16 +23,23 @@ SCENE_STORE="$PWD/photo-demo/evidence/deployment/scene-store"
 python3 photo-demo/scripts/release-album.py pack canine --store "$SCENE_STORE"
 ```
 
-3. 将输出的版本值写入 [releases.json](releases.json) 对应的作品。核验场景库后，将其发布到资源站。已登录同一团队的 Netlify CLI 可按文件摘要上传，服务端只索取缺少的内容。Netlify 把本次目录当作完整快照，因此发布资源站之前要使用完整镜像。新机器可以从私有备份恢复。浏览器手动上传 ZIP 时需要上传整个资源库。[Netlify 文件摘要发布](https://docs.netlify.com/api-and-cli-guides/api-guides/get-started-with-api/#file-digest-method)
+3. 将版本值写入 [releases.json](releases.json)，并追加到 [published-scenes.json](published-scenes.json) 对应作品的列表中。Netlify 将每次部署作为完整快照。发布前从持久库或备份取齐清单中的每个版本，包含它的入口、脚本和资产。已登录同一团队的 Netlify CLI 按摘要上传，服务端只索取缺少的内容。[Netlify 文件摘要发布](https://docs.netlify.com/api-and-cli-guides/api-guides/get-started-with-api/#file-digest-method)
 
 ```sh
 python3 photo-demo/scripts/release-album.py verify-store --store "$SCENE_STORE"
 netlify deploy --prod --no-build --site backside-universe-scenes --dir "$SCENE_STORE"
 ```
 
-4. 从资源站打开新版本的入口，确认可访问，再构建并发布相簿。仅修改首页或切换回已有版本时，直接执行此步骤。相簿构建只读取预览图、界面文件和发布清单。
+   使用 Netlify Drop 手动发布时，运行以下命令，将生成的 ZIP 上传到 `backside-universe-scenes`。它会先校验新旧版本的内容摘要。主站已代理到资源站，再把资源站的旧路径代理到另一次部署会超过 Netlify 的单次转发限制。[Netlify 转发限制](https://docs.netlify.com/manage/routing/redirects/rewrites-proxies/#limitations)
 
 ```sh
+python3 photo-demo/scripts/release-album.py zip-store --store "$SCENE_STORE" --output .cache/backside-scenes.zip
+```
+
+4. 发布资源站后，从**相簿正式域名**检查新旧场景入口和脚本，再构建并发布相簿。仅修改首页或切换回已有版本时，直接执行此步骤。相簿构建只读取预览图、界面文件和发布清单。
+
+```sh
+python3 photo-demo/scripts/check-published-scenes.py
 ALBUM_OUTPUT=$(mktemp -d)
 python3 photo-demo/scripts/release-album.py app \
   --asset-origin https://backside-universe-scenes.netlify.app --output "$ALBUM_OUTPUT"

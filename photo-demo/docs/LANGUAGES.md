@@ -45,4 +45,4 @@ npm run check:album
 
 静态发布包需要同时包含 `i18n/` 和英文音频。主打包器已包含语言目录，小狗场景资源目录包含英文音源。更改词表或场景文字后应重新构建对应发布包；仅更新相簿首页不能替换已固定版本的三维场景。
 
-公开相簿已使用双语版本，固定版本号记录在 `deploy/releases.json`。资源库的 `_redirects` 由 `deploy/scene-redirects.txt` 生成，将首版两个场景的旧地址代理到其保留的 Netlify 部署；发布资源 ZIP 时需一并保留此文件。它不重定向到最新场景，因此已经打开的旧作品仍读取原版本资源。
+公开相簿已使用双语版本，当前版本号记录在 `deploy/releases.json`。每次发布的场景库保留 `deploy/published-scenes.json` 中所有版本的实际文件，已打开的旧作品可以继续读取对应版本的脚本和资产。手动发布时按[场景库发布步骤](../deploy/README.md)生成完整 ZIP。
