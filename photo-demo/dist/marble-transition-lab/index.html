@@ -19,15 +19,26 @@
       <div class="projection-title"><h1>工位背后的假期</h1><p>绕过桌上的蓝杯，去群岛度过一个假期。</p></div>
       <div class="scene-caption"><span id="phase">熟悉的书桌</span><small id="angle">0°</small></div>
       <div id="explore-tools" aria-label="群岛自由浏览" hidden>
-        <select id="explore-island" aria-label="浏览群岛或潜入海底"><option value="" disabled selected>选择目的地</option><option value="reef">桌下 · 潜入海底</option><option value="blue-book">蓝书 · 白崖</option><option value="orange-book">橙书 · 峡谷</option><option value="phone">手机 · 潮港</option><option value="grotto">电脑 · 洞窟</option><option value="cup">蓝杯 · 走到海滩</option></select>
-        <button id="walk-start">上岛漫步</button>
+        <button id="destination-toggle" type="button" aria-expanded="false" aria-controls="destination-list"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 5 6-2 6 3 6-2v15l-6 2-6-3-6 2zM9 3v15m6-12v15"/></svg>目的地</button>
+        <div id="destination-list" role="group" aria-label="选择目的地" hidden>
+          <button data-destination="blue-book">蓝书白崖</button><button data-destination="orange-book">橙书峡谷</button>
+          <button data-destination="phone">手机潮港</button><button data-destination="cup">蓝杯港湾</button>
+          <button data-destination="grotto">电脑洞窟</button><button data-destination="reef">桌下海底</button>
+        </div>
         <button id="explore-overview" aria-label="回到群岛全景">全景</button>
       </div>
       <p class="gesture" id="gesture">向左拖动，绕到背面 <span>↔</span></p>
-      <button id="enter-bookroom" class="bookroom-entry" hidden>走进洞窟书屋 ↗</button>
+      <section id="destination-card" aria-labelledby="destination-name" hidden>
+        <h2 id="destination-name" aria-live="polite"></h2>
+        <button id="walk-start" type="button"><span>上岛游玩</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button>
+        <button id="enter-island-story" class="destination-story" hidden></button>
+        <button id="enter-bookroom" class="destination-story" hidden>走进洞窟书屋 ↗</button>
+      </section>
+      <div id="landing-status" role="status" aria-live="polite" aria-atomic="true" hidden>
+        <strong id="landing-name"></strong><span>正在定位落脚点…</span>
+      </div>
       <div id="visit-caption" hidden><p id="visit-hint">拖动环顾</p></div>
       <div id="visit-move-pad" aria-label="步行方向" hidden><button data-walk="w" aria-label="向前移动">↑</button><div><button data-walk="a" aria-label="向左移动">←</button><button data-walk="s" aria-label="向后移动">↓</button><button data-walk="d" aria-label="向右移动">→</button></div></div>
-      <button id="enter-island-story" class="bookroom-entry" hidden></button>
       <div id="scope-lens" class="scope-lens" aria-hidden="true" hidden></div>
       <p id="harbor-ending" aria-live="polite" hidden>至少在这里，你可以下班了。</p>
       <div id="crossing-veil" aria-hidden="true"></div>
@@ -81,7 +92,7 @@
       <button id="visit-door" data-visit-action="door">打开房门</button><button data-visit-action="enter">走进书屋 →</button><button data-visit-action="read">走近桌上的书 ↗</button><button data-visit-action="photo">进入书页 →</button><button data-visit-action="leave">离开书桌</button><button data-visit-action="exit">回到露台</button><button data-visit-action="desktop">返回桌面群岛</button>
     </nav>
   </section>
-  <div class="visit-feedback"><span id="explore-help" hidden><span class="mouse-help">拖动灯头调日照，拖动空处环顾。按住方向键或 WASD 移动。Q 下潜、E 上浮，滚轮推近拉远。点手机可上岸游览潮港，点蓝杯可走到海滩。</span><span class="touch-help">左摇杆移动，右摇杆环顾。拖动灯头调日照。轻点手机可游览潮港，轻点蓝杯可走到海滩。</span></span><span id="visit-feedback" role="status" aria-live="polite">绕到电脑背后，可以走进洞窟里的书屋。</span><button id="reduce-motion" aria-pressed="false">减少动态</button></div>
+  <div class="visit-feedback"><span id="explore-help" hidden><span class="mouse-help">拖动灯头调日照，拖动空处环顾。按住方向键或 WASD 移动。Q 下潜、E 上浮，滚轮推近拉远。点击景点，选择上岛游玩。</span><span class="touch-help">左摇杆移动，右摇杆环顾。拖动灯头调日照。轻点景点，选择上岛游玩。</span></span><span id="visit-feedback" role="status" aria-live="polite">绕到电脑背后，可以走进洞窟里的书屋。</span><button id="reduce-motion" aria-pressed="false">减少动态</button></div>
   <div class="island-feedback"><span id="island-feedback" role="status"></span><button id="island-retry" hidden>重新载入景观</button></div>
   <div class="footnote"><span>拖动时间轴或点「回到实景」，可以原路返回。</span><span>一张桌子，一片海。蓝书是白崖，橙书是峡谷，手机边框里藏着一座潮港。</span></div>
   <details class="inspection"><summary>同机位检查交界</summary><div class="inspection-inner"><div class="variants" aria-label="对照画面"><button data-variant="transition" aria-pressed="true" disabled>完整转场</button><button data-variant="real" aria-pressed="false" disabled>仅实景</button><button data-variant="dream" aria-pressed="false" disabled>仅建模世界</button></div><label><input id="softness" type="checkbox" checked disabled>背景景深</label><p>切换画面保持同一镜头。纯实景在大角度仍有未观测的空洞；度假世界的背面是创作内容。海浪和鱼群会在镜头停下后继续活动。打开「减少动态」可冻结海况，方便同机位比较。</p><p id="diagnostic-status"></p><p data-local-review><a target="_blank" rel="noopener" href="../legacy.html">原版度假场景</a> · <a target="_blank" rel="noopener" href="../marble-refined-lab/index.html?mode=wide&amp;angle=60">Marble 融合版</a> · <a target="_blank" rel="noopener" href="../marble-islands-before-sea/index.html">海面前对照</a> · <a target="_blank" rel="noopener" href="../marble-transition-restored/index.html">隐藏布局对照</a> ·

@@ -1,6 +1,6 @@
 // Exercise the world-space cup and paper with real mouse and touch input.
 const assert=require('node:assert/strict');
-const {launchBrowser,baseURL}=require('./marble-browser.cjs');
+const {launchBrowser,baseURL,chooseDestination}=require('./marble-browser.cjs');
 const phase=(page,name)=>page.waitForSelector('#stage[data-harbor="'+name+'"]');
 const camera=page=>page.evaluate(()=>window.__marbleTransition.state.camera);
 async function subject(page,which){
@@ -29,11 +29,12 @@ async function tour(browser,touch){
     await page.waitForSelector('#world[data-ready=true]',{timeout:90000});
     const source=await camera(page);
     await page.click('[data-progress="1"]');await page.waitForSelector('#stage[data-browsing=true]');
-    const overview=await camera(page);
-    if(touch)await page.selectOption('#explore-island','cup');
+    let overview=await camera(page);
+    if(touch){await chooseDestination(page,'cup');overview=await camera(page);await page.click('#enter-island-story');}
     else{
       const cup=await subject(page,'cup');await page.mouse.click(cup.x,cup.y);
-      await phase(page,'approach');
+      assert.equal(await page.locator('#destination-name').innerText(),'蓝杯港湾');
+      await page.click('#enter-island-story');await phase(page,'approach');
     }
     await phase(page,'note');
     assert.equal(await page.locator('#harbor-ending').isVisible(),false);
@@ -66,10 +67,10 @@ async function tour(browser,touch){
     assert(Math.hypot(far.world[0]-atShore.world[0],far.world[2]-atShore.world[2])>.11);
     await page.click('#harbor-exit');await phase(page,'desk');assert.deepEqual(await camera(page),overview);
 
-    // The visit is optional, repeatable, and cancellable at any point.
-    await page.selectOption('#explore-island','cup');
+    // Repeat from the selected berth and cancel during entry.
+    await chooseDestination(page,'cup');await page.waitForTimeout(950);overview=await camera(page);await page.click('#enter-island-story');
     await page.keyboard.press('Escape');await phase(page,'desk');assert.deepEqual(await camera(page),overview);
-    await page.selectOption('#explore-island','cup');await phase(page,'note');
+    await chooseDestination(page,'cup');await page.click('#enter-island-story');await phase(page,'note');
     await page.keyboard.press('Enter');await phase(page,'boat');await page.keyboard.press('Space');await phase(page,'sailing');
     await page.keyboard.press('Escape');await phase(page,'desk');
     assert.equal(await page.locator('#harbor-ending').isVisible(),false);

@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const {baseURL,launchBrowser}=require('./marble-browser.cjs');
+const {baseURL,launchBrowser,chooseDestination}=require('./marble-browser.cjs');
 
 async function checkIsland(id){
   const T=await import('three');
@@ -79,7 +79,8 @@ async function checkIsland(id){
   };
   const results=[];
   for(const [name,route] of here()){
-    const walker=await createIslandWalk({id,model,frame,camera:new T.PerspectiveCamera(),sea,aspect:()=>1.5,
+    const surfaceOverride=id==='grotto'?await app.grotto.prepareWalkSurface():undefined;
+    const walker=await createIslandWalk({id,model,frame,surfaceOverride,camera:new T.PerspectiveCamera(),sea,aspect:()=>1.5,
       reduced:()=>true,signal:new AbortController().signal});
     const home=new T.Vector3(...walker.state.foot),points=route.map(p=>frame.localToWorld(new T.Vector3(...p)));
     function walkTo(target){
@@ -113,7 +114,7 @@ async function checkIsland(id){
     const fallback=process.argv.includes('--fallback');
     if(fallback)await page.route('**/desktop-visit.glb',route=>route.abort());
     await page.goto(baseURL+'/marble-transition-lab/index.html?progress=1');
-    await page.click('#walk-start');
+    await chooseDestination(page,'cup');await page.click('#walk-start');
     for(const id of ['cup','blue-book','orange-book','phone','grotto']){
       await page.selectOption('#walk-place',id);await page.waitForFunction(id=>window.__marbleTransition.state.walk?.id===id,id);
       if(fallback&&['blue-book','orange-book','phone'].includes(id)){

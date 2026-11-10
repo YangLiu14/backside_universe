@@ -16,4 +16,9 @@ function launchBrowser() {
   return chromium.launch(options);
 }
 
-module.exports = {baseURL, launchBrowser};
+async function chooseDestination(page, id) {
+  await page.click('#destination-toggle');
+  await page.click(`[data-destination="${id}"]`);
+}
+
+module.exports = {baseURL, launchBrowser, chooseDestination};

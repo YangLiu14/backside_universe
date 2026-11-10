@@ -1,6 +1,6 @@
 import {createModelPreparation} from '../cinema/prepare-model.js';
 import {createJoysticks} from '../cinema/joysticks.js';
-import {onRoomVisibility} from '../cinema/room.js';
+import {onRoomVisibility,resizeScreen} from '../cinema/room.js';
 import * as T from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
@@ -182,7 +182,7 @@ async function start(){
 
   if(fit.worldId!==marble.world_id)throw Error('Room and dog registrations differ');
   const renderer=new T.WebGLRenderer({canvas:document.querySelector('#world'),antialias:true,alpha:false,preserveDrawingBuffer:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.autoClear=false;
+  renderer.autoClear=false;
   renderer.outputColorSpace=T.SRGBColorSpace;
   const camera=new T.PerspectiveCamera(45,1,.025,150), roomCam=new T.PerspectiveCamera();
   const origin=vec().fromArray(reg.origin), orientation=new T.Quaternion().fromArray(reg.quaternion);
@@ -283,7 +283,7 @@ void main(){
   const off=origin.clone().sub(target0),startHeading=Math.atan2(off.x,off.z),startPitch=Math.asin(off.y/off.length());
   const lensX=marble.camera_scale[0]/marble.camera_scale[2],lensY=marble.camera_scale[1]/marble.camera_scale[2];
   let aspect=W/H;
-  function resize(){const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);aspect=w/h;dirty=true;}
+  function resize(){const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;resizeScreen(renderer,w,h);aspect=w/h;dirty=true;}
   new ResizeObserver(resize).observe(stage);resize();
   function draw(){
     if(foodTour.active&&foodTour.render(renderer,aspect)){

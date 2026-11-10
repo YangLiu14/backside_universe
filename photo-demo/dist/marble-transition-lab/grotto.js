@@ -19,7 +19,7 @@ export async function createGrotto(registered,surface,loader){
   dressCoast(environment,'grotto');return environment;
  }
  const fullShell='bookroom/shell-grotto-v6.glb';
- let fallback=false,retry;
+ let fallback=false,retry,walkGeometry;
  const [initial,layout,interior]=await Promise.all([
   shell(fullShell).catch(()=>{fallback=true;return shell('laptop/desktop-grotto.glb');}),
   fetch('../holiday-assets/assets/bookroom/grotto-layout.json').then(r=>{if(!r.ok)throw Error('洞窟布局未能载入');return r.json();}),
@@ -48,8 +48,20 @@ export async function createGrotto(registered,surface,loader){
   await Promise.all([retry,interior.loadFurniture()]);
   prepareMeshes(interior.contents);dressCoast(interior.contents,'joinery');
  }
+ async function prepareWalkSurface(){
+   if(fallback)return;
+   // The overview is decimated from this exact shell. Keep steps, landings
+   // and thresholds at their authored resolution for collision.
+   walkGeometry??=loader.loadAsync('../holiday-assets/assets/laptop/walk-surface.glb').then(({scene})=>{
+     const rock=scene.getObjectByName(environment.name);
+     seatHarborBase(rock,registration.matrix,surface,harborFits.grotto);
+     return rock.geometry;
+   }).catch(()=>{walkGeometry=null;return null;});
+   const geometry=await walkGeometry;
+   if(geometry)return {mesh:environment,geometry};
+ }
  function closeView(on){interior.contents.visible=on;}
- return {root,interior,get environment(){return environment;},prepareVisit,closeView,
+ return {root,interior,prepareWalkSurface,get environment(){return environment;},prepareVisit,closeView,
   layout:{...layout,terraceX:.043},registration,
   toWorld:p=>p.clone().applyMatrix4(worldFromRoom),toRoom:p=>p.clone().applyMatrix4(roomFromWorld),
   islandToWorld:p=>p.clone().applyMatrix4(registration.matrix),

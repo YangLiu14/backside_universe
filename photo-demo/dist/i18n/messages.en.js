@@ -1,5 +1,12 @@
 // Reviewed English copy keyed by the original Chinese phrases.
 export const messages = {
+  "潜入海底": "Dive underwater",
+  "点选景点，探索群岛": "Select a landmark to explore",
+  "目的地": "Destinations",
+  "上岛游玩": "Explore island",
+  "走到蓝杯海滩": "Visit the cup beach",
+  "拖动灯头调日照，拖动空处环顾。按住方向键或 WASD 移动。Q 下潜、E 上浮，滚轮推近拉远。点击景点，选择上岛游玩。": "Select a landmark to explore it. Drag open space to look around or the lamp to change the light. Move with WASD or the arrows, dive with Q, rise with E and scroll to zoom.",
+  "左摇杆移动，右摇杆环顾。拖动灯头调日照。轻点景点，选择上岛游玩。": "Tap a landmark to explore it. Move with the left stick and look around with the right. Drag the lamp to change the light.",
   "游览摇杆": "Navigation sticks",
   "移动": "Move",
   "视角": "Look",

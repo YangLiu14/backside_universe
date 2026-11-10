@@ -2,7 +2,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const {baseURL, launchBrowser} = require('./marble-browser.cjs');
+const {baseURL, launchBrowser,chooseDestination} = require('./marble-browser.cjs');
 const out = path.join(__dirname, '../evidence/desktop-islands');
 const modelURL = /\/(blue-book|orange-book|phone)\/desktop-(near|far|visit)\.glb$/;
 const url = baseURL+'/marble-transition-lab/index.html';
@@ -272,7 +272,7 @@ async function checkViewport(browser, mobile){
       frameTimes=await page.evaluate(()=>{const f=window.__marbleTransition.state.frames.sort((a,b)=>a-b);return {samples:f.length,median:f[f.length>>1],p95:f[Math.floor(f.length*.95)]};});
       await page.click('#reduce-motion');
     }
-    await page.click('#enter-bookroom');
+    await chooseDestination(page,'grotto');await page.click('#enter-bookroom');
     await page.waitForSelector('[data-visit=terrace][data-visit-busy=false]');
     const furnishings=await page.evaluate(()=>window.__marbleTransition.grotto.interior.furniture.map(f=>f.triangles));
     assert(furnishings.length===3&&furnishings.every(f=>f>=319000),'HD bookroom furniture');

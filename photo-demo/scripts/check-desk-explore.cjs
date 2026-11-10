@@ -1,6 +1,6 @@
 // Exercise the handoff between the timeline, direct camera controls and bookroom.
 const assert=require('node:assert/strict');
-const {baseURL,launchBrowser}=require('./marble-browser.cjs');
+const {baseURL,launchBrowser,chooseDestination}=require('./marble-browser.cjs');
 const url=baseURL+'/marble-transition-lab/index.html';
 const state=p=>p.evaluate(()=>window.__marbleTransition.state);
 const eye=m=>m.slice(12,15);
@@ -48,7 +48,7 @@ async function desktop(browser){
   const moving=await state(page);await page.waitForTimeout(100);const strafe=await state(page);
   assert(!same(eye(moving.camera),eye(strafe.camera)));
   assert(!same(axes(released.camera),axes(strafe.camera)));
-  await page.locator('#explore-island').focus();const blurred=await state(page);
+  await page.locator('#destination-toggle').focus();const blurred=await state(page);
   await page.waitForTimeout(100);assert(same(blurred.camera,(await state(page)).camera));
   await page.keyboard.up('d');await page.locator('#world').focus();
   await page.keyboard.down('e');await page.waitForTimeout(100);await page.keyboard.up('e');
@@ -62,9 +62,9 @@ async function desktop(browser){
     return [r.x+(1+pt.x)*r.width/2,r.y+(1-pt.y)*r.height/2];
   });
   await page.mouse.click(...pixel);
-  await page.waitForFunction(()=>document.querySelector('#explore-island').value==='blue-book');
+  await page.waitForFunction(()=>document.querySelector('[data-destination="blue-book"]').getAttribute('aria-pressed')==='true' );
   await page.waitForTimeout(700);
-  await page.selectOption('#explore-island','phone');
+  await chooseDestination(page,'phone');
   await page.waitForFunction(()=>window.__marbleTransition.islands.find(e=>e.id==='phone').level==='hd');
   await page.waitForTimeout(700);
   const phone=await state(page);
@@ -73,16 +73,16 @@ async function desktop(browser){
   let release,signal;
   const gate=new Promise(done=>{release=done;}),requested=new Promise(done=>{signal=done;});
   await page.route('**/bookroom/bookcase-hd.glb',async route=>{signal();await gate;await route.continue();});
-  await page.click('#enter-bookroom');await requested;
+  await chooseDestination(page,'grotto');await page.click('#enter-bookroom');await requested;
   await page.locator('#world').focus();await page.keyboard.press('d');release();
   await page.waitForFunction(()=>window.__marbleTransition.grotto.interior.book);
   assert.equal((await state(page)).visit.stage,'desk');
-  await page.selectOption('#explore-island','phone');await atPose(page,phone.camera);
+  await chooseDestination(page,'grotto');await page.waitForTimeout(850);const grotto=await state(page);
   // From a close-up, take the known approach and come back to the same view.
   await page.click('#reduce-motion');
   await page.click('#enter-bookroom');await room(page,'terrace');
   assert(await page.locator('#explore-tools').isHidden());
-  await page.click('[data-visit-action=desktop]');await room(page,'desk');await atPose(page,phone.camera);
+  await page.click('[data-visit-action=desktop]');await room(page,'desk');await atPose(page,grotto.camera);
   await page.click('#enter-bookroom');await room(page,'terrace');
   for(const [action,phase] of [['enter','inside'],['read','book'],['photo','desk']]){
     await page.click('[data-visit-action='+action+']');await room(page,phase);
@@ -90,7 +90,7 @@ async function desktop(browser){
   const returned=await state(page);
   assert(same(source.camera,returned.camera));assert(same(source.projection,returned.projection));assert.equal(returned.progress,0);
   // Reversing playback must still reach the original camera after exploration.
-  await page.click('[data-progress="1"]');await back(page);await page.selectOption('#explore-island','orange-book');
+  await page.click('[data-progress="1"]');await back(page);await chooseDestination(page,'orange-book');
   await page.click('#reduce-motion');await page.click('#play');await atPose(page,source.camera);
   assert.deepEqual(errors,[]);await page.close();
 }

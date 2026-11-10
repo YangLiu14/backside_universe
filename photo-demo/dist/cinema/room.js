@@ -22,6 +22,12 @@ if (host) back?.addEventListener('click',event=>{
   parent.postMessage({type:'album:return'},location.origin);
 });
 
+// Keep the same sampling density as the stage grows or moves between displays.
+export function resizeScreen(renderer,width,height){
+  const ratio=Math.min(devicePixelRatio||1,1.5);
+  renderer.setDrawingBufferSize(width,height,ratio);
+}
+
 // Browsers can discard a background GPU context on memory-constrained devices.
 const canvas = document.querySelector('#world');
 canvas?.addEventListener('webglcontextlost',()=>{

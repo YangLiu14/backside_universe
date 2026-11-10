@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const {baseURL,launchBrowser}=require('./marble-browser.cjs');
+const {baseURL,launchBrowser,chooseDestination}=require('./marble-browser.cjs');
 const url=baseURL+'/marble-transition-lab/index.html';
 const state=page=>page.evaluate(()=>window.__marbleTransition.state);
 const walk=page=>page.evaluate(()=>window.__marbleTransition.state.walk);
@@ -48,7 +48,11 @@ async function checkCaveRoute(page){
     const {createIslandWalk}=await import('/marble-transition-lab/island-walk.js');
     const app=window.__marbleTransition,model=app.grotto.root;
     const points=route.map(p=>new T.Vector3(...p).applyMatrix4(model.matrixWorld));
-    const walker=await createIslandWalk({id:'grotto',camera:app.camera.clone(),model,sea:()=>-Infinity,
+    const surfaceOverride=await app.grotto.prepareWalkSurface();
+    if(!surfaceOverride||surfaceOverride.geometry.attributes.position.count>=surfaceOverride.mesh.geometry.attributes.position.count){
+      throw Error('Expected a lighter cave collision mesh');
+    }
+    const walker=await createIslandWalk({id:'grotto',surfaceOverride,camera:app.camera.clone(),model,sea:()=>-Infinity,
       aspect:()=>1.5,reduced:()=>true,signal:new AbortController().signal,
       spawn:{start:points[0],aim:points[1]}});
     const begin=walker.state.foot[1],distances=[];
@@ -104,17 +108,22 @@ async function desktop(browser){
       const r=document.querySelector('#world').getBoundingClientRect();
       return [r.left+(p.x+1)*r.width/2,r.top+(1-p.y)*r.height/2];
     });
-    await page.mouse.click(...quay);await arrived(page,'phone');await page.click('#walk-exit');
+    assert(await page.locator('#walk-start').isHidden());
+    await page.mouse.click(...quay);
+    assert.equal(await page.locator('#destination-name').innerText(),'手机潮港');
+    assert.equal(await walk(page),null);
+    await page.click('#walk-start');await arrived(page,'phone');await page.click('#walk-exit');
     assert.deepEqual((await state(page)).camera,desk.camera);
-    await page.selectOption('#explore-island','phone');
+    await chooseDestination(page,'phone');
     const bounds=await page.locator('#world').boundingBox(),x=bounds.x+bounds.width*.4,y=bounds.y+bounds.height*.55;
     await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+24,y+6,{steps:4});await page.mouse.up();
     const beforeZoom=await state(page);
     await page.mouse.wheel(0,-65);
     await page.waitForFunction(z=>window.__marbleTransition.state.camera[14]!==z,beforeZoom.camera[14]);
-    assert.equal(await page.inputValue('#explore-island'),'phone');
+    assert.equal(await page.locator('#destination-name').innerText(),'手机潮港');
     await page.click('#walk-start');await arrived(page,'phone');await page.click('#walk-exit');
-    await page.click('#explore-overview');await page.click('#walk-start');
+    await page.click('#explore-overview');assert(await page.locator('#walk-start').isHidden());
+    await chooseDestination(page,'orange-book');const canyon=await state(page);await page.click('#walk-start');
     for(const id of ['orange-book','cup','blue-book','phone','reef','grotto']){
       if(id!=='orange-book')await page.selectOption('#walk-place',id);
       await arrived(page,id);await page.locator('#world').focus();
@@ -136,7 +145,7 @@ async function desktop(browser){
     await page.click('#walk-story');await page.waitForSelector('#world[data-visit="terrace"][data-visit-busy="false"]');
     await page.click('[data-visit-action="enter"]');await page.waitForSelector('#world[data-visit="inside"][data-visit-busy="false"]');
     await page.click('[data-visit-action="desktop"]');await page.waitForSelector('#stage[data-browsing="true"]');
-    assert.deepEqual((await state(page)).camera,desk.camera);assert.deepEqual(errors,[]);
+    assert.deepEqual((await state(page)).camera,canyon.camera);assert.deepEqual(errors,[]);
     console.log('Office, five islands, reef, complete harbor-to-bookroom stair route, wall/ledge collision and room entry passed.');
   }finally{await page.close();}
 }
@@ -145,7 +154,7 @@ async function touch(browser){
   const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
   try{
     await page.goto(url+'?progress=1');await page.waitForSelector('#stage[data-browsing="true"]');
-    const desk=await state(page);await page.tap('#walk-start');await arrived(page,'orange-book');
+    await chooseDestination(page,'orange-book');const desk=await state(page);await page.tap('#walk-start');await arrived(page,'orange-book');
     const bar=page.locator('.scene-sticks');
     await bar.scrollIntoViewIfNeeded();
     const client=await page.context().newCDPSession(page);
@@ -166,8 +175,8 @@ async function touch(browser){
     await gesture('touchEnd',[]);
     assert.equal(await page.locator('[data-held]').count(),0);
     await page.tap('#walk-exit');assert.deepEqual((await state(page)).camera,desk.camera);
-    await page.selectOption('#explore-island','phone');
-    await page.getByRole('button',{name:'游览手机小镇'}).tap();await arrived(page,'phone');
+    await chooseDestination(page,'phone');
+    await page.getByRole('button',{name:'上岛游玩'}).tap();await arrived(page,'phone');
     const landing=await walk(page);
     await page.setViewportSize({width:844,height:390});
     await page.locator('#stage').scrollIntoViewIfNeeded();

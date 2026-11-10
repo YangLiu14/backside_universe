@@ -92,11 +92,12 @@ def build(destination, desk_only=False, screening_pack=False):
         manifest.append({'path': relative.as_posix(), 'bytes': len(data),
                          'sha256': hashlib.sha256(data).hexdigest()})
 
-    mobile_files = prepare_mobile_models(destination, selected)
+    from glb_textures import prepare_grotto_walk
+    generated = [prepare_grotto_walk(SOURCE, destination), *prepare_mobile_models(destination, selected)]
     if not desk_only:
         from glb_textures import prepare_mobile_museum_models
-        mobile_files.extend(prepare_mobile_museum_models(SOURCE, destination))
-    for file in mobile_files:
+        generated.extend(prepare_mobile_museum_models(SOURCE, destination))
+    for file in generated:
         data = file.read_bytes()
         manifest.append({'path': file.relative_to(destination).as_posix(), 'bytes': len(data),
                          'sha256': hashlib.sha256(data).hexdigest()})
@@ -178,6 +179,8 @@ if __name__ == '__main__':
     parser.add_argument('--screening-pack', action='store_true', help='Build the desk as a versioned album scene.')
     args = parser.parse_args()
     if args.prepare_mobile:
+        from glb_textures import prepare_grotto_walk
+        prepare_grotto_walk(SOURCE, SOURCE)
         prepare_mobile_models(SOURCE, select_assets(True, True))
         if (SOURCE / 'canine-museum/assets/transition/hi3d-orbit.glb').is_file():
             from glb_textures import prepare_mobile_museum_models

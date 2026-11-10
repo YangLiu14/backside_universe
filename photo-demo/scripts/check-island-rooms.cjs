@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const {baseURL,launchBrowser}=require('./marble-browser.cjs');
+const {baseURL,launchBrowser,chooseDestination}=require('./marble-browser.cjs');
 const url=baseURL+'/marble-transition-lab/index.html?progress=1';
 const walker=page=>page.evaluate(()=>window.__marbleTransition.state.walk);
 const rooms=[
@@ -71,7 +71,7 @@ async function main(){
   try{
     const page=await browser.newPage({viewport:{width:1280,height:880},reducedMotion:'reduce'});
     page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
-    await page.goto(url);await page.click('#walk-start');
+    await page.goto(url);await chooseDestination(page,'cup');await page.click('#walk-start');
     await approach(page,'cup','post');
     let intercepted,release;
     const arrived=new Promise(r=>{intercepted=r;}),hold=new Promise(r=>{release=r;});
@@ -142,7 +142,7 @@ async function main(){
     await page.close();
     const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'no-preference'});
     mobile.on('pageerror',e=>errors.push(e.message));
-    await mobile.goto(url);await mobile.tap('#walk-start');await approach(mobile,'phone','baths');
+    await mobile.goto(url);await chooseDestination(mobile,'phone');await mobile.tap('#walk-start');await approach(mobile,'phone','baths');
     await mobile.tap('#walk-room');
     await mobile.waitForFunction(()=>window.__marbleTransition.state.walk?.room==='baths'&&!document.querySelector('#walk-room').disabled);
     await mobile.locator('[data-stick=move]').waitFor({state:'visible'});await mobile.tap('#walk-room');

@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const {baseURL,launchBrowser} = require('./marble-browser.cjs');
+const {baseURL,launchBrowser,chooseDestination} = require('./marble-browser.cjs');
 
 async function sample(browser) {
   const context=await browser.newContext({viewport:{width:1280,height:800}});
@@ -38,19 +38,19 @@ async function checkEntry(browser){
     let requests=0;
     await page.route(casework,async route=>{requests++;signal();await gate;await route.continue();});
     await page.goto(baseURL+'/marble-transition-lab/index.html?progress=1');
-    await page.click('#enter-bookroom');await requested;
+    await chooseDestination(page,'grotto');await page.click('#enter-bookroom');await requested;
     await page.click('#home');release();
     await page.waitForFunction(()=>window.__marbleTransition.grotto.interior.book);
     assert.equal(await page.evaluate(()=>window.__marbleTransition.visit.state.stage),'desk');
-    await page.click('[data-progress="1"]');await page.click('#enter-bookroom');
+    await page.click('[data-progress="1"]');await chooseDestination(page,'grotto');await page.click('#enter-bookroom');
     await page.waitForSelector('#world[data-visit=terrace][data-visit-busy=false]');
     assert.equal(requests,1);
     // A missing desk must leave the overview usable and recover on retry.
     await page.route(desk,r=>r.fulfill({status:503,body:''}));
-    await page.reload();await page.click('#enter-bookroom');
+    await page.reload();await chooseDestination(page,'grotto');await page.click('#enter-bookroom');
     await page.waitForFunction(()=>document.querySelector('#visit-feedback').textContent.includes('重试'));
     assert.equal(await page.evaluate(()=>window.__marbleTransition.visit.state.stage),'desk');
-    await page.unroute(desk);await page.click('#enter-bookroom');
+    await page.unroute(desk);await chooseDestination(page,'grotto');await page.click('#enter-bookroom');
     await page.waitForSelector('#world[data-visit=terrace][data-visit-busy=false]');
   }finally{await page.close();}
 }

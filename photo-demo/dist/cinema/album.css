@@ -5,7 +5,6 @@
   --ink: #322a20;
   --page: #e8ddc6;
   --edge: clamp(20px, 5vw, 72px);
-  --max: 1200px;
   font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
   color: #f4e8ce;
   background: #181512;
@@ -21,7 +20,7 @@ button { font: inherit; }
   padding-bottom: clamp(32px, 5vw, 68px);
   background: radial-gradient(ellipse at 50% 72%, #40382d 0, #211e19 53%, #171512 90%);
 }
-.album-head, .booth-inner, .album-table { width: min(calc(100% - 2 * var(--edge)), var(--max)); margin-inline: auto; }
+.album-head, .booth-inner, .album-table { width: calc(100% - 2 * var(--edge)); margin-inline: auto; }
 .album-head {
   height: 61px;
   display: flex;

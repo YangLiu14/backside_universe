@@ -12,12 +12,20 @@ const settings={
   office:{eyeHeight:1.62},interior:{eyeHeight:1.55},reef:{size:.048,at:[.29,.36],toward:[.57,.54],height:.05},
 };
 
-async function indexMeshes(meshes,signal){
-  const missing=[...new Set(meshes.map(m=>m.geometry))].filter(g=>!cache.has(g));
+async function indexMeshes(geometries,signal){
+  const missing=[...new Set(geometries)].filter(g=>!cache.has(g));
   if(!missing.length)return;
   const data=missing.map(g=>{
     const p=g.attributes.position;
-    const positions=p.isInterleavedBufferAttribute?Float32Array.from({length:p.count*3},(_,i)=>p.getComponent(Math.floor(i/3),i%3)):p.array.slice();
+    let positions;
+    if(p.isInterleavedBufferAttribute){
+      positions=new Float32Array(p.count*3);
+      for(let i=0;i<p.count;i++){
+        positions[3*i]=p.getX(i);
+        positions[3*i+1]=p.getY(i);
+        positions[3*i+2]=p.getZ(i);
+      }
+    }else positions=p.array.slice();
     return {positions,indices:g.index?.array.slice()};
   });
   const worker=new Worker(new URL('./walk-worker.js',import.meta.url),{type:'module'});
@@ -37,17 +45,18 @@ async function indexMeshes(meshes,signal){
 
 // Navigation uses the actual tide-fitted exterior, including bridge undersides,
 // openings and independent overlapping floors. One BVH per shared geometry.
-export async function createIslandWalk({id,model,frame,camera,sea,aspect,reduced,signal,spawn}){
+export async function createIslandWalk({id,model,frame,camera,sea,aspect,reduced,signal,spawn,surfaceOverride}){
   const meshes=[];model.updateWorldMatrix(true,true);
   model.traverseVisible(o=>{
     if(!o.isMesh||o.name.includes('olive_foliage'))return;
     if(id==='reef'&&!['Rippled sand shelf','Limestone outcrops','Terraced plate coral','Branching coral'].includes(o.name))return;
     meshes.push(o);
   });
-  await indexMeshes(meshes,signal);
+  const geometries=meshes.map(mesh=>mesh===surfaceOverride?.mesh?surfaceOverride.geometry:mesh.geometry);
+  await indexMeshes(geometries,signal);
   const box=new T.Box3().setFromObject(model,true),parts=[];
-  for(const mesh of meshes){
-    const g=mesh.geometry;
+  for(const [i,mesh] of meshes.entries()){
+    const g=geometries[i];
     if(!g.boundingBox)g.computeBoundingBox();
     const add=matrix=>{
       const bounds=g.boundingBox.clone().applyMatrix4(matrix),inverse=matrix.clone().invert();

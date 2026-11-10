@@ -8,7 +8,7 @@ const travelKeys=new Set(['arrowleft','arrowright','arrowup','arrowdown','a','d'
 export const isTravelKey=key=>travelKeys.has(key);
 
 // Work in desk coordinates on both sides of the islands' tilted waterline.
-export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,reduced,enterCup}){
+export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,reduced}){
   const {surface,corners}=holiday;
   const limits=new THREE.Box3().setFromPoints(corners).expandByScalar(1.35);
   const cup=objects.group.getObjectByName('cup-wall');
@@ -23,6 +23,7 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     ['cup',{root:cup,bounds:wetBounds(cupBounds,cupDraft)}],
   ]);
   const roots=new Map([...destinations].map(([id,d])=>[d.root,id]));
+  roots.set(holiday.ocean.root,'reef');roots.set(holiday.table,'reef');
   roots.set(holiday.grotto.root,'grotto');roots.set(holiday.group,'cup');
   for(const mesh of objects.meshes){
     if(mesh.userData.kind==='cup')roots.set(mesh,'cup');
@@ -166,7 +167,6 @@ export function createDeskExplore(camera,holiday,objects,dreamScene,{changed,red
     else{keys.delete(key);if(!keys.size)clearKeys();}
   }
   function focus(id){
-    if(id==='cup'&&enterCup())return;
     if(id==='reef')return move(holiday.ocean.diveView());
     const item=destinations.get(id);
     if(!item)return;
@@ -247,7 +247,7 @@ export function exploreGestures(canvas,controls,onIslandTap){
     if(p?.tap&&e.type==='pointerup'&&p.start.distanceTo(new THREE.Vector2(e.clientX,e.clientY))<5){
       const r=canvas.getBoundingClientRect();
       const id=controls.pick(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,1-(e.clientY-r.top)/r.height*2));
-      if(id)onIslandTap(id);
+      onIslandTap(id);
     }
   }
   function clear(){

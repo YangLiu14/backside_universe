@@ -1,9 +1,9 @@
 const assert=require('node:assert/strict');
-const {launchBrowser,baseURL}=require('./marble-browser.cjs');
+const {launchBrowser,baseURL,chooseDestination}=require('./marble-browser.cjs');
 const phase=(page,name)=>page.waitForSelector('#stage[data-harbor="'+name+'"]');
 const view=page=>page.evaluate(()=>window.__marbleTransition.state.camera);
 async function enter(page,id,stage){
-  await page.selectOption('#explore-island',id);
+  await chooseDestination(page,id);
   await page.waitForTimeout(650);
   const origin=await view(page);
   await page.click('#enter-island-story');await phase(page,stage);
@@ -91,7 +91,7 @@ async function tour(browser,touch){
     const pre=await view(page);await drag(sail,43,0);assert.notDeepEqual(await view(page),pre);
     await page.click('#harbor-exit');assert.deepEqual(await view(page),origin);assert(await slider.isHidden());
 
-    await page.selectOption('#explore-island','cup');await phase(page,'note');await page.click('#harbor-action');await phase(page,'boat');
+    await chooseDestination(page,'cup');await page.click('#enter-island-story');await phase(page,'note');await page.click('#harbor-action');await phase(page,'boat');
     const originalPaper=await page.evaluate(()=>window.__marbleTransition.dreamScene.getObjectByName('Harbor note and folded paper boat').uuid);
     await page.click('#harbor-action');await phase(page,'farewell');await page.click('#harbor-exit');
     assert.equal(await page.evaluate(()=>window.__marbleTransition.dreamScene.getObjectByName('Paper boat at sea').children[0].uuid),originalPaper);
@@ -121,7 +121,7 @@ async function tour(browser,touch){
       });
       return {level:app.islands.find(e=>e.id==='orange-book').level,faces,maxMap};
     });
-    assert(canyon.level==='hd'&&canyon.faces>=300000&&canyon.maxMap===4096,'close-up geometry and color atlas must actually be drawn');
+    assert(canyon.level==='hd'&&canyon.faces>=300000&&canyon.maxMap===(touch?1024:4096),'render the full geometry with the device-specific color atlas: '+JSON.stringify(canyon));
     if(touch){await drag(await subject(page,'Woven orange bookmark'),0,75,true);await phase(page,'bookmark');await page.evaluate(async()=>{for(let i=0;i<3;i++)await new Promise(requestAnimationFrame);});}
     const bookView=await view(page);
     await drag(await subject(page,'Woven orange bookmark'),1,75);await phase(page,'resting');

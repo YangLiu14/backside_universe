@@ -1,6 +1,6 @@
 // Exercise the live framebuffer after the camera and all island LODs have settled.
 const assert = require('node:assert/strict');
-const {baseURL, launchBrowser} = require('./marble-browser.cjs');
+const {baseURL, launchBrowser,chooseDestination} = require('./marble-browser.cjs');
 const url = baseURL + '/marble-transition-lab/index.html';
 const oceanName = 'Ocean beneath the desk';
 const pose = page => page.evaluate(() => window.__marbleTransition.state.camera);
@@ -70,7 +70,11 @@ async function tour(browser, mobile) {
     await page.goto(url);
     await ready(page);
     const source = await pose(page);
-    assert.equal(await page.evaluate(n => window.__marbleTransition.dreamScene.getObjectByName(n).children.length, oceanName), 0);
+    const initialOcean=await page.evaluate(n=>{
+      const ocean=window.__marbleTransition.dreamScene.getObjectByName(n);
+      return {visible:ocean.visible,prepared:!!ocean.getObjectByName('Reef shoal')};
+    },oceanName);
+    assert.deepEqual(initialOcean,{visible:false,prepared:true},'the ocean is prewarmed behind the opening photo');
     await page.click('[data-progress="1"]');
     await page.waitForSelector('#stage[data-browsing=true]');
     await page.waitForFunction(() => window.__marbleTransition.islands.every(e => e.amount === 1));
@@ -89,7 +93,7 @@ async function tour(browser, mobile) {
     const still = await framePair(page, true);
     assert(still.stableCamera && still.changed === 0 && still.fishFrames === 0, JSON.stringify(still));
 
-    await page.selectOption('#explore-island', 'reef');
+    await chooseDestination(page,'reef');
     await page.waitForFunction(() => window.__marbleTransition.camera.position.y < .7);
     const dive = await pose(page);
     assert(dive[13] < overview[13] - .1);
