@@ -13,6 +13,7 @@ const stops=[
 ];
 
 export function createStoryTour({bar,button,exit,position,title,label,location,open,act,onExit}){
+  const experience=bar.closest('.experience'),stopInfo=bar.querySelector('.tour-location');
   let index=-1,trip=null,error=false,finished=false,startingCycle=0;
   function instruction(here){
     if(index<0)return [finished?'再游览一次':'跟随故事','start'];
@@ -28,12 +29,14 @@ export function createStoryTour({bar,button,exit,position,title,label,location,o
     const here=location();
     if(index===stops.length-1&&here.cycles>startingCycle){index=-1;finished=true;error=false;}
     const active=index>=0;
-    bar.parentElement.classList.toggle('guided-tour',active);
+    experience.classList.toggle('guided-tour',active);
     bar.hidden=here.embedded||(!active&&!!here.id);
     exit.hidden=!active;
-    position.hidden=!active;
-    if(active)position.textContent=(index+1)+' / '+stops.length;
-    title.textContent=error?stops[index].name+'暂未载入':active?stops[index].name:finished?'已回到最初的工位':'从工位出发，游览五站';
+    stopInfo.hidden=!active;
+    if(active){
+      position.textContent=(index+1)+' / '+stops.length;
+      title.textContent=stops[index].name+(error?'暂未载入':'');
+    }
     const [text,command]=instruction(here);
     label.textContent=text;
     button.setAttribute('aria-disabled',String(!here.ready||!command));

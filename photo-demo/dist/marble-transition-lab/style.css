@@ -148,21 +148,24 @@ body.book-portal{height:100vh;overflow:hidden}
 #port-sound{border:1px solid #738176;background:transparent}
 @media(max-width:700px){#harbor-controls:has(#port-sound:not([hidden])){flex-wrap:wrap}#harbor-controls:has(#port-sound:not([hidden])) #harbor-hint{flex-basis:100%}}
 
-.story-tour{display:flex;align-items:center;gap:16px;min-height:61px;padding:8px 18px;background:#203129;border-bottom:1px solid #46584c}
+#desk-transport{display:contents}
+#screen-controls:has(>#desk-transport[hidden]):has(>#story-tour[hidden]){display:none}
+.story-tour{display:flex;align-items:center;gap:16px}
+.guided-tour .story-tour{flex:1;min-width:0}
 .tour-location{display:flex;align-items:baseline;gap:12px;flex:1;min-width:0;font-size:14px;color:#e5e6d8}
 #tour-position{white-space:nowrap;color:#bdc7b7;font:12px/1.2 ui-monospace,monospace}
 .story-tour button{min-height:42px;border-radius:5px;font:inherit;font-size:13px}
-#tour-next{display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:144px;padding:9px 15px;border:1px solid #e9dfbd;background:#eee4c9;color:#23372e;font-weight:600}
+#tour-next{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 15px;border:1px solid #e9dfbd;background:#eee4c9;color:#23372e;font-weight:600}
 #tour-next svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.5;fill:none}
 #tour-next[aria-disabled=true]{cursor:default;background:#cccfbb;border-color:#cccfbb}
 #tour-exit{padding:6px 2px;color:#d7dfcf;background:transparent;border:0}
 .guided-tour :is(#desk-transport,#daylight-tools,#explore-tools,#enter-bookroom,#enter-island-story,#harbor-action,#harbor-exit,#visit-transport,#gesture){display:none}
 .book-portal .story-tour{display:none}
 @media(max-width:700px){
-  .story-tour{padding:6px 10px;gap:10px}
+  .story-tour{gap:10px}
   .tour-location{flex-direction:column;gap:3px;font-size:13px}
   .story-tour button{min-height:44px}
-  #tour-next{min-width:112px;padding:9px 10px;gap:7px}
+  #tour-next{padding:9px 10px;gap:7px}
   #tour-exit{font-size:12px}
 }
 .guided-tour #harbor-controls:has(#harbor-hint:empty):has(#port-sound[hidden]),main:has(.guided-tour) .inspection{display:none}
@@ -187,14 +190,65 @@ body.book-portal{height:100vh;overflow:hidden}
 #crossing-veil canvas{display:block;width:100%;height:100%}
 #stage[data-crossing] #harbor-ending,.guided-tour:has(#stage[data-crossing]) #harbor-controls{visibility:hidden}
 
-#walk-tools{display:flex;align-items:center;gap:12px;padding:12px 18px;flex-wrap:wrap}
-#walk-tools button,#walk-tools select,#harbor-walk{font:inherit;font-size:12px;border:1px solid #667b6c;border-radius:4px;background:#283b32;color:#f1ebda;min-height:44px;padding:0 12px}
-#walk-hint{flex:1;color:#c1cbbd;font-size:12px}
-.guided-tour #harbor-walk,.book-portal :is(#harbor-walk,#walk-start),.experience:has(#stage[data-walk]) :is(#story-tour,#explore-tools,#enter-bookroom,#enter-island-story,#gesture,#desk-transport,#harbor-controls,#daylight-tools){display:none}
+#harbor-walk{font:inherit;font-size:12px;border:1px solid #667b6c;border-radius:4px;background:#283b32;color:#f1ebda;min-height:44px;padding:0 12px}
+#walk-tools{
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+  grid-template-areas:"place sights actions" "places places places" "hint hint hint";
+  align-items:center;column-gap:clamp(16px,2vw,32px);
+  padding:12px clamp(12px,2.2vw,30px);border-top:1px solid var(--edge);
+}
+#walk-tools button{min-height:44px;border:0;background:transparent;color:var(--ivory);font:inherit}
+#walk-place{grid-area:place;display:flex;align-items:center;justify-self:start;gap:9px;padding:4px 0}
+#walk-place svg{flex:none;color:var(--gold)}
+#walk-place-name{font:600 16px/1.3 var(--serif);text-align:start}
+#walk-place:not(:disabled)::after{
+  content:"";width:6px;height:6px;margin:-3px 3px 0 0;flex:none;
+  border:solid var(--dim);border-width:0 1px 1px 0;transform:rotate(45deg);
+}
+#walk-place[aria-expanded=true]::after{transform:rotate(225deg);margin-top:4px}
+#walk-place:disabled{opacity:1;cursor:default}
+#walk-islands{grid-area:places;display:flex;flex-wrap:wrap;gap:0 16px;margin:8px 0;border-block:1px solid var(--edge)}
+#walk-islands button,.walk-actions button{padding:4px;font-size:13px}
+#walk-islands button:disabled{color:var(--gold);opacity:1;cursor:default;text-decoration:underline;text-underline-offset:5px}
+#walk-sights{grid-area:sights;display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+#walk-sights .walk-sight{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;align-items:center;
+  flex:0 1 auto;min-width:min(10rem,100%);max-width:100%;padding:9px 14px;gap:4px 12px;
+  text-align:start;border:1px solid var(--edge);background:#26241e;border-radius:2px;
+}
+.walk-sight strong{font:550 17px/1.3 var(--serif);overflow-wrap:anywhere}
+.sight-action{grid-row:2;color:var(--dim);font-size:12px;line-height:1.3}
+.walk-sight svg{grid-area:1/2/3/3;width:17px;color:var(--gold)}
+#walk-sights .walk-sight[aria-current=location]{background:var(--gold);color:var(--screen);border-color:var(--gold)}
+.walk-sight[aria-current=location] :is(svg,.sight-action){color:inherit}
+#walk-sights .walk-sight[aria-disabled=true]{opacity:.65;cursor:wait}
+.walk-actions{grid-area:actions;display:flex;align-items:center;flex-wrap:wrap;gap:0 12px}
+#walk-tools .walk-actions button{font-size:13px;color:var(--dim)}
+#walk-tools #walk-room-exit{color:var(--gold)}
+#walk-hint{grid-area:hint;color:var(--dim);font-size:12px;line-height:1.5;margin-top:8px}
+#walk-hint:empty{display:none}
+@media(hover:hover){
+  #walk-sights .walk-sight:hover:not([aria-disabled=true]){border-color:var(--gold)}
+  #walk-islands button:enabled:hover,#walk-place:enabled:hover,#walk-tools .walk-actions button:enabled:hover{color:var(--gold);text-decoration:underline;text-underline-offset:4px}
+}
+@media(max-width:700px),(max-width:860px) and (orientation:portrait){
+  #walk-tools{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"place hint" "places places" "sights sights" "actions actions";gap:0 12px;padding:6px 12px}
+  #walk-hint{text-align:end;margin:0}
+  #walk-sights .walk-sight{flex:1 1 8rem;min-width:0}
+  #walk-sights{padding-block:4px}
+  .walk-actions{justify-content:space-between}
+}
+@media(max-width:480px){
+  :lang(en) #walk-tools{grid-template-areas:"place place" "places places" "sights sights" "actions actions" "hint hint"}
+  :lang(en) #walk-hint{text-align:start;margin-bottom:4px}
+  :lang(en) #walk-sights .walk-sight{flex-basis:100%;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;padding:8px 10px}
+  :lang(en) .walk-sight .sight-action{grid-area:1/2}
+  :lang(en) .walk-sight svg{grid-area:1/3}
+  :lang(en) .walk-actions{gap:0 2px}
+}
+.guided-tour #harbor-walk,.book-portal :is(#harbor-walk,#walk-start),.experience:has(#stage[data-walk]) :is(#screen-controls,#explore-tools,#enter-bookroom,#enter-island-story,#gesture,#harbor-controls,#daylight-tools){display:none}
 main:has(#stage[data-walk]) .inspection{display:none}
-@media(max-width:700px){#explore-tools{max-width:calc(100% - 24px);flex-wrap:wrap;justify-content:flex-end}#walk-tools{gap:6px;padding:8px}#walk-hint{order:1;flex-basis:100%}.stage[data-browsing=true] .scene-caption{display:none}}
+@media(max-width:700px){#explore-tools{max-width:calc(100% - 24px);flex-wrap:wrap;justify-content:flex-end}.stage[data-browsing=true] .scene-caption{display:none}}
 
 @media(pointer:fine){#stage[data-walk] #visit-move-pad{display:none}}
 #room-veil{position:absolute;inset:0;background:#242922;opacity:0;pointer-events:none;z-index:4}
-#walk-room-choice{max-width:100%}
-#walk-room:not([hidden]){background:#c6d9bd;color:#23382b}

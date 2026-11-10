@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const {baseURL,launchBrowser,chooseDestination}=require('./marble-browser.cjs');
+const {baseURL,launchBrowser,chooseDestination,switchWalkIsland}=require('./marble-browser.cjs');
 const url=baseURL+'/marble-transition-lab/index.html';
 const state=page=>page.evaluate(()=>window.__marbleTransition.state);
 const walk=page=>page.evaluate(()=>window.__marbleTransition.state.walk);
@@ -125,7 +125,7 @@ async function desktop(browser){
     await page.click('#explore-overview');assert(await page.locator('#walk-start').isHidden());
     await chooseDestination(page,'orange-book');const canyon=await state(page);await page.click('#walk-start');
     for(const id of ['orange-book','cup','blue-book','phone','reef','grotto']){
-      if(id!=='orange-book')await page.selectOption('#walk-place',id);
+      await switchWalkIsland(page,id);
       await arrived(page,id);await page.locator('#world').focus();
       if(id==='grotto')await checkStairView(page);
       const at=await walk(page);await page.keyboard.down('w');

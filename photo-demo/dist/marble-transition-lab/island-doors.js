@@ -74,7 +74,7 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
   doors.forEach(d=>exterior.add(d.group));exterior.updateMatrixWorld(true);
   const cast=new T.Raycaster(),keys=new Set(),leafMaterials=new Set();
   let choice=doors[0],mode='outside',room=null,inside=null,roomCamera=null,sky=null,preview=null;
-  let transition=null,pending=null,disposed=false,lastNear=false,notice='',arrivalAnchor=null,manualChoice=false,entryFoot=null;
+  let transition=null,pending=null,disposed=false,lastNear=false,notice='',arrivalAnchor=null,entryFoot=null;
   function near(d=choice){
     const p=camera.position,dx=p.x-d.sill.x,dz=p.z-d.sill.z;
     return Math.hypot(dx,dz)<d.height*1.72&&dx*d.facing.x+dz*d.facing.z>=-d.scale*.15
@@ -88,14 +88,10 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
     const landing=away&&entryFoot?.door===d?entryFoot.position:
       d.sill.clone().addScaledVector(d.facing,d.height*(d.id==='library'?.37:1.10));
     const target=away?landing.clone().addScaledVector(d.facing,d.height):d.aim;
-    outside.relocate(landing,target,away?-.05:null);arrivalAnchor=camera.position.clone();manualChoice=false;
+    outside.relocate(landing,target,away?-.05:null);arrivalAnchor=camera.position.clone();
     if(away)entryFoot=null;
   }
   function atDoor(){return near()||(arrivalAnchor&&camera.position.distanceTo(arrivalAnchor)<choice.height*.26);}
-  function select(key){
-    if(mode!=='outside'||transition||pending)return;
-    choice=doors.find(d=>d.key===key)||choice;manualChoice=true;arrivalAnchor=null;notice='';changed();
-  }
   function cleanupRoom(){
     for(const d of doors){if(!d.pane)continue;d.pane.material.map=null;d.pane.material.color.set(0x332e29);d.pane.material.needsUpdate=true;d.pane.visible=!d.open;if(d.hinge)d.hinge.rotation.y=0;}
     room?.dispose();room=null;inside=null;roomCamera=null;
@@ -149,19 +145,25 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
       inside=await createIslandWalk({id:'interior',model:room.model,camera:roomCamera,aspect,reduced,
         sea:()=>-Infinity,signal:request.signal,spawn:{start:v(0,floor,-.88),aim:v(0,floor,-3),pitch:-.055}});
       if(request.signal.aborted)return;
-      inside.tick(0);makeView();notice=dressing.failed.length?'部分家具使用基础模型，重新进门会再加载。':'';manualChoice=false;
+      inside.tick(0);makeView();notice=dressing.failed.length?'部分家具使用基础模型，重新进门会再加载。':'';
       entryFoot={door:choice,position:new T.Vector3().fromArray(outside.state.foot)};
       transition={action:'enter',time:0,position:camera.position.clone(),rotation:camera.quaternion.clone(),floor};
       if(reduced())tick(duration);
     }catch(err){unattached?.dispose();if(!request.signal.aborted){cleanupRoom();notice='房间暂时未能打开，可以再试一次。';console.error(err);}}
     finally{if(pending===request)pending=null;if(!disposed)changed();}
   }
+  function approach(key){
+    const target=doors.find(d=>d.key===key);
+    if(!target||disposed||pending||transition||mode!=='outside')return;
+    choice=target;arrivalAnchor=null;
+    outside.clear();notice='';transition={action:'approach',time:0,moved:false};
+    if(reduced())tick(duration);changed();
+  }
   function action(){
     if(disposed||pending||transition)return;
     if(mode==='inside'){exitRoom();return;}
     if(atDoor()){enter();return;}
-    outside.clear();notice='';transition={action:'approach',time:0,moved:false};
-    if(reduced())tick(duration);changed();
+    approach(choice.key);
   }
   function exitRoom(){
     if(mode!=='inside'||transition)return;
@@ -206,7 +208,7 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
       outside.tick(dt,sticks);
       if(pending)return;
       const nearby=doors.filter(d=>near(d)).sort((a,b)=>a.aim.distanceToSquared(camera.position)-b.aim.distanceToSquared(camera.position));
-      if(nearby.length&&!manualChoice&&!arrivalAnchor&&choice!==nearby[0]){choice=nearby[0];changed();}
+      if(nearby.length&&!arrivalAnchor&&choice!==nearby[0]){choice=nearby[0];changed();}
       if(arrivalAnchor&&camera.position.distanceTo(arrivalAnchor)>choice.height*.32)arrivalAnchor=null;
       const now=!!atDoor();if(now!==lastNear){lastNear=now;changed();}
       if((keys.has('w')||keys.has('arrowup')||sticks?.move.y<-.15)&&nearby.includes(choice)){
@@ -232,7 +234,7 @@ export function withIslandDoors({outside,frame,camera,world,renderer,aspect,redu
     if(hit.distance>d.height*3||camera.position.clone().sub(d.sill).dot(d.facing)<-d.scale*.15)return;
     choice=d;enter();
   }
-  return {id:outside.id,tick,action,select,hitDoor,
+  return {id:outside.id,tick,action,approach,hitDoor,
     get busy(){return Boolean(transition||pending);},
     get rooms(){return doors;},get scene(){return mode==='inside'?room?.scene:null;},
     get info(){return {key:choice.key,name:choice.name,inside:mode==='inside',near:!!atDoor(),busy:!!(transition||pending),notice};},

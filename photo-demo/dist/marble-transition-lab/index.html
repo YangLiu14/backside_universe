@@ -55,27 +55,42 @@
       </div>
     </div>
     <nav id="walk-tools" aria-label="第一人称漫步" hidden>
-      <select id="walk-place" aria-label="步行地点"><option value="office">3DGS 工位</option><option value="reef">桌下海底</option><option value="cup">蓝杯港湾</option><option value="blue-book">蓝书白崖</option><option value="orange-book">橙书峡谷</option><option value="phone">手机潮港</option><option value="grotto">电脑洞窟</option></select>
+      <button id="walk-place" type="button" aria-expanded="false" aria-controls="walk-islands" title="切换岛屿">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 5 6-2 6 3 6-2v15l-6 2-6-3-6 2zM9 3v15m6-12v15"/></svg>
+        <span id="walk-place-name"></span>
+      </button>
+      <div id="walk-islands" role="group" aria-label="切换岛屿" hidden></div>
+      <div id="walk-sights" role="group" aria-label="岛上景点" hidden></div>
+      <template id="walk-sight-template">
+        <button type="button" class="walk-sight">
+          <strong></strong><span class="sight-action"></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>
+        </button>
+      </template>
+      <div class="walk-actions">
+        <button id="walk-room-exit" type="button" hidden>出门回到岛上</button>
+        <button id="walk-story" type="button">体验本站故事</button>
+        <button id="walk-exit" type="button">返回群岛</button>
+      </div>
       <span id="walk-hint" role="status"></span>
-      <select id="walk-room-choice" aria-label="岛上的房间" hidden></select>
-      <button id="walk-room" hidden>前往门口</button>
-      <button id="walk-story">体验本站故事</button><button id="walk-exit">返回群岛</button>
     </nav>
     <div id="daylight-tools" hidden>
       <label for="lamp-position">长臂台灯</label><span>日出</span>
       <input id="lamp-position" type="range" min="0" max="1000" step="1" value="260" aria-label="移动灯头，调节群岛日照">
       <span>日落</span><output id="lamp-time" for="lamp-position"></output>
     </div>
-    <div class="transport" id="desk-transport">
-      <button id="play" disabled aria-label="开始放映" aria-pressed="false"><span id="play-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></svg></span><span id="play-label">开始放映</span></button>
-      <div class="timeline"><div class="ticks"><button data-progress="0" disabled>实景</button><button data-progress="0.32" disabled>交界</button><button data-progress="1" disabled>背面的假期</button></div><input id="progress" type="range" min="0" max="1000" step="1" value="0" disabled aria-label="转场进度"></div>
-      <output id="elapsed">0.0 / 4.8 s</output><button id="office-walk" hidden>工位漫步</button><button id="home" disabled aria-label="回到实景"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/></svg><span>回到实景</span></button>
+    <div class="transport" id="screen-controls">
+      <div id="desk-transport">
+        <button id="play" disabled aria-label="开始放映" aria-pressed="false"><span id="play-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></svg></span><span id="play-label">开始放映</span></button>
+        <div class="timeline"><div class="ticks"><button data-progress="0" disabled>实景</button><button data-progress="0.32" disabled>交界</button><button data-progress="1" disabled>背面的假期</button></div><input id="progress" type="range" min="0" max="1000" step="1" value="0" disabled aria-label="转场进度"></div>
+        <output id="elapsed">0.0 / 4.8 s</output><button id="office-walk" hidden>工位漫步</button><button id="home" disabled aria-label="回到实景"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/></svg><span>回到实景</span></button>
+      </div>
+      <nav id="story-tour" class="story-tour" aria-label="群岛故事导览">
+        <div class="tour-location" role="status" hidden><span id="tour-position"></span><span id="tour-title"></span></div>
+        <button id="tour-exit" hidden>退出导览</button>
+        <button id="tour-next" aria-disabled="true"><span id="tour-label">跟随故事</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13m-5-5 5 5-5 5"/></svg></button>
+      </nav>
     </div>
-    <nav id="story-tour" class="story-tour" aria-label="群岛故事导览">
-      <div class="tour-location" role="status"><span id="tour-position" hidden></span><span id="tour-title">从工位出发，游览五站</span></div>
-      <button id="tour-exit" hidden>退出导览</button>
-      <button id="tour-next" aria-disabled="true"><span id="tour-label">跟随故事</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13m-5-5 5 5-5 5"/></svg></button>
-    </nav>
     <nav id="harbor-controls" aria-label="蓝杯港湾" hidden>
       <p id="harbor-hint" role="status"></p>
       <div id="scope-optics" hidden>

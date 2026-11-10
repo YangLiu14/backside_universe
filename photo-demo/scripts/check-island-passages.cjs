@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const {baseURL,launchBrowser,chooseDestination}=require('./marble-browser.cjs');
+const {baseURL,launchBrowser,chooseDestination,switchWalkIsland}=require('./marble-browser.cjs');
 
 async function checkIsland(id){
   const T=await import('three');
@@ -116,7 +116,7 @@ async function checkIsland(id){
     await page.goto(baseURL+'/marble-transition-lab/index.html?progress=1');
     await chooseDestination(page,'cup');await page.click('#walk-start');
     for(const id of ['cup','blue-book','orange-book','phone','grotto']){
-      await page.selectOption('#walk-place',id);await page.waitForFunction(id=>window.__marbleTransition.state.walk?.id===id,id);
+      await switchWalkIsland(page,id);await page.waitForFunction(id=>window.__marbleTransition.state.walk?.id===id,id);
       if(fallback&&['blue-book','orange-book','phone'].includes(id)){
         assert.equal(await page.evaluate(id=>window.__marbleTransition.islands.find(i=>i.id===id).level,id),'near');
       }

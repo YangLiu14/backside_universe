@@ -21,4 +21,10 @@ async function chooseDestination(page, id) {
   await page.click(`[data-destination="${id}"]`);
 }
 
-module.exports = {baseURL, launchBrowser, chooseDestination};
+async function switchWalkIsland(page, id) {
+  if (await page.locator('#stage').getAttribute('data-walk') === id) return;
+  await page.click('#walk-place');
+  await page.click(`[data-walk-place="${id}"]`);
+}
+
+module.exports = {baseURL, launchBrowser, chooseDestination, switchWalkIsland};

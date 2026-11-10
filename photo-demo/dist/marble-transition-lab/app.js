@@ -1,4 +1,4 @@
-import {t,onLanguageChange} from '../i18n/core.js';
+import {t,sourceText,onLanguageChange} from '../i18n/core.js';
 import {createModelPreparation} from '../cinema/prepare-model.js';
 import {createJoysticks} from '../cinema/joysticks.js';
 import {onRoomVisibility,roomVisible,resizeScreen} from '../cinema/room.js';
@@ -63,6 +63,14 @@ const tour=createStoryTour({
 });
 tour.refresh();
 const destinationButtons=new Map([...document.querySelectorAll('[data-destination]')].map(button=>[button.dataset.destination,button]));
+const walkPlaces=new Map([['office','3DGS 工位']]);
+for(const [id,entry] of destinationButtons){
+  const name=sourceText(entry.textContent);
+  walkPlaces.set(id,name);
+  const button=document.createElement('button');
+  button.type='button';button.dataset.walkPlace=id;button.textContent=name;
+  $('walk-islands').append(button);
+}
 let selectedDestination='',walkPreparation=null;
 
 function showDirectory(open){
@@ -549,16 +557,29 @@ function beginBrowseInput(){
  if(entryFeedback){entryFeedback=false;browseUI();}
 }
 function roomUI(){
- const info=walker?.info,menu=$('walk-room-choice'),action=$('walk-room');
- menu.hidden=!info||info.inside||walker.rooms.length<2;action.hidden=!info;
+ const info=walker?.info,sights=$('walk-sights');
+ sights.hidden=!info||info.inside;
+ $('walk-room-exit').hidden=!info?.inside;
  $('walk-story').hidden=!!info?.inside;
  if(!info)return;
- menu.value=info.key;menu.disabled=info.busy;action.disabled=info.busy;$('walk-story').disabled=info.busy;
- const label=menu.hidden?info.name:'';
- action.textContent=info.inside?'出门回到岛上':info.near?'进入'+info.name:'前往'+label+'门口';
- $('phase').textContent=info.inside?info.name:$('walk-place').selectedOptions[0].textContent+' · 漫步';
- $('walk-hint').textContent=info.notice||(info.inside?'步行探索，走出门口或按 Esc 返回岛上。':info.near?'点门或按 E 进入。':matchMedia('(pointer:coarse)').matches?'左摇杆移动，右摇杆环顾。':'WASD 或方向键步行，拖动或 IJKL 环顾。');
+ for(const button of sights.children){
+   const atDoor=info.key===button.dataset.sight&&info.near;
+   if(atDoor)button.setAttribute('aria-current','location');else button.removeAttribute('aria-current');
+   button.setAttribute('aria-disabled',String(info.busy));
+   button.querySelector('.sight-action').textContent=atDoor?'进入参观':'前往门口';
+ }
+ $('walk-room-exit').disabled=info.busy;$('walk-story').disabled=info.busy;
+ $('phase').textContent=info.inside?info.name:walkPlaces.get(walker.id)+' · 漫步';
+ const touch=matchMedia('(pointer:coarse)').matches;
+ let hint=touch?'左摇杆移动，右摇杆环顾。':'WASD 或方向键步行，拖动或 IJKL 环顾。';
+ if(info.inside)hint=touch?'走出门口即可返回岛上。':'步行探索，走出门口或按 Esc 返回岛上。';
+ else if(info.near)hint=touch?'点门或点「进入参观」。':'点门或按 E 进入。';
+ $('walk-hint').textContent=info.notice||hint;
  stage.dataset.room=info.inside?info.key:'';
+}
+function showWalkPlaces(open){
+ $('walk-islands').hidden=!open;
+ $('walk-place').setAttribute('aria-expanded',String(open));
 }
 function discardWalk(){
  walker?.clear();walker?.dispose?.();walker=null;
@@ -635,11 +656,14 @@ async function startWalk(id){
  walkOrigin??=camera.clone();walkRequest?.abort();
  const token=new AbortController();walkRequest=token;discardWalk();
  const {signal}=token;
- stage.dataset.walk=id;stage.dataset.browsing='false';$('walk-tools').hidden=false;$('walk-place').value=id;$('walk-story').disabled=true;
- for(const opt of $('walk-place').options){opt.hidden=(id==='office')!==(opt.value==='office');opt.disabled=opt.hidden;}
+ stage.dataset.walk=id;stage.dataset.browsing='false';$('walk-tools').hidden=false;$('walk-story').disabled=true;
+ showWalkPlaces(false);
+ $('walk-place-name').textContent=walkPlaces.get(id);
+ $('walk-place').disabled=id==='office';
+ for(const button of $('walk-islands').children)button.disabled=button.dataset.walkPlace===id;
  $('walk-story').textContent=({grotto:'走进书屋',reef:'回到海面',office:'绕到群岛'})[id]||'体验本站故事';
  $('walk-exit').textContent=id==='office'?'返回工位全景':'返回群岛';
- $('landing-name').textContent=$('walk-place').selectedOptions[0].textContent;
+ $('landing-name').textContent=walkPlaces.get(id);
  $('landing-status').hidden=false;$('walk-hint').textContent='';$('visit-move-pad').hidden=true;
  $('phase').textContent='第一人称漫步';$('angle').hidden=true;$('explore-help').hidden=true;
  canvas.setAttribute('aria-label','第一人称漫步。WASD 或方向键步行，拖动或 IJKL 环顾，Esc 返回全景。');
@@ -668,9 +692,14 @@ async function startWalk(id){
     dayColor:holiday.daylight.color,modelLoader,bookroom,changed:roomUI,veil:value=>{$('room-veil').style.opacity=String(value);}});
   }
   walker.tick(0);$('landing-status').hidden=true;$('visit-move-pad').hidden=false;$('walk-story').disabled=false;
-  $('phase').textContent=$('walk-place').selectedOptions[0].textContent+' · 漫步';
+  $('phase').textContent=walkPlaces.get(id)+' · 漫步';
   $('walk-hint').textContent=matchMedia('(pointer:coarse)').matches?'左摇杆移动，右摇杆环顾。':'WASD 或方向键步行，拖动或 IJKL 环顾。';
-  $('walk-room-choice').replaceChildren(...(walker.rooms||[]).map(r=>new Option(r.name,r.key)));roomUI();
+  $('walk-sights').replaceChildren(...(walker.rooms||[]).map(room=>{
+    const button=$('walk-sight-template').content.firstElementChild.cloneNode(true);
+    button.dataset.sight=room.key;button.querySelector('strong').textContent=room.name;
+    return button;
+  }));
+  roomUI();
   canvas.focus({preventScroll:true});
  }catch(error){if(!signal.aborted){leaveWalk();entryFeedback=true;browseUI();$('visit-feedback').textContent='步行入口未能打开。请重新选择岛屿后再试。';console.error(error);}}
 }
@@ -679,9 +708,22 @@ $('walk-start').addEventListener('click',()=>{
  if(selectedDestination&&browsing())startWalk(selectedDestination);
 });
 $('harbor-walk').addEventListener('click',()=>startWalk(islandVisit?.id||'cup'));
-$('walk-place').addEventListener('change',e=>startWalk(e.target.value));
-$('walk-room-choice').addEventListener('change',e=>walker?.select?.(e.target.value));
-$('walk-room').addEventListener('click',()=>{walker?.action?.();canvas.focus({preventScroll:true});});
+$('walk-place').addEventListener('click',()=>showWalkPlaces($('walk-islands').hidden));
+$('walk-islands').addEventListener('click',event=>{
+ const button=event.target.closest('[data-walk-place]');
+ if(button)startWalk(button.dataset.walkPlace);
+});
+$('walk-sights').addEventListener('click',event=>{
+ const button=event.target.closest('[data-sight]'),info=walker?.info;
+ if(!button||!info||info.busy||info.inside)return;
+ if(info.near&&info.key===button.dataset.sight){
+   walker.action();canvas.focus({preventScroll:true});
+ }else{
+   walker.approach(button.dataset.sight);
+   if(event.detail)canvas.focus({preventScroll:true});
+ }
+});
+$('walk-room-exit').addEventListener('click',()=>{walker?.action?.();canvas.focus({preventScroll:true});});
 $('walk-exit').addEventListener('click',leaveWalk);
 $('walk-story').addEventListener('click',()=>{
  if(!walker)return;
@@ -708,6 +750,7 @@ $('destination-list').addEventListener('click',event=>{
 });
 document.addEventListener('pointerdown',event=>{
   if(!$('destination-list').hidden&&!event.target.closest('#explore-tools'))showDirectory(false);
+  if(!$('walk-islands').hidden&&!event.target.closest('#walk-place,#walk-islands'))showWalkPlaces(false);
 });
 $('explore-tools').addEventListener('focusout',event=>{
   if(!event.currentTarget.contains(event.relatedTarget))showDirectory(false);
@@ -743,6 +786,9 @@ window.addEventListener('message',async event=>{
 });
 canvas.addEventListener('webglcontextlost',()=>tellParent('book-world:error'));
 window.addEventListener('keydown',event=>{
+ if(event.key==='Escape'&&walkOrigin&&!$('walk-islands').hidden){
+   event.preventDefault();event.stopImmediatePropagation();showWalkPlaces(false);$('walk-place').focus();return;
+ }
  if(event.key==='Escape'&&walkOrigin){event.preventDefault();event.stopImmediatePropagation();if(!walker?.escape?.())leaveWalk();return;}
  if(event.key==='Escape'&&tour.active){event.preventDefault();event.stopPropagation();tour.end();}
 },true);

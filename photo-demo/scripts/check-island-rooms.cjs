@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const {baseURL,launchBrowser,chooseDestination}=require('./marble-browser.cjs');
+const {baseURL,launchBrowser,chooseDestination,switchWalkIsland}=require('./marble-browser.cjs');
 const url=baseURL+'/marble-transition-lab/index.html?progress=1';
 const walker=page=>page.evaluate(()=>window.__marbleTransition.state.walk);
 const rooms=[
@@ -10,12 +10,12 @@ const furnishings={post:['sorting-hutch'],field:['field-bench'],watch:['telescop
   baths:['copper-bath'],slip:['boat-cradle'],beacon:['keeper-table']};
 
 async function approach(page,island,key){
-  if((await walker(page))?.id!==island)await page.selectOption('#walk-place',island);
-  await page.waitForFunction(id=>window.__marbleTransition.state.walk?.id===id,island);
-  if(await page.locator('#walk-room-choice').isVisible())await page.selectOption('#walk-room-choice',key);
-  const button=page.locator('#walk-room');
-  if((await button.innerText()).startsWith('前往'))await button.click();
-  await page.waitForFunction(()=>!document.querySelector('#walk-room').disabled&&document.querySelector('#walk-room').textContent.startsWith('进入'));
+  await switchWalkIsland(page,island);
+  const sight=page.locator(`[data-sight="${key}"]`);
+  await sight.waitFor({state:'visible'});
+  if(await sight.getAttribute('aria-current')!=='location')await sight.click();
+  await page.locator(`[data-sight="${key}"][aria-current=location][aria-disabled=false]`).waitFor();
+  assert.equal((await walker(page)).entrance,key);
   return walker(page);
 }
 
@@ -78,8 +78,8 @@ async function main(){
     const delay=async route=>{intercepted();await hold;await route.continue();};
     const sortingFile='**/sorting-hutch.glb';
     await page.route(sortingFile,delay);
-    await page.click('#walk-room');await arrived;await page.keyboard.press('Escape');release();
-    await page.waitForFunction(()=>!document.querySelector('#walk-room').disabled);
+    await page.click('.walk-sight[aria-current=location]');await arrived;await page.keyboard.press('Escape');release();
+    await page.waitForFunction(()=>!document.querySelector('#walk-room-exit').disabled);
     assert.equal((await walker(page)).room,null);await page.unroute(sortingFile,delay);
     for(const [island,key] of rooms){
       const entry=await approach(page,island,key);
@@ -93,8 +93,8 @@ async function main(){
         });
         await page.mouse.click(...point);
       }else if(key==='watch'){await page.locator('#world').focus();await page.keyboard.press('e');}
-      else await page.click('#walk-room');
-      await page.waitForFunction(()=>window.__marbleTransition.state.walk?.room&&!document.querySelector('#walk-room').disabled);
+      else await page.click('.walk-sight[aria-current=location]');
+      await page.waitForFunction(()=>window.__marbleTransition.state.walk?.room&&!document.querySelector('#walk-room-exit').disabled);
       const inside=await walker(page);
       assert.equal(inside.room,key.startsWith('inn-')?'inn':key);assert.equal(inside.entrance,key);
       assert.deepEqual(inside.furnishings,furnishings[inside.room]);
@@ -113,15 +113,15 @@ async function main(){
             [index,limit,decreasing],{timeout:9000});}
           finally{await page.keyboard.up(key);}
         }
-        assert(Math.abs((await walker(page)).foot[1]-2.85)<.02);await page.click('#walk-room');
+        assert(Math.abs((await walker(page)).foot[1]-2.85)<.02);await page.click('#walk-room-exit');
       }else{
         await page.keyboard.down(key==='beacon'?'d':'w');
         try{await page.waitForFunction(f=>{const s=window.__marbleTransition.state.walk;
           return Math.hypot(s.foot[0]-f[0],s.foot[2]-f[2])>.105;},inside.foot,{timeout:5000});}
         finally{await page.keyboard.up(key==='beacon'?'d':'w');}
-        if(key==='slip')await page.click('#walk-room');else await page.keyboard.press('Escape');
+        if(key==='slip')await page.click('#walk-room-exit');else await page.keyboard.press('Escape');
       }
-      await page.waitForFunction(()=>!window.__marbleTransition.state.walk?.room&&!document.querySelector('#walk-room').disabled);
+      await page.waitForFunction(()=>!window.__marbleTransition.state.walk?.room&&!document.querySelector('#walk-room-exit').disabled);
       const back=await walker(page);assert.equal(back.id,island);
       assert.equal(back.entrance,key==='inn-hall'?'inn-loft':key);
       if(key==='inn-hall')assert(back.foot[1]>entry.foot[1]+entry.height,'upper canyon terrace');
@@ -130,12 +130,12 @@ async function main(){
     await approach(page,'cup','post');
     await page.route(sortingFile,r=>r.fulfill({contentType:'model/gltf-binary',body:'incomplete GLB'}),{times:1});
     for(const expected of [[],furnishings.post]){
-      await page.click('#walk-room');await page.waitForFunction(()=>window.__marbleTransition.state.walk?.room==='post');
+      await page.click('.walk-sight[aria-current=location]');await page.waitForFunction(()=>window.__marbleTransition.state.walk?.room==='post');
       assert.deepEqual((await walker(page)).furnishings,expected);
-      await page.click('#walk-room');await page.waitForFunction(()=>!window.__marbleTransition.state.walk?.room&&!document.querySelector('#walk-room').disabled);
+      await page.click('#walk-room-exit');await page.waitForFunction(()=>!window.__marbleTransition.state.walk?.room&&!document.querySelector('#walk-room-exit').disabled);
     }
     await testRoutes(page);
-    await approach(page,'grotto','library');await page.click('#walk-room');
+    await approach(page,'grotto','library');await page.click('.walk-sight[aria-current=location]');
     await page.waitForSelector('#world[data-visit="inside"][data-visit-busy="false"]');
     await page.click('[data-visit-action="read"]');await page.waitForSelector('#world[data-visit="book"][data-visit-busy="false"]');
     await page.click('[data-visit-action="photo"]');await page.waitForFunction(()=>window.__marbleTransition.state.progress===0&&window.__marbleTransition.state.visit.cycles===1);
@@ -143,10 +143,10 @@ async function main(){
     const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'no-preference'});
     mobile.on('pageerror',e=>errors.push(e.message));
     await mobile.goto(url);await chooseDestination(mobile,'phone');await mobile.tap('#walk-start');await approach(mobile,'phone','baths');
-    await mobile.tap('#walk-room');
-    await mobile.waitForFunction(()=>window.__marbleTransition.state.walk?.room==='baths'&&!document.querySelector('#walk-room').disabled);
-    await mobile.locator('[data-stick=move]').waitFor({state:'visible'});await mobile.tap('#walk-room');
-    await mobile.waitForFunction(()=>!window.__marbleTransition.state.walk?.room&&!document.querySelector('#walk-room').disabled);
+    await mobile.tap('.walk-sight[aria-current=location]');
+    await mobile.waitForFunction(()=>window.__marbleTransition.state.walk?.room==='baths'&&!document.querySelector('#walk-room-exit').disabled);
+    await mobile.locator('[data-stick=move]').waitFor({state:'visible'});await mobile.tap('#walk-room-exit');
+    await mobile.waitForFunction(()=>!window.__marbleTransition.state.walk?.room&&!document.querySelector('#walk-room-exit').disabled);
     assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await mobile.close();
     assert.deepEqual(errors,[]);
     console.log('Eight Tripo furnishings, eight entrances, three furnished stair round trips, original library photo loop, touch, cancellation and furniture fallback/re-entry passed.');
