@@ -20,5 +20,9 @@
       "canine-museum/assets/hi3d-galleries/flank-mask.png", "canine-museum/assets/hi3d-galleries/rim.json",
       "canine-museum/assets/digestion/**/*", "canine-museum/assets/dog/*.glb"
     ]
+  },
+  "grandmas-table": {
+    "entry": "grandmas-table/index.html",
+    "files": ["grandmas-table/**/*"]
   }
 }

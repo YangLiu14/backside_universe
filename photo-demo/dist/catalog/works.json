@@ -1,0 +1,166 @@
+{
+  "works": [
+    {
+      "id": "desk",
+      "entry": "./marble-transition-lab/index.html",
+      "title": {
+        "zh": "工位背后的假期",
+        "en": "A Holiday Behind the Desk"
+      },
+      "description": {
+        "zh": "从蓝杯港湾放一艘纸船，沿着书脊去看峡谷。",
+        "en": "Launch a paper boat from Blue Cup Harbor, then follow a book's spine into the canyon."
+      },
+      "theme": {
+        "zh": "五岛漫游",
+        "en": "Five island stories"
+      },
+      "front": {
+        "src": "./cinema/album-art/desk.webp",
+        "alt": {
+          "zh": "窗边工位上摆着电脑、蓝杯和书。",
+          "en": "A laptop, blue cup, and books on a desk by the window."
+        },
+        "caption": {
+          "zh": "窗边的工位",
+          "en": "A desk by the window"
+        }
+      },
+      "back": {
+        "src": "./cinema/album-art/islands.webp",
+        "alt": {
+          "zh": "桌面化作海面，蓝杯和书本变成微缩群岛。",
+          "en": "The desktop becomes a sea, with the blue cup and books transformed into miniature islands."
+        },
+        "caption": {
+          "zh": "桌上的群岛",
+          "en": "Islands on the desk"
+        }
+      },
+      "strip": [
+        {
+          "src": "./cinema/album-art/harbor.webp",
+          "caption": {
+            "zh": "蓝杯港湾",
+            "en": "Blue Cup Harbor"
+          }
+        },
+        {
+          "src": "./cinema/album-art/canyon.webp",
+          "caption": {
+            "zh": "橙书峡谷",
+            "en": "Orange Book Canyon"
+          }
+        }
+      ]
+    },
+    {
+      "id": "canine",
+      "entry": "./canine-museum/index.html",
+      "title": {
+        "zh": "小狗的内脏博物馆",
+        "en": "The Dog's Body Museum"
+      },
+      "description": {
+        "zh": "跟着一口食物去旅行，在心跳钟楼下听一拍钟声。",
+        "en": "Travel with a bite of food and listen for a beat beneath the Pulse Clock."
+      },
+      "theme": {
+        "zh": "六馆导览",
+        "en": "Six gallery tour"
+      },
+      "front": {
+        "src": "./cinema/album-art/dog.webp",
+        "alt": {
+          "zh": "一只白毛黄耳的小狗在地毯上抬头张望。",
+          "en": "A white dog with golden ears looks up from the carpet."
+        },
+        "caption": {
+          "zh": "地毯上的小狗",
+          "en": "A dog on the carpet"
+        }
+      },
+      "back": {
+        "src": "./cinema/album-art/overview.webp",
+        "alt": {
+          "zh": "小狗身体侧面打开，露出钟楼、温室和微缩展馆。",
+          "en": "The dog's side opens to reveal a clock tower, greenhouse, and miniature galleries."
+        },
+        "caption": {
+          "zh": "小狗的侧面展馆",
+          "en": "Galleries inside the dog"
+        }
+      },
+      "strip": [
+        {
+          "src": "./cinema/album-art/heart.webp",
+          "caption": {
+            "zh": "心跳钟楼",
+            "en": "The Pulse Clock"
+          }
+        },
+        {
+          "src": "./cinema/album-art/kidney.webp",
+          "caption": {
+            "zh": "双泉水务馆",
+            "en": "The Filter Works"
+          }
+        }
+      ]
+    },
+    {
+      "id": "grandmas-table",
+      "entry": "./grandmas-table/index.html",
+      "title": {
+        "zh": "外婆总说，再添一双筷子",
+        "en": "Grandma Always Sets Another Pair of Chopsticks"
+      },
+      "description": {
+        "zh": "拉出桌下的小竹凳，给自己添一双筷子。",
+        "en": "Pull out your little bamboo stool. There is a pair of chopsticks waiting for you."
+      },
+      "theme": {
+        "zh": "锅里的饭厅",
+        "en": "Inside the cooking pot"
+      },
+      "front": {
+        "src": "./grandmas-table/stills/pot.webp",
+        "alt": {
+          "zh": "蓝灰桌面上的红色双耳搪瓷锅。",
+          "en": "A red enamel pot with two handles on a blue-gray tabletop."
+        },
+        "caption": {
+          "zh": "红色搪瓷锅",
+          "en": "The red enamel pot"
+        }
+      },
+      "back": {
+        "src": "./grandmas-table/stills/room.webp",
+        "alt": {
+          "zh": "锅的右耳后，吊灯照着方桌和小竹凳。",
+          "en": "Behind the right handle, a pendant lights a square table and bamboo stools."
+        },
+        "caption": {
+          "zh": "锅里的饭桌",
+          "en": "Dinner inside the pot"
+        }
+      },
+      "strip": [
+        {
+          "src": "./grandmas-table/stills/room.webp",
+          "caption": {
+            "zh": "锅里的饭桌",
+            "en": "Dinner inside the pot"
+          }
+        },
+        {
+          "src": "./grandmas-table/stills/seat.webp",
+          "caption": {
+            "zh": "我的小竹凳",
+            "en": "My bamboo stool"
+          }
+        }
+      ]
+    }
+  ]
+}

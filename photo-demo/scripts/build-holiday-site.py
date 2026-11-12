@@ -41,6 +41,8 @@ def select_assets(desk_only, screening_pack):
         selected.update(map(Path, ['legacy.html', 'style.css']))
     if not desk_only:
         selected.update(map(Path, ['index.html','legacy.html','style.css']))
+        collect('catalog')
+        collect('grandmas-table')
         # Include the dog tours, voiced galleries and independent model viewer.
         # Raw reconstruction inputs and duplicate production films stay local.
         omitted = {'source-gaussian.ply','inference-reference.jpg','profile-reference.png',
@@ -77,7 +79,7 @@ def build(destination, desk_only=False, screening_pack=False):
         source, target = SOURCE / relative, destination / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         data = source.read_bytes()
-        if len(data) > 25 * 1024 * 1024 and relative.parts[0] != 'canine-museum':
+        if len(data) > 25 * 1024 * 1024 and relative.parts[0] not in {'canine-museum', 'grandmas-table'}:
             if source.suffix != '.spz':
                 raise ValueError(f'Unexpected oversized asset: {relative}')
             parts = []

@@ -1,56 +1,84 @@
 # Backside Universe 的发布方式
 
-[正式相簿](https://backside-universe.netlify.app/) · [工位背后的假期](https://backside-universe.netlify.app/#desk) · [小狗的内脏博物馆](https://backside-universe.netlify.app/#canine)
+[正式相簿](https://backside-universe.netlify.app/) · [工位背后的假期](https://backside-universe.netlify.app/#desk) · [小狗的内脏博物馆](https://backside-universe.netlify.app/#canine) · [外婆总说，再添一双筷子](https://backside-universe.netlify.app/#grandmas-table)
 
 相簿与场景库由同一 Netlify 团队的两个项目提供。2026-11-09 首次上线的相簿发布目录约 236 KiB，工位场景约 202.5 MiB，小狗场景约 142.1 MiB。大小为所有发布文件的合计，实际单次访问只会请求所到达的内容。旧工位站点仍可独立访问。
 
 | 项目 | 内容 | 更新方式 |
 | --- | --- | --- |
-| `backside-universe` | 相簿、缩略图以及指向各作品版本的链接 | 首页和场景链接重新校验，改首页可单独发布 |
-| `backside-universe-scenes` | `/releases/<作品>/<版本>/` 下的脚本、模型、实景、纹理和声音 | 新版本追加到新目录，现有版本保留，版本内文件可缓存一年 |
+| `backside-universe` | 相簿页面、样式和播放器入口 | 修改首页代码时单独发布 |
+| `backside-universe-scenes` | `/releases/<作品>/<版本>/` 下的场景，以及作品目录与缩略图 | 同一次部署更新作品，保留历史版本 |
 
-版本取自文件相对路径和内容的 SHA-256 摘要。主站将 `/releases/*` 转发至资源站，浏览器使用同一域名访问 iframe、WebGL、Web Worker 和媒体。两个最近访问的作品保留运行现场，访问更多作品时会释放最久未使用的场景。主站可以回退到现存的旧版本路径。[Netlify 同源转发](https://docs.netlify.com/manage/routing/redirects/rewrites-proxies/)
+版本取自文件相对路径和内容的 SHA-256 摘要。主站将 `/catalog/*` 和 `/releases/*` 转发至资源站，浏览器使用同一域名访问 iframe、WebGL、Web Worker 和媒体。两个最近访问的作品保留运行现场，访问更多作品时会释放最久未使用的场景。主站可以回退到现存的旧版本路径。[Netlify 同源转发](https://docs.netlify.com/manage/routing/redirects/rewrites-proxies/)
 
-## 更新一张照片
+## 作品上架流程
 
-开发期间在本地放映相簿。发布前，用候选版本的相簿和场景包走一遍工位转场、洞窟书屋和小狗展馆。返回相簿后重新进入，检查游览进度是否保留、模型是否重复下载。用同一局域网的 iPhone Safari 检查首次加载、横竖屏、左摇杆移动和右摇杆视角。验收通过后，把同一批文件发布到 Netlify，先更新场景库，再切换相簿入口。
+新增作品或修改场景时，按下面的顺序发布。只改标题、排序或封面时，从第 1 步更新作品目录，然后直接做第 3 至 5 步。只有首页代码、样式或代理规则有变化时才发布相簿主站。
 
-以下命令在仓库根目录运行，需要 Python 3.11 或更新版本。构建作品前，按[资产说明](../docs/ASSETS.md)恢复该作品的本地文件。两个作品打包时都使用 Pillow 生成移动端纹理，请在带有 Pillow 的 Python 环境中运行。
+以下命令从仓库根目录运行，使用 Python 3.11+ 和 Node.js。工位和小狗打包时还需要 Pillow。新机器先从私有备份恢复作品资产和完整的历史场景库，后续每次发布沿用这个库。[资产恢复说明](../docs/ASSETS.md)
 
-1. 新照片在 `dist/index.html` 增加相册页，在 [scenes.json](scenes.json) 登记同一 `data-work`、入口和该作品可公开的运行文件。缩略图放入 `dist/cinema/album-art/`。这里的 `dist/` 指 `photo-demo/dist/`。
-2. 使用下面的命令只构建要更新的作品。输出会给出版本值。保留完整场景库及其私有备份，包含仍需支持的旧链接。当前开发机保存首发场景库的位置为 `photo-demo/evidence/deployment/scene-store`。
+### 1. 登记作品并本地试玩
+
+在 `photo-demo/dist/catalog/works.json` 增加一项，顺序就是相簿顺序。选定稳定的 `id`（例如 `grandmas-table`），填写入口、中英文标题、主题和简介，以及封面、背面照片和剧照。图片路径从相簿首页起算。用 `npm --prefix photo-demo run dev` 打开开发版，检查正反面、语言切换和场景互动。[《外婆》的完整条目](../dist/catalog/works.json)
+
+要上架的作品还要在 `photo-demo/deploy/scenes.json` 登记同一 ID、入口和运行文件。《外婆》已有桌面和移动端验收报告时，在带 Pillow 的 Python 环境运行 `python3 photo-demo/cases/grandmas-table/install-album.py`，将对应场景和剧照安装到 `photo-demo/dist/grandmas-table/`。模型、原图、构建输出和部署凭据留在本地或私有备份。[发布文件清单](scenes.json)
+
+### 2. 给这件作品生成版本
 
 ```sh
 SCENE_STORE="$PWD/photo-demo/evidence/deployment/scene-store"
-python3 photo-demo/scripts/release-album.py pack canine --store "$SCENE_STORE"
+python3 photo-demo/scripts/release-album.py pack grandmas-table --record --store "$SCENE_STORE"
 ```
 
-3. 将版本值写入 [releases.json](releases.json)，并追加到 [published-scenes.json](published-scenes.json) 对应作品的列表中。Netlify 将每次部署作为完整快照。发布前从持久库或备份取齐清单中的每个版本，包含它的入口、脚本和资产。已登录同一团队的 Netlify CLI 按摘要上传，服务端只索取缺少的内容。[Netlify 文件摘要发布](https://docs.netlify.com/api-and-cli-guides/api-guides/get-started-with-api/#file-digest-method)
+用新作品的 ID 替换 `grandmas-table`。`--record` 在 macOS 或 Linux 上自动更新当前版本并追加历史记录。相同文件重复打包会得到同一版本。手动登记时可省略 `--record`，将打印的版本写入这两份文件。[当前版本](releases.json) · [历史版本](published-scenes.json)
+
+### 3. 导出本次要发布的文件
 
 ```sh
-python3 photo-demo/scripts/release-album.py verify-store --store "$SCENE_STORE"
-netlify deploy --prod --no-build --site backside-universe-scenes --dir "$SCENE_STORE"
+SCENE_STORE="$PWD/photo-demo/evidence/deployment/scene-store"
+CANDIDATE=$(mktemp -d)
+python3 photo-demo/scripts/release-album.py catalog --store "$SCENE_STORE"
+python3 photo-demo/scripts/release-album.py export-store --store "$SCENE_STORE" --output "$CANDIDATE/scenes"
+python3 photo-demo/scripts/release-album.py app --asset-origin https://backside-universe-scenes.netlify.app --output "$CANDIDATE/app"
 ```
 
-   使用 Netlify Drop 手动发布时，运行以下命令，将生成的 ZIP 上传到 `backside-universe-scenes`。它会先校验新旧版本的内容摘要。主站已代理到资源站，再把资源站的旧路径代理到另一次部署会超过 Netlify 的单次转发限制。[Netlify 转发限制](https://docs.netlify.com/manage/routing/redirects/rewrites-proxies/#limitations)
+导出时会核对历史入口、场景内容摘要、目录和图片。输出中的 `scenes/` 包含本次目录、配图和全部已登记版本。`app/` 用于在本地以正式的相簿入口验收。
+
+### 4. 测试这一份候选版本
+
+在当前终端启动预览，保留 `CANDIDATE` 变量供发布时使用。用手机测试时在命令末尾加 `--host 0.0.0.0`，从同一 Wi-Fi 打开 Mac 的局域网 IP 和端口。
 
 ```sh
-python3 photo-demo/scripts/release-album.py zip-store --store "$SCENE_STORE" --output .cache/backside-scenes.zip
+PORT=9993 node photo-demo/scripts/serve.mjs --album "$CANDIDATE/app" --scenes "$CANDIDATE/scenes"
 ```
 
-4. 发布资源站后，从**相簿正式域名**检查新旧场景入口和脚本，再构建并发布相簿。仅修改首页或切换回已有版本时，直接执行此步骤。相簿构建只读取预览图、界面文件和发布清单。
+在另一个终端执行以下检查。第一条核对目录里的封面、当前版本和所有历史入口。第二条需要 Playwright 和 Chromium，会在浏览器中检查相簿按需加载、切换作品和返回后重进。
 
 ```sh
-python3 photo-demo/scripts/check-published-scenes.py
-ALBUM_OUTPUT=$(mktemp -d)
-python3 photo-demo/scripts/release-album.py app \
-  --asset-origin https://backside-universe-scenes.netlify.app --output "$ALBUM_OUTPUT"
-netlify deploy --prod --no-build --site backside-universe --dir "$ALBUM_OUTPUT"
+python3 photo-demo/scripts/check-published-scenes.py --origin http://127.0.0.1:9993
+MARBLE_BASE_URL=http://127.0.0.1:9993 npm --prefix photo-demo run check:album
 ```
 
-配置好项目的 Playwright 环境后，可对真正的生产域名运行相簿检查。它会验证首页不请求场景二进制、两个作品可以进入以及再次进入时复用同一个场景。
+打开新作品的直达地址（例如 `http://127.0.0.1:9993/#grandmas-table`），完成作品的核心互动，再返回相簿并重进。《外婆》的验收动作是绕到锅后、拉凳入座，再返回。手机检查首次进入、横竖屏和触控。发现问题后修复源码，从受影响的步骤重新生成候选目录。
+
+### 5. 发布并复查
+
+本地验收通过后，在启动预览的终端按 Ctrl+C，使用已登录项目所属团队的 Netlify CLI，将**刚才验收的场景目录**部署到 `backside-universe-scenes`。同一次部署切换作品目录与场景文件。Netlify 按完整快照发布，CLI 只上传服务端缺少的内容。[Netlify 部署命令](https://cli.netlify.com/commands/deploy/) · [文件摘要发布](https://docs.netlify.com/api-and-cli-guides/api-guides/get-started-with-api/#file-digest-method)
 
 ```sh
+netlify deploy --prod --no-build --site backside-universe-scenes --dir "$CANDIDATE/scenes"
+```
+
+如果本次还修改了相簿主站，在场景库发布成功后部署同一候选目录里的 `app/`。
+
+```sh
+netlify deploy --prod --no-build --site backside-universe --dir "$CANDIDATE/app"
+```
+
+从访客使用的域名复查目录及入口，再打开 `/#<作品 ID>`。把作品条目、运行文件清单、版本记录和相关源码一并提交到 Git。若用 Netlify Drop，可直接把已验收的 `scenes/` 文件夹拖到同一场景库项目。
+
+```sh
+python3 photo-demo/scripts/check-published-scenes.py --expect-catalog "$CANDIDATE/scenes/catalog/works.json"
 MARBLE_BASE_URL=https://backside-universe.netlify.app npm --prefix photo-demo run check:album
 ```
 
@@ -83,7 +111,7 @@ ALBUM_ORIGIN=http://192.168.1.8:9993
 
 作品变多后，资源库也可以迁移到提供 HTTPS 的对象存储与 CDN。按原路径同步 `releases/`，为版本文件提供正确的 MIME、字节范围读取及 `Cache-Control: public, max-age=31536000, immutable`。先验证固定版本的页面、Worker 和模型，再用新源站的地址运行 `app --asset-origin` 并发布相簿。对象存储可以逐版本上传新目录；保留旧版本供既有访客和回滚使用。通过主域名转发的资源流量仍会经过 Netlify，评估成本时应计入这部分流量。
 
-单独回滚一件作品时，将 `releases.json` 对应值改回资源库内的旧版本，再发布相簿。其他作品继续使用各自的版本。
+单独回滚一件作品时，从 `published-scenes.json` 选取该作品已发布的版本，只改 `releases.json` 中该作品的值，然后重复上架流程第 3 至 5 步。历史记录和其他作品的当前版本均可继续使用。
 
 ### 大规模部署备选：Netlify 相簿 + Cloudflare R2
 

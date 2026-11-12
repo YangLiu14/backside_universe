@@ -1,0 +1,17 @@
+*{box-sizing:border-box}
+.dinner-film #stage{position:relative;overflow:hidden;touch-action:none;cursor:grab;outline-offset:-3px;user-select:none}
+.dinner-film #stage:active{cursor:grabbing}
+#stage canvas,#photo{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#photo{object-fit:cover}#subtitle{position:absolute;z-index:1;bottom:7%;inset-inline:4%;text-align:center;pointer-events:none;font:600 clamp(17px,2vw,27px)/1.55 var(--serif);color:#fff8e9;text-shadow:0 1px 4px #241609,0 2px 12px #23180e}
+.dinner-film .transport{flex-wrap:wrap;gap:8px 13px}
+.dinner-film .transport button{min-height:42px;padding:7px 15px;border:1px solid #8c7757;border-radius:2px;background:#27251f;color:var(--gold);font:550 13px/1.4 "PingFang SC",sans-serif;cursor:pointer}
+.dinner-film .transport #pull,.dinner-film .transport #again{background:var(--gold);color:#29231a}
+.dinner-film .transport #sound{margin-left:auto}
+.dinner-film .track{flex:1 1 90px;min-width:60px}
+.dinner-film .track input{width:100%;cursor:ew-resize}
+.dinner-film .film-guide{min-height:44px;line-height:1.5}
+button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+@media(max-width:640px){.dinner-film .transport{gap:6px;padding:8px}.dinner-film .transport button{padding:6px 9px}.dinner-film .track{flex-basis:65px}.dinner-film .film-guide{font-size:12px}.premiere.dinner-film #stage{height:57svh;min-height:230px;max-height:65svh}}
+.film .projection-head,.film .transport,.film .film-guide,.film #subtitle,.film .scene-sticks,.film .film-loading{display:none!important}
+.film .premiere main,.film .premiere .experience,.film .premiere #stage{padding:0;margin:0;width:100%;height:100svh;max-height:none;min-height:0;aspect-ratio:auto;border:0}

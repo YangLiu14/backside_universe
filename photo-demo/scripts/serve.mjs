@@ -1,20 +1,30 @@
 import http from 'node:http';
 import {createReadStream} from 'node:fs';
-import {stat} from 'node:fs/promises';
+import {access, stat} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {parseArgs} from 'node:util';
 
-const root=path.resolve(fileURLToPath(new URL('../dist/',import.meta.url)));
+const {values} = parseArgs({options:{
+  album:{type:'string'}, scenes:{type:'string'}, host:{type:'string', default:'127.0.0.1'},
+}});
+if (Boolean(values.album) !== Boolean(values.scenes)) {
+  throw new Error('Preview a release with both --album and --scenes');
+}
+const albumRoot = values.album ? path.resolve(values.album) : fileURLToPath(new URL('../dist', import.meta.url));
+const sceneRoot = values.scenes ? path.resolve(values.scenes) : albumRoot;
+await Promise.all([access(path.join(albumRoot,'index.html')), access(path.join(sceneRoot,'catalog/works.json'))]);
 const port=Number(process.env.PORT||9988);
 const mime={
   '.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8',
   '.json':'application/json','.jpg':'image/jpeg','.png':'image/png','.webp':'image/webp',
-  '.glb':'model/gltf-binary','.wasm':'application/wasm','.mp4':'video/mp4','.m4a':'audio/mp4',
+  '.glb':'model/gltf-binary','.wasm':'application/wasm','.mp4':'video/mp4','.m4a':'audio/mp4','.mp3':'audio/mpeg',
 };
 http.createServer(async(req,res)=>{
   if (!['GET','HEAD'].includes(req.method)) return res.writeHead(405,{Allow:'GET, HEAD'}).end();
   try {
     const urlPath=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
+    const root=/^\/(catalog|releases)\//.test(urlPath) ? sceneRoot : albumRoot;
     const file=path.resolve(root,'.'+urlPath+(urlPath.endsWith('/')?'index.html':''));
     if (!file.startsWith(root+path.sep)) return res.writeHead(403).end();
     const info=await stat(file);
@@ -43,4 +53,4 @@ http.createServer(async(req,res)=>{
     stream.on('error',()=>res.destroy());
     stream.pipe(res);
   } catch { res.writeHead(404).end(); }
-}).listen(port,'127.0.0.1',()=>console.log('Local: http://127.0.0.1:'+port+'/'));
+}).listen(port,values.host,()=>console.log('Preview: http://'+values.host+':'+port+'/'));

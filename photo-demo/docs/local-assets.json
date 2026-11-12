@@ -2,6 +2,41 @@
   "description": "Local-only runtime assets; restore separately. This file contains hashes, not media or models.",
   "files": [
     {
+      "path": "cases/grandmas-table/viewer/textures/courtyard-depth.webp",
+      "bytes": 47294,
+      "sha256": "d1158f00ee17c8e88352e633870455c56b8bd0ac61921fe792633efb5b99d3aa"
+    },
+    {
+      "path": "cases/grandmas-table/viewer/textures/courtyard.webp",
+      "bytes": 498922,
+      "sha256": "d38ff82c3da9f0a473a91bc7958a415c9b6c861b671d5c9aa3adc3a7c077dbc7"
+    },
+    {
+      "path": "cases/grandmas-table/viewer/textures/elm.webp",
+      "bytes": 370056,
+      "sha256": "78e188384f0b1618335b840cee5ba6088e0f44bd8e9d6750472d1b9f26a6c82e"
+    },
+    {
+      "path": "cases/grandmas-table/viewer/textures/family.webp",
+      "bytes": 44360,
+      "sha256": "eff573d5bab1bc3f0c6b8b2f71030ed6b5c1413c51cdab35d4f150a29fa28e50"
+    },
+    {
+      "path": "cases/grandmas-table/viewer/textures/plaster.webp",
+      "bytes": 219290,
+      "sha256": "78e2243a5a2c5a8fff719ceb21511e94d18facbabf471dd0b9cc31a7338e616b"
+    },
+    {
+      "path": "cases/grandmas-table/viewer/textures/supper.webp",
+      "bytes": 315138,
+      "sha256": "5fa0ba21a7d1ed673a1a9b3c5aa615c01d03e3f55f627e612299840d27336575"
+    },
+    {
+      "path": "cases/grandmas-table/viewer/textures/window-paint.webp",
+      "bytes": 425670,
+      "sha256": "8d15192debdf0e51cfe1976284d91d882d35dfddd11d89c569169ff407a6e7ab"
+    },
+    {
       "path": "dist/assets/chair-hd.glb",
       "bytes": 2793704,
       "sha256": "b0d4d1ddb372b6ff51cbfbc4c78144b405c8699b0e49084140ec3fc6f47659c3"

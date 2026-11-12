@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#181512">
-  <meta name="description" content="翻开放映相簿，绕到工位和小狗的照片背面，走进五座微缩岛屿和六间内脏展馆。">
+  <meta name="description" content="翻开放映相簿，走进日常照片背后的微缩世界。">
   <title>Backside Universe · 放映相簿</title>
   <link rel="icon" href="data:,">
   <script>const oldView = new URLSearchParams(location.search); if (['view','v','laptop'].some(key=>oldView.has(key))) location.replace('./legacy.html'+location.search+location.hash);</script>
@@ -16,12 +16,12 @@
   <main id="album">
     <header class="album-head">
       <span class="house">背面宇宙</span>
-      <span class="edition">本册收录 <b>2</b> 部作品</span>
+      <span class="edition" hidden>本册收录 <b></b> 部作品</span>
     </header>
     <section class="booth" aria-labelledby="album-title">
       <div class="booth-inner">
         <h1 id="album-title">放映相簿</h1>
-        <p>两张日常照片，藏着五座岛和六间展馆。</p>
+        <p>翻过一张日常照片，走进它背面的小世界。</p>
       </div>
     </section>
 
@@ -33,46 +33,22 @@
           <button type="button" data-preview="back" aria-pressed="false">背面剧照</button>
         </div>
       </div>
-      <div class="spread">
-        <a class="leaf" data-work="desk" href="./marble-transition-lab/index.html" aria-labelledby="desk-title desk-enter">
-          <div class="folio"><span>第 <i>01</i> 场</span><span>五岛漫游</span></div>
+      <p id="catalog-status" role="status">正在打开相簿…</p>
+      <button type="button" id="catalog-retry" hidden>重新加载</button>
+      <div class="spread"></div>
+      <template id="work-card">
+        <a class="leaf" data-no-i18n>
+          <div class="folio"><span></span><span class="theme"></span></div>
           <div class="montage">
-            <figure class="print">
-              <img src="./cinema/album-art/desk.webp" width="800" height="800" alt="窗边工位上摆着电脑、蓝杯和书。"
-                data-still="./cinema/album-art/islands.webp" data-still-alt="桌面化作海面，蓝杯和书本变成微缩群岛。">
-              <figcaption data-still-caption="桌上的群岛">窗边的工位</figcaption>
-            </figure>
-            <div class="filmstrip">
-              <figure><img src="./cinema/album-art/harbor.webp" width="248" height="136" alt=""><figcaption>蓝杯港湾</figcaption></figure>
-              <figure><img src="./cinema/album-art/canyon.webp" width="248" height="136" alt=""><figcaption>橙书峡谷</figcaption></figure>
-            </div>
+            <figure class="print"><img width="800" height="800"><figcaption></figcaption></figure>
+            <div class="filmstrip"></div>
           </div>
           <div class="legend">
-            <h2 id="desk-title">工位背后的假期</h2>
-            <p>从蓝杯港湾放一艘纸船，沿着书脊去看峡谷。</p>
-            <span class="entry" id="desk-enter"><span class="play" aria-hidden="true"></span><span class="entry-label">进入放映</span></span>
+            <h2></h2><p></p>
+            <span class="entry"><span class="play" aria-hidden="true"></span><span class="entry-label"></span></span>
           </div>
         </a>
-        <a class="leaf" data-work="canine" href="./canine-museum/index.html" aria-labelledby="canine-title canine-enter">
-          <div class="folio"><span>第 <i>02</i> 场</span><span>六馆导览</span></div>
-          <div class="montage">
-            <figure class="print">
-              <img src="./cinema/album-art/dog.webp" width="800" height="800" alt="一只白毛黄耳的小狗在地毯上抬头张望。"
-                data-still="./cinema/album-art/overview.webp" data-still-alt="小狗身体侧面打开，露出钟楼、温室和微缩展馆。">
-              <figcaption data-still-caption="小狗的侧面展馆">地毯上的小狗</figcaption>
-            </figure>
-            <div class="filmstrip">
-              <figure><img src="./cinema/album-art/heart.webp" width="248" height="136" alt=""><figcaption>心跳钟楼</figcaption></figure>
-              <figure><img src="./cinema/album-art/kidney.webp" width="248" height="136" alt=""><figcaption>双泉水务馆</figcaption></figure>
-            </div>
-          </div>
-          <div class="legend">
-            <h2 id="canine-title">小狗的内脏博物馆</h2>
-            <p>跟着一口食物去旅行，在心跳钟楼下听一拍钟声。</p>
-            <span class="entry" id="canine-enter"><span class="play" aria-hidden="true"></span><span class="entry-label">进入放映</span></span>
-          </div>
-        </a>
-      </div>
+      </template>
     </div>
   </main>
   <div id="rooms"></div>

@@ -14,15 +14,12 @@ class Page(HTMLParser):
     def __init__(self):
         super().__init__()
         self.scripts = []
-        self.works = {}
         self.stage = False
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if tag == 'script' and attrs.get('type') == 'module' and attrs.get('src'):
             self.scripts.append(attrs['src'])
-        if tag == 'a' and 'data-work' in attrs:
-            self.works[attrs['data-work']] = attrs['href']
         if 'data-album-back' in attrs:
             self.stage = True
 
@@ -50,23 +47,30 @@ def scene(url):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--origin', default='https://backside-universe.netlify.app')
-    origin = parser.parse_args().origin.rstrip('/') + '/'
+    parser.add_argument('--expect-catalog', type=Path, help='Compare the served catalog with the tested snapshot')
+    args = parser.parse_args()
+    origin = args.origin.rstrip('/') + '/'
     configs = json.loads((DEPLOY / 'scenes.json').read_text())
     published = json.loads((DEPLOY / 'published-scenes.json').read_text())
-    album = Page()
-    data, final = fetch(origin, {'text/html'})
-    album.feed(data.decode())
-    if not album.works or album.works.keys() - configs.keys():
-        raise SystemExit('Published album has no works or includes unknown works')
-    urls = set()
-    for key, revisions in published.items():
-        for revision in revisions:
-            urls.add(urljoin(origin, f'releases/{key}/{revision}/{configs[key]["entry"]}'))
-    for key, href in album.works.items():
-        entry = configs[key]['entry']
-        expected = {urljoin(final, f'releases/{key}/{revision}/{entry}') for revision in published[key]}
-        if urljoin(final, href) not in expected:
-            raise SystemExit(f'Album links to an unrecorded scene URL for {key}: {href}')
+    pins = json.loads((DEPLOY / 'releases.json').read_text())
+    data, _ = fetch(urljoin(origin, 'catalog/works.json'), {'application/json'})
+    catalog = json.loads(data)
+    if args.expect_catalog and catalog != json.loads(args.expect_catalog.read_text()):
+        raise SystemExit('Served catalog differs from the tested snapshot')
+    works = catalog['works']
+    if len(works) != len(configs) or {work['id'] for work in works} != set(configs):
+        raise SystemExit('Published catalog differs from registered works')
+    urls = {urljoin(origin, f'releases/{key}/{revision}/{configs[key]["entry"]}')
+            for key, revisions in published.items() for revision in revisions}
+    photos = set()
+    for work in works:
+        key = work['id']
+        if work['entry'] != f'/releases/{key}/{pins[key]}/{configs[key]["entry"]}':
+            raise SystemExit(f'Catalog has the wrong scene version for {key}')
+        for image in [work['front'], work['back'], *work['strip']]:
+            photos.add(urljoin(origin, image['src']))
+    for url in sorted(photos):
+        fetch(url, {'image/webp', 'image/png', 'image/jpeg'})
     failures = []
     with ThreadPoolExecutor(max_workers=4) as executor:
         requests = {url: executor.submit(scene, url) for url in sorted(urls)}

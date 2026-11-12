@@ -2,7 +2,7 @@
 
 这里是照片实景与微缩世界的浏览器应用源码。
 
-[在线放映相簿](https://backside-universe.netlify.app/?lang=zh) · [工位背后的假期](https://backside-universe.netlify.app/?lang=zh#desk) · [小狗的内脏博物馆](https://backside-universe.netlify.app/?lang=zh#canine) · [项目介绍](../README.md)
+[在线放映相簿](https://backside-universe.netlify.app/?lang=zh) · [工位背后的假期](https://backside-universe.netlify.app/?lang=zh#desk) · [小狗的内脏博物馆](https://backside-universe.netlify.app/?lang=zh#canine) · [外婆总说，再添一双筷子](https://backside-universe.netlify.app/?lang=zh#grandmas-table) · [项目介绍](../README.md)
 
 新克隆需先按[资产恢复说明](docs/ASSETS.md)恢复照片、模型、Gaussian 场景与 Spark 运行库。安装 Node.js 后，在本目录执行：
 
@@ -15,6 +15,7 @@ npm run dev
 | 内容 | 文档 |
 | --- | --- |
 | 环境、目录、构建与检查命令 | [开发指南](docs/DEVELOPMENT.md) |
+| 作品上架、候选版本验收与回滚 | [上架流程](deploy/README.md#作品上架流程) |
 | 本地资产、依赖与许可证 | [资产恢复](docs/ASSETS.md) |
 | 独立模型审阅与旧版对照 | [实验与审阅入口](docs/EXPERIMENTS.md) |
 | 实现、研究和历史记录 | [完整文档索引](docs/README.md) |

@@ -60,6 +60,6 @@ await captureExport(openTab, projectDirectory, {key: '当前任务key'});
 
 ## 交付与复现
 
-`build` 组装版本化的 releases/<版本>/，其中包含 scene.json、原照工作副本、带来源的 GLB、Gaussian 与完整播放器依赖。较重的模型通过 Blender 导出网页副本，原件保留。模板有变化也产生新版本。独立执行 `qa` 可重跑当前版本的实浏览器检查，输出在 qa/<版本>/。需要 Playwright 和 Chromium，支持 PLAYWRIGHT_MODULE 和 CHROMIUM_PATH。使用 `preview --port 9989` 在本机打开 `http://127.0.0.1:9989/`。整个 release 可静态托管。默认预览是独立页；共用相簿需要同 ID 的案例安装器及首页卡片。交付地址以实际从相簿打开的结果为准。重复 QA 会撤下旧通过报告，只有本轮检查均通过才重新生成。
+`build` 组装版本化的 releases/<版本>/，其中包含 scene.json、原照工作副本、带来源的 GLB、Gaussian 与完整播放器依赖。较重的模型通过 Blender 导出网页副本，原件保留。模板有变化也产生新版本。独立执行 `qa` 可重跑当前版本的实浏览器检查，输出在 qa/<版本>/。需要 Playwright 和 Chromium，支持 PLAYWRIGHT_MODULE 和 CHROMIUM_PATH。使用 `preview --port 9989` 在本机打开 `http://127.0.0.1:9989/`。整个 release 可静态托管。默认预览打开独立页。有同 ID 案例安装器时，`preview` 会将验收过的作品装入开发目录。共用相簿根据 `photo-demo/dist/catalog/works.json` 显示卡片。交付地址以实际从相簿打开的结果为准。重复 QA 会撤下旧通过报告，只有本轮检查均通过才重新生成。
 
 开放平台接口与计价参见 [Hi3D 官方快速开始](https://docs.hi3d.ai/en/api/getting-started/quickstart)、[创建任务](https://docs.hi3d.ai/en/api/api-reference/list/create-task) 和[国际站价格表](https://docs.hi3d.ai/en/api/getting-started/pricing)。生产规格和配置价格变更时同步更新执行器的估算。

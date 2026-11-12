@@ -95,3 +95,6 @@ evidence/
 *.bundle
 .git-backups/
 git-backups/
+
+# Case runner installs the local screening here from its verified release.
+/photo-demo/dist/grandmas-table/

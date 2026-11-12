@@ -1,0 +1,35 @@
+{
+  "title": "外婆总说，再添一双筷子",
+  "story": "回外婆家吃饭，把小时候的矮竹凳从桌下拉出来。",
+  "subject": "红色双耳搪瓷锅",
+  "box": [
+    0.205,
+    0.169,
+    0.769,
+    0.877
+  ],
+  "layout": "insert",
+  "conceptPrompt": "绕过右耳，扣紧的红锅腹内是一间围着木方桌和矮竹凳的家常饭厅。桌上第三碗饭的右侧留空，等孩子拉凳入座，添一双筷子。",
+  "revealDeg": 151,
+  "handoffDeg": 3,
+  "yaw": 0,
+  "pitch": 34,
+  "roll": 0,
+  "focus": [
+    0.2,
+    -0.15,
+    -0.14
+  ],
+  "action": "pull-stool",
+  "actionLabel": "拉出小竹凳",
+  "actionResult": "再添一双筷子。",
+  "props": [
+    "stool",
+    "bowl",
+    "dish",
+    "pork",
+    "greens",
+    "fish"
+  ],
+  "experience": "grandmas-table"
+}

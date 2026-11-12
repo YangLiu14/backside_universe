@@ -1,6 +1,38 @@
 const assert = require('node:assert/strict');
 const {baseURL, launchBrowser} = require('./marble-browser.cjs');
 
+// Simulate adding the last published work without changing the album shell.
+async function checkCatalogUpdate(browser) {
+  const page = await browser.newPage({viewport:{width:390,height:844}});
+  try {
+    const response = await page.request.get(baseURL + '/catalog/works.json');
+    assert(response.ok(), 'The published work catalog must be reachable');
+    const catalog = await response.json();
+    const added = catalog.works.at(-1);
+    let edition = 'before';
+    await page.route('**/catalog/works.json', route => {
+      if (edition === 'offline') return route.fulfill({status:503,body:''});
+      const works = edition === 'before' ? catalog.works.slice(0,-1) : catalog.works;
+      return route.fulfill({json:{works}});
+    });
+    await page.goto(baseURL + '/?lang=en');
+    await page.locator('.preview-switch:visible').waitFor();
+    assert.equal(await page.locator('[data-work]').count(), catalog.works.length - 1);
+    edition = 'offline';
+    await page.reload();
+    await page.locator('#catalog-retry:visible').waitFor();
+    edition = 'after';
+    await page.locator('#catalog-retry').click();
+    const title = page.locator('[data-work="' + added.id + '"] h2');
+    assert.equal(await title.innerText(), added.title.en);
+    await page.getByRole('button',{name:'中文'}).click();
+    assert.equal(await title.innerText(), added.title.zh);
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth));
+  } finally {
+    await page.close();
+  }
+}
+
 async function checkAlbum(browser) {
   const page = await browser.newPage({reducedMotion:'reduce'});
   const errors = [];
@@ -9,9 +41,10 @@ async function checkAlbum(browser) {
   page.on('request', request => {
     if (/\.(glb|spz|ply|splat|bin|wasm|part\d+)$/.test(new URL(request.url()).pathname)) binaries.push(request.url());
   });
-  await page.goto(baseURL+'/');
+  await page.goto(baseURL+'/?lang=zh');
   const prints = page.locator('.print img');
   const sources = () => prints.evaluateAll(images => images.map(image => image.getAttribute('src')));
+  await page.locator('.preview-switch:visible').waitFor();
   const fronts = await sources();
   await page.getByRole('button',{name:'背面剧照'}).click();
   await prints.evaluateAll(images => Promise.all(images.map(image => image.decode())));
@@ -57,11 +90,28 @@ async function checkAlbum(browser) {
   await open('canine','#stage[data-ready=true]');
   assert.equal(await dog.locator('#degrees').textContent(),'090°');
   assert.deepEqual(binaries.slice(requests).filter(url=>before.has(url)),[]);
+  await back(dog);
+  assert(!binaries.some(url=>url.includes('/grandmas-table/')));
+  const dinner=await open('grandmas-table','#stage[data-ready=true]');
+  await dinner.locator('#turn').click();
+  await dinner.locator('#explore:visible').waitFor();
+  await dinner.locator('#explore').click();
+  const diningDoc=page.frames().find(frame=>frame.url().includes('/grandmas-table/index.html'));
+  await diningDoc.waitForFunction(()=>window.dinnerState().phase==='explore');
+  await back(dinner);
+  const diningRequests=binaries.length;
+  await open('grandmas-table','#stage[data-ready=true]');
+  assert.equal(await diningDoc.evaluate(()=>window.dinnerState().phase),'explore');
+  assert.equal(binaries.length,diningRequests);
+  await dinner.locator('[data-language=en]').click();
+  await back(dinner);
+  assert.equal(await page.locator('html').getAttribute('lang'),'en');
+  assert.equal(Number(await page.locator('.edition b').innerText()), await page.locator('.leaf').count());
   assert.deepEqual(errors,[]);
-  console.log('Album opens projects on demand and restores both live scenes without re-downloading their assets.');
+  console.log('Album opens all three screenings on demand and restores a revisited live room.');
 }
 
 (async()=>{
   const browser = await launchBrowser();
-  try { await checkAlbum(browser); } finally { await browser.close(); }
+  try { await checkCatalogUpdate(browser); await checkAlbum(browser); } finally { await browser.close(); }
 })().catch(error=>{console.error(error); process.exitCode=1;});

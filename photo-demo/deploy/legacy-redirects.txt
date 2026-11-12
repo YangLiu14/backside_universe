@@ -1,0 +1,3 @@
+/marble-transition-lab/* /releases/desk/9534de098d210667bf927642/marble-transition-lab/:splat 302
+/legacy.html /releases/desk/9534de098d210667bf927642/legacy.html 302
+/canine-museum/* /releases/canine/7cb0721f6f12f699d77a05c2/canine-museum/:splat 302

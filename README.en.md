@@ -18,6 +18,7 @@ Use the **中文 / English** control in the header to choose your language; your
 | --- | --- | --- |
 | **A Holiday Behind the Desk** | A desk becomes an ocean, with a cup, two books, a phone, and a laptop forming five islands. Send a paper boat out to sea, silence the demands of work, and return to your desk through a book page. | [Play online](https://backside-universe.netlify.app/?lang=en#desk) · [Project status](PROJECT_STATUS.md) |
 | **The Dog's Body Museum** | Move around a dog to discover six miniature galleries inside its body. Follow the journey of food and explore the worlds within its organs. | [Play online](https://backside-universe.netlify.app/?lang=en#canine) · [Project and setup notes](photo-demo/docs/CANINE_MUSEUM.md) |
+| **Grandma Always Sets Another Pair of Chopsticks** | Walk around the handle of the enamel pot, pull out the bamboo stool, and take a seat at the family table. | [Play online](https://backside-universe.netlify.app/?lang=en#grandmas-table) |
 
 ## Experience
 
@@ -48,7 +49,7 @@ Once the server starts, open [the photo album](http://127.0.0.1:9988/) and choos
 
 ## Status and next steps
 
-Both works are live in the album. Scenes ship independently. The [deployment guide](photo-demo/deploy/README.md) covers publishing a new photograph, storage and rollback.
+All three works are live in the album. New screenings ship with the scene library and appear through the catalog. The [deployment guide](photo-demo/deploy/README.md) covers publishing a new photograph, storage and rollback.
 
 Our next priorities are improving models and paths at close range, reducing initial loading and scene transition waits, and validating the complete journey on real mobile devices. See the [project status and plan](PROJECT_STATUS.md).
 

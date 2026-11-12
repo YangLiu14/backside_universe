@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>外婆总说，再添一双筷子 · 背面宇宙</title><link rel="icon" href="data:,">
+<link rel="stylesheet" href="./cinema/premiere.css"><link rel="stylesheet" href="./table.css">
+<script type="module" src="./i18n/index.js"></script>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/","@sparkjsdev/spark":"./vendor/spark.module.js"}}</script>
+</head><body class="premiere dinner-film"><main class="orbit">
+<header class="projection-head"><a href="../index.html" data-album-back aria-label="返回放映相簿"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 12H5m6-6-6 6 6 6"/></svg>返回相簿</a><span class="projection-house">背面宇宙</span><span class="screen-number">第 03 场</span></header>
+<section class="experience" aria-label="外婆总说，再添一双筷子">
+<div id="stage" tabindex="0" aria-busy="true" aria-label="横向拖动绕过红锅，方向键也可控制" aria-describedby="instruction">
+<canvas id="mesh"></canvas><canvas id="world"></canvas><img id="photo" src="photo.jpg" alt="蓝灰色桌面上的红色双耳搪瓷锅" draggable="false">
+<div class="film-loading" role="status">正在准备放映…</div><div id="subtitle" role="status" aria-live="polite"></div>
+</div>
+<div class="transport"><button id="turn" disabled>绕到锅后</button><label id="track" class="track"><input id="orbit" aria-label="绕锅进度" type="range" min="0" max="1000" value="0" disabled></label>
+<button id="pull" hidden>拉出小竹凳</button><button id="again" hidden>再坐一次</button><button id="explore" hidden>进屋走走</button><button id="height" hidden>蹲下看看</button><button id="back" hidden>回到锅边</button><button id="sound" aria-label="静音" aria-pressed="false">声音开</button></div>
+<div class="film-guide"><span id="instruction">正在备桌…</span></div>
+</section></main><script type="module" src="./table.js"></script></body></html>
