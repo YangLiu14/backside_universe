@@ -1,0 +1,4 @@
+interface:
+  display_name: "背面宇宙制作"
+  short_description: "从一张照片和一个故事出发，用 Hi3D 生成模型并交付可试玩的微缩世界"
+  default_prompt: "使用 $backside-universe，把这张照片做成能亲手探索的背面宇宙。"

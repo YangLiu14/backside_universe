@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+app_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+runtime=${UNIVERSE_PYTHON:-"$app_dir/experiments/gaussian/.venv/bin/python"}
+if [ ! -x "$runtime" ]; then runtime=python3; fi
+exec "$runtime" "$app_dir/pipeline/universe.py" "$@"

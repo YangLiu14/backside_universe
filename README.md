@@ -35,6 +35,46 @@
   <img src="docs/diagrams/photo-to-world.svg" alt="照片 → 3DGS 实景 → 微缩世界建模 → Three.js 与 Spark 融合 → 交互与故事；从书页返回原始实景。" width="1064">
 </picture>
 
+## 用一张照片，做一个背面宇宙
+
+把一张照片发给创作 Agent，告诉它你想在照片背后藏什么。它会把原照做成可以绕着看的实景，用 Hi3D 为背面的世界建模，再把两者装配成一个能在浏览器里试玩的作品。没有想好故事也可以，Agent 会先看图，给你两个方向选。
+
+### 第一次使用：安装和连接账号
+
+1. **在 Codex 中打开本仓库的根目录。** 首次打开时按提示信任项目，以启用随仓库提供的 Skill `$backside-universe` 和 Hi3D 国际站 MCP 配置。请确保本机也能运行 `codex` 命令。
+
+   ```sh
+   git clone https://github.com/YangLiu14/backside_universe.git
+   cd backside_universe
+   ```
+
+2. **让 Agent 准备制作环境。** 在项目对话里发送下面这句话。首次配置需要下载照片重建、网页渲染和浏览器验收所用的依赖。[首次配置指南](.agents/skills/backside-universe/references/setup.md)
+
+   > `$backside-universe` 帮我配置第一次创作需要的环境，检查缺少哪些依赖，并带我连接自己的 Hi3D 国际站账号。先不要生成收费模型。
+
+3. **登录自己的 Hi3D 国际站账号。** 按提示在浏览器里授权，让 Agent 帮你核对邮箱、昵称和积分，保存本机账户绑定。建模使用个人账号已有的积分，无需申请开放平台 API Key。[Hi3D 国际站](https://www.hi3d.ai/)
+
+   手动连接时，在仓库根目录运行：
+
+   ```sh
+   codex mcp login hi3d_intl
+   ./photo-demo/universe setup mcp-account
+   ```
+
+   按首次配置指南绑定账户后，再运行第二条命令，应显示 `matches_local_pin: true`。以后在这台机器上使用同一账号，可以直接开始创作。
+
+### 日常创作：发照片，说想法
+
+在项目对话里附上一张照片，输入 `$backside-universe`，再用自己的话描述想法。例如，附上一张旧收音机的照片，然后说：
+
+> `$backside-universe` 我想让这台收音机的背面藏着一间深夜电台。观众绕到背后，可以给小时候的自己点一首歌。概念图出来后先给我看。
+
+选定故事后，Agent 会继续制作。**概念图审核是可选的**，你可以说「等我看过再继续」，也可以说「按你选的方向做到底」。**收费建模前会确认当前报价**，Agent 会列出要生成的模型和各自所需的积分，多项可以一次确认。确认后，它会继续生成、装配场景，并在浏览器里检查绕行和交互。
+
+完成后，你会收到**本地试玩链接和独立网页包**。想返修，直接描述你试玩时遇到的问题，例如「坐下以后看不到桌上的菜，把视角抬高一点」。中途关掉了对话，也可以在同一项目里告诉 Agent 作品名，让它从已有记录继续。
+
+[创作 Skill](.agents/skills/backside-universe/SKILL.md) · [制作命令与配置](.agents/skills/backside-universe/references/production.md) · [体验质量与返修](.agents/skills/backside-universe/references/quality.md) · [工作流复核](photo-demo/docs/AGENT_WORKFLOW_REVIEW.md)
+
 ## 本地运行
 
 需要 Node.js 和支持 WebGL2 的浏览器。**新克隆需先按[资产恢复说明](photo-demo/docs/ASSETS.md)恢复照片、模型、Gaussian 场景与运行依赖**，然后在仓库根目录执行：

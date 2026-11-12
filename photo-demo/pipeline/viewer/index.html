@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>背面宇宙</title>
+<link rel="stylesheet" href="./viewer.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/","@sparkjsdev/spark":"./vendor/spark.module.js"}}</script>
+<main>
+<header><span>背面宇宙</span><h1 id="title"></h1></header>
+<section id="stage" aria-label="照片与三维展台" tabindex="0"><div id="frame"><canvas id="mesh"></canvas><canvas id="world"></canvas><img id="photo" alt="作品原始照片"></div></section>
+<footer><div id="caption" aria-live="polite">正在准备作品…</div>
+<div class="controls"><button id="home" disabled>原照</button><input id="progress" type="range" min="0" max="1000" value="0" aria-label="绕行进度" disabled>
+<button id="enter" disabled>近看</button><button id="action" hidden></button></div></footer>
+</main><script type="module" src="./viewer.js"></script></html>
