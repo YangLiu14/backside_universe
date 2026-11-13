@@ -48,23 +48,6 @@ npm run dev
 
 Once the server starts, open [the photo album](http://127.0.0.1:9988/) and choose a photograph to enter its world. Return to the album and reopen a project in the same tab to resume your previous view. You can also open [the desk experience](http://127.0.0.1:9988/marble-transition-lab/index.html) directly. See the [development guide](photo-demo/docs/DEVELOPMENT.md) for environment setup and validation commands.
 
-## Status and next steps
-
-All four works are live in the album. New screenings ship with the scene library and appear through the catalog. The [deployment guide](photo-demo/deploy/README.md) covers publishing a new photograph, storage and rollback.
-
-Our next priorities are improving models and paths at close range, reducing initial loading and scene transition waits, and validating the complete journey on real mobile devices. See the [project status and plan](PROJECT_STATUS.md).
-
-## Documentation
-
-Detailed development notes are currently in Chinese.
-
-| Topic | Start here |
-| --- | --- |
-| Local development and validation | [Development guide](photo-demo/docs/DEVELOPMENT.md) |
-| Restoring the full experience | [Assets and dependencies](photo-demo/docs/ASSETS.md) |
-| Connecting splats and meshes | [Scene transitions](photo-demo/docs/MARBLE_TRANSITION.md) · [The book-page loop](photo-demo/docs/BOOKROOM_LOOP.md) |
-| Production notes, earlier versions, and research | [Documentation index](photo-demo/docs/README.md) |
-
 ## Credits and licensing
 
 Rendering uses [Three.js](https://github.com/mrdoob/three.js) and [Spark](https://github.com/sparkjsdev/spark). Underwater motion draws on [Abyssal Living Deep](https://github.com/emollick/abyssal-living-deep), with scanned materials from [Poly Haven](https://polyhaven.com/).

@@ -88,20 +88,6 @@ npm run dev
 
 服务启动后，打开[放映相簿](http://127.0.0.1:9988/)，点选照片进入作品。在同一标签页返回相簿再进入，可以继续上次的放映。也可以直接打开[工位主体验](http://127.0.0.1:9988/marble-transition-lab/index.html)。环境配置与检查命令见[开发指南](photo-demo/docs/DEVELOPMENT.md)。
 
-## 当前状态与后续方向
-
-四件作品均可从同一相簿在线进入。相簿按作品目录展示照片，新增作品只需更新场景库。版本清单、资源存储与回滚流程见[部署指南](photo-demo/deploy/README.md)。
-
-接下来优先打磨近距离模型与通路、降低首屏和场景切换的等待，并在真实移动设备上验证完整旅程。[查看项目状态与计划](PROJECT_STATUS.md)。
-
-## 文档
-
-| 想了解什么 | 从这里开始 |
-| --- | --- |
-| 本地开发与检查 | [开发指南](photo-demo/docs/DEVELOPMENT.md) |
-| 恢复完整演示资源 | [资产与依赖](photo-demo/docs/ASSETS.md) |
-| 实景与建模如何衔接 | [转场实现](photo-demo/docs/MARBLE_TRANSITION.md) · [书页循环](photo-demo/docs/BOOKROOM_LOOP.md) |
-| 制作记录、旧版与研究 | [文档索引](photo-demo/docs/README.md) |
 
 ## 致谢与许可
 
