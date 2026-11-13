@@ -125,6 +125,9 @@ async function check(page,device,viewport,out,url,coldOrbit){
   }
   await page.waitForFunction(()=>window.dinnerState().phase==='seated',null,{timeout:7000});
   const seated=await state();assert.equal(seated.sticks,2);assert(seated.stoolZ>open.stoolZ+.35);
+  const voiceRequests=await page.evaluate(()=>performance.getEntriesByType('resource')
+    .map(entry=>new URL(entry.name).pathname).filter(path=>/\/(welcome|pair)\.mp3$/.test(path)));
+  assert.deepEqual(voiceRequests,[],'外婆的台词应只显示字幕');
   assert(seated.lookDirection[1]<-.28,'seated view should look down onto the meal');
   assert(seated.plates.every(({screen:[x,y]})=>x>rect.x&&x<rect.x+rect.width&&y>rect.y&&y<rect.y+rect.height));
   await shot('seated');assert.match(await page.locator('#subtitle').textContent(),/再添一双筷子/);

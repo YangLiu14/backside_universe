@@ -89,7 +89,7 @@ async function boot(){
   const asWorld=p=>local(p.x,p.y,p.z);
   let walkEntry=0,fromRoom=null,autoOrbit=false;
   const indoors=()=>phase==='explore'||phase==='seated';
-  let progress=0,seatTime=-1,last=performance.now(),phase='orbit',returned=false,spoken=false,delivered=false,subtitleTimer=0;
+  let progress=0,seatTime=-1,last=performance.now(),phase='orbit',returned=false,greeted=false,delivered=false,subtitleTimer=0;
   let width=1,height=1,srcW=W,srcH=H,srcX=0,srcY=0;
   function resize(){
     width=Math.max(1,stage.clientWidth);height=Math.max(1,stage.clientHeight);
@@ -119,13 +119,13 @@ async function boot(){
     sticks.activate(free?'dining-room':null);
     stage.style.cursor=ready&&outside?'pointer':'grab';
   }
-  function seek(p,voice=true){
+  function seek(p){
     progress=T.MathUtils.clamp(p,0,1);
-    if(progress>=.985&&!spoken&&phase==='orbit'){
-      spoken=true;
-      if(voice){sound.start();sound.play('welcome');showLine('回来啦？把你的小凳子拉过来。',4);}
+    if(progress>=.985&&!greeted&&phase==='orbit'){
+      greeted=true;
+      showLine('回来啦？把你的小凳子拉过来。',4);
     }
-    if(progress<.70){if(spoken)sound.stop();spoken=false;returned=false;showLine('',0);}
+    if(progress<.70){if(greeted)sound.stop();greeted=false;returned=false;showLine('',0);}
     syncControls();
   }
   function enterRoom(){
@@ -159,7 +159,7 @@ async function boot(){
     if(subtitleTimer>0){subtitleTimer-=dt;if(subtitleTimer<=0)$('subtitle').textContent='';}
     if(phase==='arriving'){
       seatTime+=dt*(reduced?2.4:1);
-      if(seatTime>=1.68&&!delivered){delivered=true;sound.play('pair');showLine('再添一双筷子。',3.8);}
+      if(seatTime>=1.68&&!delivered){delivered=true;showLine('再添一双筷子。',3.8);}
       if(seatTime>=2.65&&phase==='arriving'){phase='seated';walk.start(chairEye,chairLook);walkEntry=1;fromRoom=null;sound.clink();syncControls();}
     }
     const p=progress;

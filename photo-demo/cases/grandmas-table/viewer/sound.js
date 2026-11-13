@@ -1,12 +1,9 @@
 export class DinnerSound {
-  constructor(){this.muted=false;this.live=new Set();this.pending={};this.generation=0;}
+  constructor(){this.muted=false;this.live=new Set();}
   async start(){
     if(!this.context){
       const ctx=this.context=new AudioContext();
       this.master=ctx.createGain();this.master.gain.value=this.muted?0:.75;this.master.connect(ctx.destination);
-      for(const key of ['welcome','pair']){
-        this.pending[key]=fetch(key+'.mp3').then(r=>r.arrayBuffer()).then(b=>ctx.decodeAudioData(b)).catch(()=>null);
-      }
     }
     if(this.context.state==='suspended')await this.context.resume().catch(()=>{});
   }
@@ -50,15 +47,7 @@ export class DinnerSound {
     this.weather.gain.setTargetAtTime(level,ctx.currentTime,.25);
     this.rainPanner.pan.setTargetAtTime(pan,ctx.currentTime,.14);
   }
-  stop(){this.generation++;for(const src of this.live){try{src.stop();}catch{}}this.live.clear();}
-  async play(key){
-    if(!this.context||this.muted)return;
-    const sequence=this.generation,buffer=await this.pending[key];
-    if(!buffer||this.muted||sequence!==this.generation)return;
-    const ctx=this.context,s=ctx.createBufferSource(),p=ctx.createStereoPanner();
-    p.pan.value=key==='welcome'?-.48:-.32;s.buffer=buffer;s.connect(p).connect(this.master);
-    s.onended=()=>{this.live.delete(s);s.disconnect();p.disconnect();};this.live.add(s);s.start();
-  }
+  stop(){for(const src of this.live){try{src.stop();}catch{}}this.live.clear();}
   scrape(){
     if(!this.context||this.muted)return;
     const ctx=this.context,t=ctx.currentTime,b=ctx.createBuffer(1,ctx.sampleRate*.57,ctx.sampleRate),a=b.getChannelData(0);

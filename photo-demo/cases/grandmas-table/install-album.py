@@ -25,7 +25,7 @@ if report.get('version',release.name) != release.name or report['errors'] or {r[
 work=dist/case
 def copy_screening(source,target):
     shutil.copytree(source,target,dirs_exist_ok=True)
-    for legacy in ('wood.jpg','window-view.jpg','textures/supper.webp'):
+    for legacy in ('wood.jpg','window-view.jpg','textures/supper.webp','welcome.mp3','pair.mp3'):
         if not (source/legacy).is_file():
             (target/legacy).unlink(missing_ok=True)
 copy_screening(release,work)

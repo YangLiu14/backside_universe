@@ -1,4 +1,4 @@
-"""Restore the case's measured pot camera, textures and Mandarin lines for packaging."""
+"""Restore the case's measured pot camera, and textures for packaging."""
 import hashlib
 import json
 import os
@@ -6,7 +6,6 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
-import tempfile
 
 folder, output = map(Path, sys.argv[1:])
 case = Path(__file__).resolve().parent
@@ -43,14 +42,7 @@ if not all((art/name).is_file() for name in images) or not cache.exists() or jso
                     case/'measure.py','--',source,art/'shell-points.npz'],check=True)
     subprocess.run([sys.executable,case/'calibrate.py',folder],check=True)
     cache.write_text(json.dumps(signature))
-for stem, line in [('welcome','回来啦？把你的小凳子拉过来。'),('pair','再添一双筷子。')]:
-    voice = art / (stem+'.mp3')
-    if not voice.is_file():
-        with tempfile.TemporaryDirectory() as tmp:
-            aiff = Path(tmp)/'line.aiff'
-            subprocess.run(['say','-v','Tingting','-r','158','-o',aiff,line],check=True)
-            subprocess.run(['ffmpeg','-loglevel','error','-y','-i',aiff,voice],check=True)
-for name in ('pot-fit.json','room-plate.jpg','welcome.mp3','pair.mp3'):
+for name in ('pot-fit.json','room-plate.jpg'):
     shutil.copyfile(art/name,output/name)
 # The same screening-room controls are included in the portable export.
 shutil.copytree(app/'dist/i18n',output/'i18n',dirs_exist_ok=True)
