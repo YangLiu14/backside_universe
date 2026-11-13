@@ -106,12 +106,71 @@ async function checkAlbum(browser) {
   await dinner.locator('[data-language=en]').click();
   await back(dinner);
   assert.equal(await page.locator('html').getAttribute('lang'),'en');
+  assert(!binaries.some(url=>url.includes('/after-school-rewind/')));
+  const rewind = await open('after-school-rewind','#stage[data-ready=true]');
+  const cassetteDoc = page.frames().find(frame=>frame.url().includes('/after-school-rewind/index.html'));
+  await cassetteDoc.waitForFunction(()=>document.documentElement.lang === 'en');
+  await rewind.locator('#progress').fill('1000');
+  await rewind.locator('#enter').click();
+  await rewind.locator('#yard').click();
+  await cassetteDoc.waitForFunction(()=>window.rewindState().tour === 'court');
+  const eye = await cassetteDoc.evaluate(()=>window.rewindState().eye);
+  await rewind.locator('#stage').focus();
+  await page.keyboard.down('KeyD');
+  try {
+    await cassetteDoc.waitForFunction(x=>window.rewindState().eye[0] > x + 1,eye[0]);
+  } finally {
+    await page.keyboard.up('KeyD');
+  }
+  await cassetteDoc.waitForFunction(()=>window.rewindState().time === 4);
+  const position = await cassetteDoc.evaluate(()=>window.rewindState().eye);
+  const screen = await rewind.locator('#world').elementHandle();
+  const campusRequests = binaries.length;
+  await back(rewind);
+  await open('after-school-rewind','#stage[data-ready=true]');
+  assert(await screen.evaluate(canvas=>canvas === document.querySelector('#world')));
+  assert.deepEqual(await cassetteDoc.evaluate(()=>window.rewindState().eye),position);
+  assert.equal(binaries.length,campusRequests);
+  await back(rewind);
   assert.equal(Number(await page.locator('.edition b').innerText()), await page.locator('.leaf').count());
   assert.deepEqual(errors,[]);
-  console.log('Album opens all three screenings on demand and restores a revisited live room.');
+  console.log('All four screenings load on demand. Revisiting the cassette restores the same court position.');
+  await page.close();
+}
+
+async function checkCassetteDeepLink(browser) {
+  const page = await browser.newPage({viewport:{width:390,height:844},hasTouch:true,isMobile:true,reducedMotion:'reduce'});
+  try {
+    await page.goto(baseURL + '/?lang=zh#after-school-rewind');
+    const room = page.frameLocator('iframe[data-screening-room="after-school-rewind"]');
+    await room.locator('#stage[data-ready=true]').waitFor({timeout:150000});
+    await room.locator('#progress').fill('1000');
+    await room.locator('#enter').tap();
+    await room.locator('#yard').tap();
+    const doc = page.frames().find(frame=>frame.url().includes('/after-school-rewind/index.html'));
+    await doc.waitForFunction(()=>window.rewindState().tour === 'court');
+    for (const viewport of [{width:844,height:390},{width:390,height:844}]) {
+      await page.setViewportSize(viewport);
+      await doc.waitForFunction(width=>innerWidth === width, viewport.width);
+      const controls = await room.locator('#yard').boundingBox();
+      assert(controls && controls.x >= 0 && controls.x + controls.width <= viewport.width + 1);
+      assert(controls.y >= 0 && controls.y + controls.height <= viewport.height + 1);
+      assert(await room.locator('#stick').isVisible());
+    }
+    await room.locator('[data-album-back]').tap();
+    await page.locator('#album:visible').waitFor();
+    assert.equal(new URL(page.url()).hash,'');
+    console.log('The cassette deep link opens on touch, rotates on court and returns to the album.');
+  } finally {
+    await page.close();
+  }
 }
 
 (async()=>{
   const browser = await launchBrowser();
-  try { await checkCatalogUpdate(browser); await checkAlbum(browser); } finally { await browser.close(); }
+  try {
+    await checkCatalogUpdate(browser);
+    await checkAlbum(browser);
+    await checkCassetteDeepLink(browser);
+  } finally { await browser.close(); }
 })().catch(error=>{console.error(error); process.exitCode=1;});

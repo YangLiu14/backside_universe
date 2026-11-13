@@ -24,5 +24,9 @@
   "grandmas-table": {
     "entry": "grandmas-table/index.html",
     "files": ["grandmas-table/**/*"]
+  },
+  "after-school-rewind": {
+    "entry": "after-school-rewind/index.html",
+    "files": ["after-school-rewind/**/*"]
   }
 }

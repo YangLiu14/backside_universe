@@ -161,6 +161,60 @@
           }
         }
       ]
+    },
+    {
+      "id": "after-school-rewind",
+      "entry": "./after-school-rewind/index.html",
+      "title": {
+        "zh": "铅笔倒带，倒回放学那天",
+        "en": "Rewind to the Final Bell"
+      },
+      "description": {
+        "zh": "拧动铅笔，把篮球倒回同学手里。穿过广播室的窗户，走上放学后的球场。",
+        "en": "Turn the pencil to wind the ball back into a student’s hands. Step through the radio room window and onto the court."
+      },
+      "theme": {
+        "zh": "磁带里的校园",
+        "en": "A school inside a cassette"
+      },
+      "front": {
+        "src": "./after-school-rewind/stills/desk.webp",
+        "alt": {
+          "zh": "红黑铅笔穿过透明磁带的带轮，旁边放着一盒英语听力磁带。",
+          "en": "A red-and-black pencil threads a clear cassette beside a boxed English listening tape."
+        },
+        "caption": {
+          "zh": "课桌上的磁带",
+          "en": "The cassette on the desk"
+        }
+      },
+      "back": {
+        "src": "./after-school-rewind/stills/cassette.webp",
+        "alt": {
+          "zh": "磁带背面露出播音桌、话筒和通往篮球场的窗户。",
+          "en": "The back of the cassette opens onto a radio desk, a microphone and a window onto the court."
+        },
+        "caption": {
+          "zh": "带轮之间的广播室",
+          "en": "The radio room between the reels"
+        }
+      },
+      "strip": [
+        {
+          "src": "./after-school-rewind/stills/studio.webp",
+          "caption": {
+            "zh": "窗前的一记投篮",
+            "en": "A shot through the window"
+          }
+        },
+        {
+          "src": "./after-school-rewind/stills/court.webp",
+          "caption": {
+            "zh": "放学后的篮球场",
+            "en": "The court after school"
+          }
+        }
+      ]
     }
   ]
 }

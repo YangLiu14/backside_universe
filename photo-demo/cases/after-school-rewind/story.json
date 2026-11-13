@@ -1,0 +1,74 @@
+{
+  "title": "铅笔倒带，倒回放学那天",
+  "story": "绕过透明磁带，到广播室窗前，把最后一球倒回手里；穿过窗口走到篮球场，沿边线走到教学楼和风雨球馆旁。",
+  "subject": "课桌上的透明 C60 盒式磁带（不含旁边的英语听力带盒）",
+  "sourceEdition": "01D · 绿封英语听力带盒",
+  "box": [
+    0.43,
+    0.3921,
+    0.6848,
+    0.7535
+  ],
+  "anchorsPx": {
+    "emptyHub": [
+      840,
+      549
+    ],
+    "driveHub": [
+      1013,
+      507
+    ],
+    "tip": [
+      1324,
+      696
+    ],
+    "cap": [
+      713,
+      340
+    ],
+    "bottomLeft": [
+      731,
+      697
+    ],
+    "bottomRight": [
+      1131,
+      624
+    ]
+  },
+  "layout": "insert",
+  "experience": "after-school-rewind",
+  "action": "rewind",
+  "actionLabel": "按住倒带",
+  "actionResult": "球回到了手心。松手，再投一次。",
+  "conceptPrompt": "磁带背面两轮之间的窄广播室，斜后视角同时看见有线话筒、稿纸、穿笔轴和操场投篮弧线。分件制作活动角色与球；内景窗洞留空，无静止球。",
+  "revealDeg": 157,
+  "handoffDeg": 3,
+  "yaw": 0,
+  "pitch": 0,
+  "roll": 14,
+  "insertScale": 0.78,
+  "insertYaw": 180,
+  "focus": [
+    0.0,
+    0.035,
+    -0.13
+  ],
+  "props": [
+    "pencil",
+    "reel",
+    "ball",
+    "shooter",
+    "walker",
+    "court",
+    "field",
+    "basket",
+    "classblock",
+    "gymhall"
+  ],
+  "memory": {
+    "duration": 4,
+    "release": 1,
+    "apex": 2.3,
+    "broadcast": "今天的校园广播就到这里。操场上的同学，明天见。"
+  }
+}

@@ -1,6 +1,6 @@
 # Backside Universe 的发布方式
 
-[正式相簿](https://backside-universe.netlify.app/) · [工位背后的假期](https://backside-universe.netlify.app/#desk) · [小狗的内脏博物馆](https://backside-universe.netlify.app/#canine) · [外婆总说，再添一双筷子](https://backside-universe.netlify.app/#grandmas-table)
+[正式相簿](https://backside-universe.netlify.app/) · [工位背后的假期](https://backside-universe.netlify.app/#desk) · [小狗的内脏博物馆](https://backside-universe.netlify.app/#canine) · [外婆总说，再添一双筷子](https://backside-universe.netlify.app/#grandmas-table) · [铅笔倒带，倒回放学那天](https://backside-universe.netlify.app/#after-school-rewind)
 
 相簿与场景库由同一 Netlify 团队的两个项目提供。2026-11-09 首次上线的相簿发布目录约 236 KiB，工位场景约 202.5 MiB，小狗场景约 142.1 MiB。大小为所有发布文件的合计，实际单次访问只会请求所到达的内容。旧工位站点仍可独立访问。
 

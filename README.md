@@ -19,6 +19,7 @@
 | **工位背后的假期** | 书桌变成海洋，杯子、书本、手机与电脑成为五座岛。放走一艘纸船，拨掉工作的声音，再从书页回到工位。 | [在线体验](https://backside-universe.netlify.app/?lang=zh#desk) · [作品现状](PROJECT_STATUS.md) |
 | **小狗身体博物馆** | 绕到小狗身侧，发现身体里的六座微缩展馆；沿着食物的旅程，进入器官内部探索。 | [在线体验](https://backside-universe.netlify.app/?lang=zh#canine) · [作品与运行说明](photo-demo/docs/CANINE_MUSEUM.md) |
 | **外婆总说，再添一双筷子** | 绕过搪瓷锅的右耳，在亮着吊灯的饭厅拉凳入座，也可以沿桌边自由走动。 | [在线体验](https://backside-universe.netlify.app/?lang=zh#grandmas-table) |
+| **铅笔倒带，倒回放学那天** | 转动铅笔，把放学前的最后一球倒回同学手中，再穿过广播室的窗户，走上篮球场。 | [在线体验](https://backside-universe.netlify.app/?lang=zh#after-school-rewind) |
 
 ## 体验亮点
 
@@ -89,7 +90,7 @@ npm run dev
 
 ## 当前状态与后续方向
 
-三件作品均可从同一相簿在线进入。相簿按作品目录展示照片，新增作品只需更新场景库。版本清单、资源存储与回滚流程见[部署指南](photo-demo/deploy/README.md)。
+四件作品均可从同一相簿在线进入。相簿按作品目录展示照片，新增作品只需更新场景库。版本清单、资源存储与回滚流程见[部署指南](photo-demo/deploy/README.md)。
 
 接下来优先打磨近距离模型与通路、降低首屏和场景切换的等待，并在真实移动设备上验证完整旅程。[查看项目状态与计划](PROJECT_STATUS.md)。
 
