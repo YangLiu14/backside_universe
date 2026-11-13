@@ -16,3 +16,9 @@ header,footer{padding:12px clamp(16px,4vw,60px);background:#18211e}header{displa
 [data-album-back]{color:inherit;text-decoration:none;white-space:nowrap;padding:8px 4px}
 [data-album-back]:hover{text-decoration:underline}
 @media(max-width:650px){header>span{display:none}header h1{flex-basis:100%;order:-1}.language-switch{margin-inline-start:0}}
+
+/* The hosting badge occupies the lower-right corner of the published player. */
+body:has(#nl-badge-frame) footer{padding-right:max(214px,env(safe-area-inset-right))}
+@media(max-width:1000px){
+ body:has(#nl-badge-frame) footer{padding-right:clamp(12px,4vw,60px);padding-bottom:max(68px,env(safe-area-inset-bottom))}
+}
