@@ -1,6 +1,6 @@
 # Backside Universe 的发布方式
 
-[正式相簿](https://backside-universe.netlify.app/) · [工位背后的假期](https://backside-universe.netlify.app/#desk) · [小狗的内脏博物馆](https://backside-universe.netlify.app/#canine) · [外婆总说，再添一双筷子](https://backside-universe.netlify.app/#grandmas-table) · [铅笔倒带，倒回放学那天](https://backside-universe.netlify.app/#after-school-rewind)
+[正式相簿](https://backside-universe.netlify.app/) · [工位背后的假期](https://backside-universe.netlify.app/#desk) · [小狗的内脏博物馆](https://backside-universe.netlify.app/#canine) · [外婆总说，再添一双筷子](https://backside-universe.netlify.app/#grandmas-table) · [铅笔倒带，倒回放学那天](https://backside-universe.netlify.app/#after-school-rewind) · [陪我走过小时候的路](https://backside-universe.netlify.app/#sole-city)
 
 相簿与场景库由同一 Netlify 团队的两个项目提供。2026-11-09 首次上线的相簿发布目录约 236 KiB，工位场景约 202.5 MiB，小狗场景约 142.1 MiB。大小为所有发布文件的合计，实际单次访问只会请求所到达的内容。旧工位站点仍可独立访问。
 
@@ -23,14 +23,26 @@
 
 要上架的作品还要在 `photo-demo/deploy/scenes.json` 登记同一 ID、入口和运行文件。《外婆》已有桌面和移动端验收报告时，在带 Pillow 的 Python 环境运行 `python3 photo-demo/cases/grandmas-table/install-album.py`，将对应场景和剧照安装到 `photo-demo/dist/grandmas-table/`。模型、原图、构建输出和部署凭据留在本地或私有备份。[发布文件清单](scenes.json)
 
-### 2. 给这件作品生成版本
+### 2. 打包、检查并登记候选版本
+
+每次新建作品、替换模型、调整 UI 或修改加载代码，都执行[统一上线检查](QUALITY.md)。先完成作品自身的技术 QA 和画面验收；跑鞋还要运行 `python3 photo-demo/cases/sole-city/install-album.py`，安装同版本的播放器和剧照。
 
 ```sh
 SCENE_STORE="$PWD/photo-demo/evidence/deployment/scene-store"
-python3 photo-demo/scripts/release-album.py pack grandmas-table --record --store "$SCENE_STORE"
+python3 photo-demo/scripts/release-album.py pack sole-city --store "$SCENE_STORE"
+# VERSION 使用上一条打印的完整版本号。
+VERSION=<候选版本号>
+python3 photo-demo/scripts/review-release.py sole-city "$VERSION" --store "$SCENE_STORE"
 ```
 
-用新作品的 ID 替换 `grandmas-table`。`--record` 在 macOS 或 Linux 上自动更新当前版本并追加历史记录。相同文件重复打包会得到同一版本。手动登记时可省略 `--record`，将打印的版本写入这两份文件。[当前版本](releases.json) · [历史版本](published-scenes.json)
+检查程序启动临时的真实相簿，测桌面、触屏、慢资源、加载失败和重试。通过后查看 `quality/sole-city/$VERSION/` 内六张截图，按 `QUALITY.md` 的格式写视觉复核记录。技术和视觉均通过后才能改当前版本：
+
+```sh
+python3 photo-demo/scripts/release-album.py review-visual sole-city "$VERSION" --store "$SCENE_STORE" --notes /absolute/path/visual-notes.json
+python3 photo-demo/scripts/release-album.py promote sole-city "$VERSION" --store "$SCENE_STORE"
+```
+
+替换作品 ID 即可用于其他作品。`promote` 会检查候选文件摘要、技术报告、截图摘要和当前规则，成功后才修改[当前版本](releases.json)并追加[历史版本](published-scenes.json)。旧的 `pack --record` 也受同一检查约束。手写版本号无法绕过导出检查。规则启用前的固定版本仅按 `legacy-quality-pins.json` 保留，不能用来豁免新的候选版本。
 
 ### 3. 导出本次要发布的文件
 

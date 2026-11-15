@@ -30,7 +30,9 @@
     "check:desktop-islands": "node scripts/check-desktop-islands.cjs",
     "check:desktop-bookroom": "node --test scripts/check-desktop-bookroom.mjs",
     "check:bookroom-loop": "node --test scripts/check-bookroom-loop.mjs",
-    "check:language": "node scripts/check-language.cjs"
+    "check:language": "node scripts/check-language.cjs",
+    "check:release": "python3 scripts/review-release.py",
+    "check:release-workflow": "python3 scripts/test-release-album.py"
   },
   "devDependencies": {
     "gltfpack": "1.3.0"

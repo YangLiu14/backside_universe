@@ -11,6 +11,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
+from release_quality import require_pass, check_pin, receipt_dir, POLICY
 
 APP = Path(__file__).resolve().parents[1]
 SOURCE = APP / 'dist'
@@ -107,8 +108,9 @@ def published_releases(config, pins, published):
     return releases
 
 
-def record_pin(key, version, config):
+def record_pin(key, version, config, store):
     # A single checkout on the release Mac may prepare two works at once.
+    require_pass(store, key, version)
     import fcntl
     lock = os.open(PINS.parent, os.O_RDONLY)
     try:
@@ -144,6 +146,8 @@ def verify_store(store, config, pins):
     for version in (store / 'releases').glob('*/*'):
         if not version.is_dir() or digest_tree(version) != version.name:
             raise ValueError(f'Invalid release in store: {version}')
+    for key, version in pins.items():
+        check_pin(store, key, version)
     print('All published scenes are present and stored release hashes match.')
     return releases
 
@@ -291,6 +295,15 @@ def main():
     pack.add_argument('work', choices=sorted(config))
     pack.add_argument('--store', type=Path, required=True)
     pack.add_argument('--record', action='store_true', help='Record this pin and retain earlier versions (macOS/Linux)')
+    promote = commands.add_parser('promote', help='Promote a candidate only after technical and visual launch checks')
+    promote.add_argument('work', choices=sorted(config))
+    promote.add_argument('version')
+    promote.add_argument('--store', type=Path, required=True)
+    approve = commands.add_parser('review-visual', help='Record screenshot review for a passing technical report')
+    approve.add_argument('work', choices=sorted(config))
+    approve.add_argument('version')
+    approve.add_argument('--store', type=Path, required=True)
+    approve.add_argument('--notes', type=Path, required=True)
     catalog = commands.add_parser('catalog', help='Publish pinned scene entries and album artwork into the scene store')
     catalog.add_argument('--store', type=Path, required=True)
     verify = commands.add_parser('verify-store', help='Check the complete local scene library before a Netlify deploy')
@@ -311,8 +324,32 @@ def main():
     if args.command == 'pack':
         version = build_pack(args.work, config[args.work], target)
         if args.record:
-            record_pin(args.work, version, config)
+            record_pin(args.work, version, config, target)
         print(args.work, version)
+    elif args.command in ('promote', 'review-visual'):
+        if not re.fullmatch('[0-9a-f]{24}', args.version):
+            parser.error('Use the full immutable candidate version')
+        if digest_tree(target / 'releases' / args.work / args.version) != args.version:
+            raise ValueError('Candidate changed after packaging')
+        if args.command == 'promote':
+            record_pin(args.work, args.version, config, target)
+        else:
+            folder = receipt_dir(target, args.work, args.version)
+            notes = json.loads(args.notes.read_text())
+            expected = set(json.loads(POLICY.read_text())['requiredScreens'])
+            if {row['screen'] for row in notes['checks']} != expected or len(notes['checks']) != len(expected):
+                raise ValueError('Review exactly the screenshot names required by quality-policy.json')
+            checks = [dict(row, sha256=hashlib.sha256((folder / (row['screen'] + '.png')).read_bytes()).hexdigest())
+                      for row in notes['checks']]
+            review = dict(report_sha256=hashlib.sha256((folder / 'report.json').read_bytes()).hexdigest(), checks=checks)
+            destination = folder / 'visual-review.json'
+            destination.write_text(json.dumps(review, ensure_ascii=False, indent=2) + '\n')
+            try:
+                require_pass(target, args.work, args.version)
+            except Exception:
+                destination.unlink()
+                raise
+        print(args.work, args.version, args.command)
     elif args.command == 'catalog':
         write_catalog(target, config, json.loads(PINS.read_text()))
     elif args.command == 'verify-store':

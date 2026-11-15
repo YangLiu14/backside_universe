@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "ui": "premiere-v1",
+  "profiles": [
+    {"id":"desktop","width":1280,"height":800,"touch":false,"cpu":1,"mbps":50,"latencyMs":80,"readyMs":40000},
+    {"id":"touch","width":390,"height":844,"touch":true,"cpu":2,"mbps":50,"latencyMs":80,"readyMs":60000}
+  ],
+  "photoMs": 2500,
+  "startupMiB": 160,
+  "revisitMs": 1500,
+  "failureMs": 8000,
+  "slowProbeMs": 5000,
+  "badge": {"width":202,"height":64},
+  "requiredScreens": ["desktop-ready","desktop-explore","touch-ready","touch-landscape","slow-loading","load-error"],
+  "note": "These are release ceilings on the named emulated profiles, not a promise of real-phone or public-CDN performance. Slow-network testing checks feedback and recovery separately. Changing a ceiling invalidates existing receipts and requires a documented reason."
+}
