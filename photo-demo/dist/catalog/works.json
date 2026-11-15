@@ -215,6 +215,60 @@
           }
         }
       ]
+    },
+    {
+      "id": "sole-city",
+      "entry": "./sole-city/index.html",
+      "title": {
+        "zh": "陪我走过小时候的路",
+        "en": "The Roads I Walked as a Child"
+      },
+      "theme": {
+        "zh": "鞋底里的童年小镇",
+        "en": "A childhood town beneath the sole"
+      },
+      "description": {
+        "zh": "这双旧跑鞋陪我走过小时候的路。翻到鞋底，熟悉的小区门、天桥和豆浆摊，在磨损的纹路之间重新长成一座小镇。",
+        "en": "These old running shoes carried me through the streets of my childhood. Beneath the sole, a familiar gate, footbridge and soy milk stall grow between the worn treads into the town I remember."
+      },
+      "front": {
+        "src": "./sole-city/stills/shoes.webp",
+        "alt": {
+          "zh": "木地板上的两只旧跑鞋，前景的鞋子正放，绿色鞋带散在两侧。",
+          "en": "Two worn running shoes on a wooden floor, with loose green laces around the upright foreground shoe."
+        },
+        "caption": {
+          "zh": "陪我走过童年的旧跑鞋",
+          "en": "The old shoes from my childhood"
+        }
+      },
+      "back": {
+        "src": "./sole-city/stills/sole.webp",
+        "alt": {
+          "zh": "正放跑鞋的鞋底背面长出高低错落的建筑，整座小镇位于鞋底轮廓之内。",
+          "en": "Buildings of different heights rise inside the outline of the upright shoe’s sole."
+        },
+        "caption": {
+          "zh": "鞋底里，小时候的小镇",
+          "en": "My childhood town beneath the sole"
+        }
+      },
+      "strip": [
+        {
+          "src": "./sole-city/stills/street.webp",
+          "caption": {
+            "zh": "从天桥回望街尾",
+            "en": "Looking back toward the end of the street"
+          }
+        },
+        {
+          "src": "./sole-city/stills/breakfast.webp",
+          "caption": {
+            "zh": "雨棚下的豆浆摊",
+            "en": "The soy milk stall beneath the awning"
+          }
+        }
+      ]
     }
   ]
 }

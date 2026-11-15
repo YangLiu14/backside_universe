@@ -20,6 +20,7 @@ Use the **中文 / English** control in the header to choose your language; your
 | **The Dog's Body Museum** | Move around a dog to discover six miniature galleries inside its body. Follow the journey of food and explore the worlds within its organs. | [Play online](https://backside-universe.netlify.app/?lang=en#canine) · [Project and setup notes](photo-demo/docs/CANINE_MUSEUM.md) |
 | **Grandma Always Sets Another Pair of Chopsticks** | Walk around the handle of the enamel pot, pull out the bamboo stool, and take a seat at the family table. | [Play online](https://backside-universe.netlify.app/?lang=en#grandmas-table) |
 | **Rewind to the Final Bell** | Turn the pencil to wind the last shot back into a student’s hands, then step through the radio room window onto the basketball court. | [Play online](https://backside-universe.netlify.app/?lang=en#after-school-rewind) |
+| **The Roads I Walked as a Child** | Turn beneath the sole as worn treads become a childhood town. Revisit the familiar gate, footbridge and soy milk stall along its old lanes. | [Play online](https://backside-universe.netlify.app/?lang=en#sole-city) |
 
 ## Experience
 

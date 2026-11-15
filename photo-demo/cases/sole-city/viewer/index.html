@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#11110f"><link rel="icon" href="data:,">
+<title>陪我走过小时候的路 · 背面宇宙</title>
+<link rel="stylesheet" href="./cinema/premiere.css"><link rel="stylesheet" href="./player.css">
+<script type="module" src="./i18n/index.js"></script>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
+</head><body class="premiere sole-film" data-player-ui="premiere-v1" data-film-critical="scene.json"><main class="orbit">
+<header class="projection-head"><a href="../index.html" data-album-back aria-label="返回放映相簿"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 12H5m6-6-6 6 6 6"/></svg>返回相簿</a><span class="projection-house">背面宇宙</span><span class="screen-number">第 05 场</span></header>
+<section class="experience" aria-label="陪我走过小时候的路">
+<div id="stage" data-cover data-loading tabindex="0" aria-busy="true" aria-label="拖动绕到地板背面" aria-describedby="instruction">
+<canvas id="mesh" aria-hidden="true"></canvas><canvas id="gaussian" aria-hidden="true"></canvas><img id="photo" src="photo.jpg" alt="木地板上的两只跑鞋，绿鞋带的前景跑鞋正放" draggable="false">
+<div class="projection-title"><h1>陪我走过小时候的路</h1><p>翻过鞋底，走回小时候的小镇。</p></div>
+<div class="film-preparation" data-film-loading role="status">
+  <p data-load-status>正在准备放映…</p><div class="film-meter" role="progressbar" aria-label="场景加载进度" aria-valuemin="0" aria-valuemax="100" data-indeterminate="true"><span></span></div>
+  <div class="film-load-meta"><span data-load-detail>正在连接场景资源…</span><span data-load-elapsed>已等待 0 秒</span></div>
+  <p data-load-note>首次打开需要下载场景，照片会保留在这里。</p><button class="film-button" data-load-retry hidden>重新加载</button>
+</div>
+<div id="pad" aria-label="移动摇杆"><span class="knob"></span></div><span id="notice" role="status"></span>
+</div>
+<nav class="transport" aria-label="街区镜头">
+<button disabled id="play" data-film-start aria-pressed="false"><span id="playMark" aria-hidden="true" data-icon="play"></span><span id="play-label">开始放映</span></button>
+<div class="track"><div><label for="progress">原照</label><span>鞋底街区</span></div><input disabled id="progress" type="range" min="0" max="1000" step="any" value="0" aria-label="镜头进度"></div>
+<button class="film-button" disabled id="home" data-film-home>回原照</button><button class="film-button" disabled id="sound" aria-pressed="true" aria-label="切换环境声">声音开</button>
+</nav>
+<div class="film-guide"><p id="instruction"><span id="phase">原照</span><span id="walk-hint"><span class="keys-help">WASD 移动 · 拖动画面环顾</span><span class="touch-help">左下摇杆走动 · 拖动画面环顾</span></span></p><button class="film-button" id="next-stop">去药材铺</button><button class="film-button" disabled id="street" data-film-explore aria-pressed="false">自由探索</button></div>
+</section></main><script type="module" src="./film.js"></script></body></html>

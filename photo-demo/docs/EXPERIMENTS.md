@@ -9,7 +9,8 @@
 | 入口 | 用途与当前结论 |
 | --- | --- |
 | [小狗身体博物馆](http://127.0.0.1:9988/canine-museum/index.html) | 原照、Marble 房间与 Hi3D 小狗的可逆侧绕；在同一只小狗的右侧打开骨架、进入六个 Hi3D 器官展馆。[制作与恢复](CANINE_MUSEUM.md) |
-| `/` | 放映相簿。点击工位或小狗的照片，打开对应的交互作品。 |
+| `/` | 放映相簿。当前作品为工位群岛、小狗博物馆、外婆饭厅、放学磁带和跑鞋小镇。批量画质复核从相簿的 [作品目录](../dist/catalog/works.json) 取入口。 |
+| `evidence/universes/lamp-night` | 《灯下夜市》为制作流程测试件，单独保留作回归对照。 |
 | `/legacy.html` | 原照片到桌面度假世界的 4.5 秒体验。 |
 | `/legacy.html?view=room` | 固定原照机位，检查家具、材质与场景还原 |
 | `/gs-lab/index.html` | BLUNT + DA3 深度推导 Gaussian 基线；遮挡缺失明显 |

@@ -28,5 +28,9 @@
   "after-school-rewind": {
     "entry": "after-school-rewind/index.html",
     "files": ["after-school-rewind/**/*"]
+  },
+  "sole-city": {
+    "entry": "sole-city/index.html",
+    "files": ["sole-city/**/*"]
   }
 }

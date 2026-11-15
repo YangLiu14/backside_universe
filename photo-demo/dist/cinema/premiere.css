@@ -1,4 +1,4 @@
-/* Both live stages use the same opening titles, house lights and transport. */
+/* Shared opening titles, house lights, controls and preparation for every release. */
 :root {
   color-scheme:dark; --screen:#11110f; --rail:#1c1b18; --edge:#4e493e;
   --ivory:#f7f1e6; --gold:#f2ce94; --dim:#c2b9a9;
@@ -110,6 +110,19 @@
 .premiere .stage[data-loading] .projection-title {visibility:hidden!important;}
 .premiere :is(button,a,input,select,canvas):focus-visible,.premiere #stage:focus-visible {outline:2px solid #ffda99;outline-offset:2px;}
 .premiere [hidden] {display:none!important;}
+.premiere .film-button{min-height:44px;border:1px solid #8c7757;border-radius:2px;padding:8px 14px;background:transparent;color:var(--gold);font:500 13px/1.4 "PingFang SC",sans-serif;cursor:pointer}
+.premiere .film-button:not(:disabled):hover{background:#372e20}
+.premiere button:disabled{opacity:.5;cursor:wait}
+.premiere #stage[data-loading] .projection-title{visibility:hidden!important;opacity:0!important}
+.film-preparation{position:absolute;z-index:9;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,calc(100% - 32px));padding:20px;background:var(--rail);border:1px solid var(--edge);border-radius:3px;font-size:13px;color:var(--ivory)}
+.film-preparation p{margin:0 0 12px;line-height:1.6}
+.film-preparation [data-load-note]{margin:12px 0 0;color:var(--dim);font-size:12px}
+.film-load-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;margin-top:10px;color:var(--dim);font-size:12px;font-variant-numeric:tabular-nums}
+.film-meter{height:4px;background:var(--edge);overflow:hidden}
+.film-meter span{display:block;width:var(--loaded,0%);height:100%;background:var(--gold)}
+.film-meter[data-indeterminate=true] span{width:25%;animation:film-prepare 1.5s ease-in-out infinite alternate}
+@keyframes film-prepare{to{transform:translateX(300%)}}
+@media(prefers-reduced-motion:reduce){.film-meter[data-indeterminate=true] span{animation:none;width:100%;opacity:.5}}
 @media(max-width:700px) {
   .premiere:not(.book-portal) main {padding:0 10px 22px;}
   .premiere:not(.book-portal) .projection-head {min-height:54px;padding-inline:5px;}

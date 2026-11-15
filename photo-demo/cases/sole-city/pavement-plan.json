@@ -1,0 +1,28 @@
+{
+  "pits": [
+    {"z": -0.737, "offset": 0.0120, "rx": 0.0066, "rz": 0.0108, "depth": 0.00065, "seed": 8},
+    {"z": -0.389, "offset": -0.0105, "rx": 0.0090, "rz": 0.0158, "depth": 0.00110, "seed": 17, "water": 0.48},
+    {"z": -0.182, "offset": 0.0155, "rx": 0.0041, "rz": 0.0063, "depth": 0.00056, "seed": 4},
+    {"z": 0.199, "offset": 0.0068, "rx": 0.0110, "rz": 0.0315, "depth": 0.00092, "seed": 11, "water": 0.41, "liveReflection": true},
+    {"z": 0.4775, "offset": -0.059, "rx": 0.0122, "rz": 0.0069, "depth": 0.00082, "seed": 26, "water": 0.42},
+    {"z": 0.537, "offset": -0.0038, "rx": 0.0093, "rz": 0.0198, "depth": 0.00082, "seed": 38, "water": 0.46, "liveReflection": true},
+    {"z": 0.692, "offset": -0.013, "rx": 0.0048, "rz": 0.0064, "depth": 0.00052, "seed": 62},
+    {"z": 0.841, "offset": 0.0053, "rx": 0.0127, "rz": 0.027, "depth": 0.000943, "seed": 53, "water": 0.40, "liveReflection": true}
+  ],
+  "covers": [
+    {"z": -0.425, "offset": 0.002, "radius": 0.0068, "angle": -0.24, "type": "lid"},
+    {"z": 0.058, "offset": -0.008, "radius": 0.0064, "angle": 0.49, "type": "lid"},
+    {"z": 0.315, "offset": 0.134, "radius": 0.0058, "angle": 0.04, "type": "grate"},
+    {"z": 0.511, "offset": 0.011, "radius": 0.0059, "angle": 0.19, "type": "lid"},
+    {"z": 0.815, "offset": -0.012, "radius": 0.0058, "angle": -0.57, "type": "lid"},
+    {"z": 0.173, "offset": -0.014, "radius": 0.0061, "angle": -0.36, "type": "lid"}
+  ],
+  "repairs": [
+    {"z": -0.652, "offset": -0.014, "width": 0.013, "length": 0.032, "angle": -0.23},
+    {"z": -0.420, "offset": 0.005, "width": 0.024, "length": 0.032, "angle": 0.13},
+    {"z": -0.364, "offset": -0.069, "width": 0.013, "length": 0.043, "angle": 1.38},
+    {"z": -0.020, "offset": 0.013, "width": 0.020, "length": 0.045, "angle": -0.16},
+    {"z": 0.295, "offset": 0.077, "width": 0.018, "length": 0.045, "angle": 0.13},
+    {"z": 0.705, "offset": -0.012, "width": 0.018, "length": 0.038, "angle": -0.37}
+  ]
+}

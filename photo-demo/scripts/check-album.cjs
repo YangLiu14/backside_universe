@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict');
 const {baseURL, launchBrowser} = require('./marble-browser.cjs');
+const {checkSoleAlbum, checkSoleDeepLink} = require('./check-sole-album.cjs');
 
 // Simulate adding the last published work without changing the album shell.
 async function checkCatalogUpdate(browser) {
@@ -132,10 +133,13 @@ async function checkAlbum(browser) {
   assert.deepEqual(await cassetteDoc.evaluate(()=>window.rewindState().eye),position);
   assert.equal(binaries.length,campusRequests);
   await back(rewind);
+  const hasSole = await page.locator('[data-work="sole-city"]').count() > 0;
+  if(hasSole) await checkSoleAlbum(page, open, back);
   assert.equal(Number(await page.locator('.edition b').innerText()), await page.locator('.leaf').count());
   assert.deepEqual(errors,[]);
-  console.log('All four screenings load on demand. Revisiting the cassette restores the same court position.');
+  console.log('All registered screenings load on demand and preserve their state when revisited.');
   await page.close();
+  return hasSole;
 }
 
 async function checkCassetteDeepLink(browser) {
@@ -170,7 +174,8 @@ async function checkCassetteDeepLink(browser) {
   const browser = await launchBrowser();
   try {
     await checkCatalogUpdate(browser);
-    await checkAlbum(browser);
+    const hasSole = await checkAlbum(browser);
     await checkCassetteDeepLink(browser);
+    if(hasSole) await checkSoleDeepLink(browser, baseURL);
   } finally { await browser.close(); }
 })().catch(error=>{console.error(error); process.exitCode=1;});

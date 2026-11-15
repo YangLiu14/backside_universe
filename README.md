@@ -20,6 +20,7 @@
 | **小狗身体博物馆** | 绕到小狗身侧，发现身体里的六座微缩展馆；沿着食物的旅程，进入器官内部探索。 | [在线体验](https://backside-universe.netlify.app/?lang=zh#canine) · [作品与运行说明](photo-demo/docs/CANINE_MUSEUM.md) |
 | **外婆总说，再添一双筷子** | 绕过搪瓷锅的右耳，在亮着吊灯的饭厅拉凳入座，也可以沿桌边自由走动。 | [在线体验](https://backside-universe.netlify.app/?lang=zh#grandmas-table) |
 | **铅笔倒带，倒回放学那天** | 转动铅笔，把放学前的最后一球倒回同学手中，再穿过广播室的窗户，走上篮球场。 | [在线体验](https://backside-universe.netlify.app/?lang=zh#after-school-rewind) |
+| **陪我走过小时候的路** | 翻到鞋底，看童年的小镇在磨损的纹路间生长。重走小区门、天桥和豆浆摊之间熟悉的路。 | [在线体验](https://backside-universe.netlify.app/?lang=zh#sole-city) |
 
 ## 体验亮点
 
