@@ -33,6 +33,7 @@
 
 #tour-doorways{position:absolute;inset:0;pointer-events:none}
 .tour-door{position:absolute;transform:translate(-50%,0);pointer-events:auto;min-height:31px;border:1px solid #ac936a;border-radius:3px;padding:4px 10px;background:#fff6e6f5;color:#352c24;font-size:13px;font-weight:600;box-shadow:0 1px 5px #30251a44;white-space:nowrap}
+.tour-door{width:max-content;max-width:calc(100% - 8px)}
 .tour-door:before{content:"";position:absolute;bottom:100%;left:50%;height:8px;border-left:1px solid #eed6a7}
 .tour-door:hover,.tour-door:focus-visible{background:#ffdfa4}
 #tour-landing,#tour-room-card{position:absolute;top:13px;left:13px;max-width:calc(100% - 120px);display:flex;gap:9px;align-items:center;padding:6px 9px;background:#f7f2e8f2;border:1px solid #b2a78d;border-radius:4px;color:#354439}

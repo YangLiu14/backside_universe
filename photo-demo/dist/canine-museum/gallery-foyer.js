@@ -14,7 +14,8 @@ export function createFoyer(zone){
   const group=new T.Group(),f=finishes[zone];
   group.name='Gallery threshold: '+zone;
   const mat=(color,metalness=0)=>new T.MeshStandardMaterial({color,roughness:metalness?.42:.83,metalness});
-  const body=mat(f.body),trim=mat(f.edge,zone==='upper'?.12:.48),tile=mat(f.tile);
+  const body=mat(f.body),trim=mat(f.edge,zone==='upper'?.12:.48);
+  const tile=new T.MeshPhysicalMaterial({color:f.tile,roughness:.49,clearcoat:.46,clearcoatRoughness:.32});
   const warm=new T.MeshStandardMaterial({color:f.glow,emissive:f.glow,emissiveIntensity:.82,roughness:.66});
   function solid(g,m,x=0,y=0,z=0){
     const o=new T.Mesh(g,m);o.position.set(x,y,z);group.add(o);return o;
@@ -33,6 +34,9 @@ export function createFoyer(zone){
   box(0,-1.05,.13,2.28,.025,.09,trim);
   for(const side of [-1,1]){
     box(side*1.095,-.96,.08,.25,.21,.32,tile);
+    // Fired coping projects over each glazed plinth. Its fine reveal picks up
+    // the warm jamb light as the camera moves through the doorway.
+    box(side*1.095,-.845,.087,.275,.033,.34,tile);
     if(zone==='chest'){
       for(let i=0;i<4;i++){
         const h=.97-i*.15,x=side*(1.035+i*.067);
@@ -40,12 +44,21 @@ export function createFoyer(zone){
         solid(new T.CylinderGeometry(.04,.035,.04,18),warm,x,-.85+h,.20);
       }
     }else if(zone==='upper'){
-      const pts=[[.03,0],[.115,.03],[.14,.15],[.105,.24],[.075,.26],[.073,.3],[.087,.30]];
-      solid(new T.LatheGeometry(pts.map(([r,h])=>new T.Vector2(r,h)),32),tile,side*.99,-1.048,.26);
+      const pts=[[.05,0],[.109,.019],[.111,.035],[.125,.064],[.139,.12],[.139,.15],[.13,.184],[.111,.222],[.088,.248],[.073,.26],[.072,.284],[.085,.29],[.087,.306],[.069,.307],[.062,.289],[.063,.265],[.083,.242],[.112,.20],[.124,.145],[.118,.09],[.094,.05],[.034,.047]];
+      solid(new T.LatheGeometry(pts.map(([r,h])=>new T.Vector2(r,h)),44),tile,side*.99,-1.048,.26);
     }else{
       box(side*1.07,-.47,.10,.17,.88,.22,body);
       for(let i=0;i<4;i++)box(side*1.065,-.77+i*.19,.22,.19,.026,.075,trim);
       box(side*1.06,-.29,.22,.13,.25,.07,warm);
+    }
+  }
+  // The chest and archive use a pinned brass surround; the kiln uses bonded
+  // brick. Keep the same joinery on the near and far sides of each branch.
+  if(zone!=='upper'){
+    const pin=new T.SphereGeometry(.015,10,6);
+    for(const a of [0,Math.PI/4,Math.PI/2,3*Math.PI/4,Math.PI]){
+      const head=solid(pin,trim,1.012*Math.cos(a),.07+1.012*Math.sin(a),.146);
+      head.scale.z=.51;
     }
   }
   if(zone==='upper'){

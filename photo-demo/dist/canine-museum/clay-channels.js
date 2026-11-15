@@ -2,6 +2,7 @@ import * as T from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
 import {createFoyer} from './gallery-foyer.js';
+import {lightCast} from './cast-light.js';
 
 // Positions are in the normalized source GLB, facing its open +Z side.
 const rooms=[
@@ -24,15 +25,17 @@ function install(source,spec,points){
   source.traverse(o=>{
     if(!o.isMesh)return;
     for(const m of Array.isArray(o.material)?o.material:[o.material]){
-      m.color?.multiply(new T.Color(spec.tint));m.roughness=.94;m.metalness=0;
-      m.roughnessMap=null;m.metalnessMap=null;
-      m.emissive.set(spec.tint);m.emissiveMap=m.map;m.emissiveIntensity=.23;
-      if(spec.zone==='upper'){
-        m.onBeforeCompile=shader=>{
-          shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',
-            '#include <map_fragment>\nfloat clayLight=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=mix(clayLight*vec3(1.13,.85,.73),diffuseColor.rgb,.61);');
-        };
-      }
+      m.color?.multiply(new T.Color(spec.tint));m.roughness=1;m.metalness=0;
+      // The painted clay has satin glaze on its raised sweeps, a more matte
+      // body in the grooves. Retain the shape-specific Hi3D roughness image.
+      m.emissive.set(0);
+      m.onBeforeCompile=shader=>{
+        shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>',
+          '#include <roughnessmap_fragment>\nroughnessFactor=clamp(.36+.55*roughnessFactor,.36,.91);');
+        if(spec.zone==='upper')shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',
+          '#include <map_fragment>\nfloat clayLight=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=mix(clayLight*vec3(1.13,.85,.73),diffuseColor.rgb,.61);');
+      };
+      m.customProgramCacheKey=()=>spec.zone==='upper'?'fired-clay':'painted-clay';
       if(m.normalScale)m.normalScale.multiplyScalar(.52);
     }
   });
@@ -72,8 +75,10 @@ export function createClayChannels(onChange){
     const spec=rooms[i];
     if(!spec||loaded.has(spec.id)||pending.has(spec.id)||failed.has(spec.id))return;
     pending.add(spec.id);
-    Promise.all([loader.loadAsync(dir+spec.id+'.glb'),getCatalog()]).then(([g,meta])=>{
-      loaded.set(spec.id,install(g.scene,spec,meta.channels[spec.id].camera_path));
+    Promise.all([loader.loadAsync(dir+spec.id+'.glb'),getCatalog()]).then(async([g,meta])=>{
+      const room=install(g.scene,spec,meta.channels[spec.id].camera_path);
+      await lightCast(g.scene,'channel',spec.id);
+      loaded.set(spec.id,room);
     }).catch(()=>{failed.add(spec.id);}).finally(()=>{pending.delete(spec.id);onChange();});
   }
   function prepare(i){load(i);load(i+1);}

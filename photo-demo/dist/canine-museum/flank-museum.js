@@ -22,13 +22,32 @@ const notes={
 const vec=(...a)=>new T.Vector3(...a);
 const material=(color,metalness=.0,roughness=.64)=>new T.MeshStandardMaterial({color,metalness,roughness,side:T.DoubleSide});
 const walnut=material('#4c3327'),velvet=material('#342d2b'),gold=material('#a68750',.48,.35),bone=material('#dfd1b2'),joint=material('#bdae92');
+// Engrained walnut and pressed cloth follow the case in object space. Fade
+// fine grooves as they fall below pixel size in the full-dog view.
+const joinery=`varying vec3 casePoint;
+float grainWave(float phase){return sin(phase)*exp(-.55*fwidth(phase));}
+`;
+function caseCoordinates(shader){
+  shader.vertexShader='varying vec3 casePoint;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ncasePoint=position;');
+  shader.fragmentShader=joinery+shader.fragmentShader;
+}
+walnut.onBeforeCompile=s=>{
+  caseCoordinates(s);
+  s.fragmentShader=s.fragmentShader.replace('#include <color_fragment>',`
+    #include <color_fragment>
+    float p=casePoint.y*820.+casePoint.x*135.+5.*sin(41.*casePoint.z);
+    float ring=grainWave(p)+.53*grainWave(p*2.9);
+    diffuseColor.rgb*=1.+.11*ring;
+  `).replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor+=.047*ring;');
+};
 // The six casts are mounted in a recessed case. Shade their contact with its rear lining.
 velvet.onBeforeCompile=s=>{
-  s.vertexShader='varying vec3 casePoint;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ncasePoint=position;');
+  caseCoordinates(s);
   const spots=Object.values(layouts).map(([z,y,w,h])=>
     `shade *= 1.0 - .43 * exp(-2.6 * dot((casePoint.zy-vec2(${z},${y-.008}))/vec2(${w*.55},${h*.55}), (casePoint.zy-vec2(${z},${y-.008}))/vec2(${w*.55},${h*.55})));`).join('\n');
-  s.fragmentShader='varying vec3 casePoint;\n'+s.fragmentShader.replace('#include <color_fragment>',
-    '#include <color_fragment>\nfloat shade=1.;\n'+spots+'\ndiffuseColor.rgb*=shade;');
+  s.fragmentShader=s.fragmentShader.replace('#include <color_fragment>',
+    '#include <color_fragment>\nfloat shade=1.;\n'+spots+
+    '\nfloat nap=grainWave(casePoint.y*2400.)*grainWave(casePoint.z*2020.);diffuseColor.rgb*=shade*(1.+.07*nap);');
 };
 const clamp=T.MathUtils.clamp;
 export function createFlankMuseum({dog,fit,origin,ring,load,requestFrame,onSelect,onExit,onReveal}){
@@ -205,7 +224,9 @@ export function createFlankMuseum({dog,fit,origin,ring,load,requestFrame,onSelec
   }
   function focusPose(id,aspect){
     const e=exhibits.get(id),depth=e.depth||.065;
-    const radius=Math.max(e.w/aspect,e.h)*1.52+depth*.48;
+    // Frame the selected doorway at the actual screen aspect, while retaining
+    // the front rim as a reference when moving from overview to inspection.
+    const radius=Math.max(e.w/aspect,e.h)*1.25+depth*.48;
     return {eye:e.anchor.localToWorld(vec(0,radius*Math.sin(.055),radius*Math.cos(.055))),
       target:e.anchor.localToWorld(vec(0,0,.045*depth))};
   }

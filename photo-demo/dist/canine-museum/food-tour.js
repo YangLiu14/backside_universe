@@ -52,6 +52,9 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
   const visited=new Set();
   let cutawayCamera=null,parked=false,visit=null,visibleDoors='';
   const doorLayer=byId('tour-doorways'),landing=byId('tour-landing'),roomCard=byId('tour-room-card');
+  const captionHeading=byId('tour-heading').parentElement;
+  const captionResize=new ResizeObserver(()=>{if(active)onChange();});
+  captionResize.observe(captionHeading.parentElement);
   const doorButtons=new Map();
   for(const [id,e] of museum.exhibits){
     const button=document.createElement('button');
@@ -150,18 +153,21 @@ export function createFoodTour({stops,profile,captions,onChange,onExit,museum}){
     if(!ids.length)return;
     byId('tour-location').textContent=currentPassage().site.label+(parked?' · 已停靠':'');
     const width=root.clientWidth,height=root.clientHeight;
+    // In portrait the English captions often wrap to several lines. Measure
+    // the live heading so a projected door never covers the current caption.
+    const labelsBottom=captionHeading.getBoundingClientRect().top-root.getBoundingClientRect().top-10;
     const labels=ids.map(id=>{
       const button=doorButtons.get(id);
       let pt=passages.location(id).project(camera);
       if(apertureState().mixed)pt=renderRim.screenPoint(ids.length===1?{x:0,y:-.59}:pt);
       const half=button.offsetWidth*.5+4;
       return {button,x:Math.max(half,Math.min(width-half,(pt.x+1)*.5*width)),
-        y:Math.max(height*.23,Math.min(height*.64,(1-pt.y)*.5*height+4)),half};
+        y:Math.max(height*.19,Math.min(height*.64,labelsBottom-button.offsetHeight,(1-pt.y)*.5*height+4)),half};
     });
     if(labels.length===2){
       const [a,b]=labels;
       if(Math.abs(a.x-b.x)<a.half+b.half&&Math.abs(a.y-b.y)<32){
-        const upper=a.y<=b.y?a:b;upper.y=Math.max(height*.19,Math.min(a.y,b.y)-33);
+        const upper=a.y<=b.y?a:b;upper.y=Math.max(2,Math.min(a.y,b.y)-upper.button.offsetHeight-5);
       }
     }
     for(const {button,x,y} of labels){button.style.left=x+'px';button.style.top=y+'px';}

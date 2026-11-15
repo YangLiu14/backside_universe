@@ -8,6 +8,7 @@ import {BrowseCamera,bindBrowseGestures} from './browse-camera.js';
 import {createDigestiveMap} from './digestive-map.js';
 import {createFoodTour} from './food-tour.js';
 import {createFlankMuseum} from './flank-museum.js';
+import {lightCast} from './cast-light.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 
 const assets='./assets/', stage=document.querySelector('#stage'), photo=document.querySelector('#photo');
@@ -270,6 +271,7 @@ void main(){
     load:async(id,lod)=>{
       const variant=usesTouch.matches&&lod==='detail'?'detail-mobile':lod;
       const result=await gltf.loadAsync(assets+'hi3d-galleries/'+id+'-'+variant+'.glb');
+      await lightCast(result.scene,'gallery',id);
       if(lod==='overview')await prepareGallery(result.scene);
       return result;
     }});
