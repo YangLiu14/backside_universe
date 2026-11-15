@@ -1,6 +1,7 @@
 // Architectural lining, in the same coordinates as the dining table.
 import * as T from 'three';
 import {bay,block,makeWindow,pendant,towelHook} from './fixtures.js';
+import {timberFloor} from './floorboards.js';
 
 export const footprint=[[-.89,.77],[-1.12,.22],[-1.08,-.38],[-.74,-.89],[.74,-.89],[1.08,-.38],[1.12,.22],[.89,.77]];
 const paint=(color,roughness=.82)=>new T.MeshStandardMaterial({color,roughness});
@@ -79,6 +80,7 @@ export function furnishRoom(group,textures,clock){
     block(wall,w+.014,.042,.042,0,1.427,.017,trim);
     if(i!==3)block(wall,.025,.88,.032,-w/2+.01,.985,.003,trim);
     if(i===4)towelHook(wall);
+    if(i===2)wall.name='plate-rack-wall';
   }
   for(const z of [-.55,-.09,.42]){
     const w=2*Math.sqrt(1.16**2-z*z);block(group,w,.055,.044,0,1.415,z,trim);
@@ -90,13 +92,7 @@ export function furnishRoom(group,textures,clock){
     for(let i=0;i<pos.count;i++)p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld).toArray(coords,i*3);
     o.geometry.setAttribute('roomCoordinate',new T.BufferAttribute(coords,3));
   });
-  const boards=textures.elm.clone();boards.needsUpdate=true;boards.wrapS=boards.wrapT=T.MirroredRepeatWrapping;boards.repeat.set(1.3,2.6);
-  const floor=new T.Mesh(new T.CylinderGeometry(1.19,1.17,.07,96),new T.MeshStandardMaterial({map:boards,color:0xb69e88,roughness:.74,bumpMap:boards,bumpScale:.0014}));
-  floor.position.y=.045;floor.receiveShadow=true;group.add(floor);
-  for(let i=-6;i<=6;i++){
-    const z=i*.165,w=2*Math.sqrt(1.16**2-z*z);
-    block(group,w,.001,.0025,0,.0805,z,trim);
-  }
+  const floor=timberFloor(group,textures.elm);
   const lamp=pendant(group);
   const light=new T.PointLight(0xffbf83,.50,2.65,2);
   light.position.copy(lamp.position);light.position.y-=.107;group.add(light);
@@ -106,5 +102,5 @@ export function furnishRoom(group,textures,clock){
   group.add(pool,pool.target);
   const dusk=new T.PointLight(0xb9d7e1,.58,2.75,2);dusk.position.set(bay.x-.19,1.19,-1.33);group.add(dusk);
   const bounce=new T.PointLight(0xffdaa6,.16,2.05,2);bounce.position.set(.38,.61,.67);group.add(bounce);
-  return glass;
+  return {glass,floor};
 }

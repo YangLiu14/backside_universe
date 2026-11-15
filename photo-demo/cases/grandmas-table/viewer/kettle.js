@@ -26,6 +26,10 @@ export function makeKettle(raw,fit,uniforms,scale,opening) {
           vec3 local=vec3(cos(angle)*kettleWorld.x-sin(angle)*kettleWorld.z,kettleWorld.y,sin(angle)*kettleWorld.x+cos(angle)*kettleWorld.z)/rs;
           float sd=openingDistance(local.xy);
           if(cutOpen>.5 && local.z>.02 && sd<0.)discard;
+          `).replace('#include <roughnessmap_fragment>',`#include <roughnessmap_fragment>
+          float redEnamel=smoothstep(.018,.12,diffuseColor.r-diffuseColor.g);
+          roughnessFactor=mix(clamp(roughnessFactor,.35,.79),clamp(roughnessFactor,.22,.38),redEnamel);
+          diffuseColor.rgb*=1.+.16*redEnamel;
           `).replace('#include <tonemapping_fragment>',`#include <tonemapping_fragment>
           vec4 cv=sourceView*vec4(kettleWorld,1.);
           vec2 uv=cv.xy/max(.001,-cv.z)*intrinsics.xy+vec2(intrinsics.z,1.-intrinsics.w);

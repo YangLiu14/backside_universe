@@ -69,13 +69,19 @@ async function boot(){
   const backdrop=new T.Mesh(new T.PlaneGeometry(120,14),backMat);scene.add(backdrop);
   for(const o of [ground,backdrop]){
     o.material.onBeforeCompile=shader=>{
-      Object.assign(shader.uniforms,uniforms,{plate:{value:clean}});
+      Object.assign(shader.uniforms,uniforms,{plate:{value:clean},isWall:{value:o===backdrop?1:0}});
       shader.vertexShader='varying vec3 stageWorld;\n'+shader.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nstageWorld=(modelMatrix*vec4(transformed,1.)).xyz;');
-      shader.fragmentShader='varying vec3 stageWorld; uniform mat4 sourceView; uniform vec4 intrinsics; uniform sampler2D plate; uniform float photoMix;\n'+shader.fragmentShader.replace('#include <tonemapping_fragment>',`#include <tonemapping_fragment>
+      shader.fragmentShader='varying vec3 stageWorld; uniform float isWall; uniform mat4 sourceView; uniform vec4 intrinsics; uniform sampler2D plate; uniform float photoMix;\n'+shader.fragmentShader.replace('#include <tonemapping_fragment>',`#include <tonemapping_fragment>
         vec4 cv=sourceView*vec4(stageWorld,1.); vec2 uv=cv.xy/max(.001,-cv.z)*intrinsics.xy+vec2(intrinsics.z,1.-intrinsics.w);
         vec3 bg=texture2D(plate,clamp(uv,vec2(.005),vec2(.995))).rgb;
         float lightness=.975+.035*sin(stageWorld.x*.65+.45)+.025*clamp(stageWorld.y,0.,3.);
-        gl_FragColor.rgb=mix(gl_FragColor.rgb*lightness,bg,photoMix);`);
+        // Sample the photographed counter and plaster away from the pot.
+        vec2 localUV=isWall>.5?vec2(stageWorld.x*.37+stageWorld.z*.22,stageWorld.y*.45):stageWorld.xz*vec2(.27,.33);
+        vec2 cell=1.-abs(fract(localUV)*2.-1.);
+        vec2 sampleUv=mix(vec2(.018,.032)+cell*vec2(.115,.22),vec2(.21,.872)+cell*vec2(.44,.105),isWall);
+        vec3 actual=texture2D(plate,sampleUv).rgb;
+        vec3 support=mix(gl_FragColor.rgb,actual,.57)*lightness;
+        gl_FragColor.rgb=mix(support,bg,photoMix);`);
     };
   }
   const shadeCanvas=document.createElement('canvas');shadeCanvas.width=shadeCanvas.height=128;

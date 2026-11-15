@@ -2,6 +2,8 @@ import * as T from 'three';
 import {steamAbove} from './atmosphere.js';
 import {dressDish,finishTable} from './supper.js';
 import {furnishRoom} from './room-interior.js';
+import {feetOf} from './floorboards.js';
+import {makeCrockeryRack} from './fixtures.js';
 
 const v=(x,y,z)=>new T.Vector3(x,y,z);
 function instance(raw, dims, yaw=0) {
@@ -76,7 +78,7 @@ function makeStick(raw) {
 export function diningRoom(models,textures) {
   const group=new T.Group();
   const clock={value:0};
-  const glass=furnishRoom(group,textures,clock);
+  const {glass,floor}=furnishRoom(group,textures,clock);
   const inner=new T.Mesh(new T.CylinderGeometry(1.235,1.18,1.38,100,1,true,.98,Math.PI*2-1.96),
     new T.MeshStandardMaterial({color:0x493c31,roughness:.59,metalness:.12,side:T.DoubleSide}));
   inner.position.y=.77;inner.receiveShadow=true;group.add(inner);
@@ -90,9 +92,11 @@ export function diningRoom(models,textures) {
   const table=install(group,instance(models.interior,[.94,.74,.90]),0,floorY,-.05);
   const stool=install(group,instance(models.stool,[.34,.28,.30]),-.10,floorY,.40);
   table.name='dinner-table';stool.name='pull-stool';
+  const furniture=[table,stool];
   // Tuck the window seat between the rear legs, facing its bowl; leave the side aisle free.
   for(const [name,x,z,a] of [['side-stool',-.58,-.15,1.4],['window-stool',.17,-.625,-.12]]){
-    install(group,instance(models.stool,[.31,.28,.3]),x,floorY,z,a).name=name;
+    const seat=install(group,instance(models.stool,[.31,.28,.3]),x,floorY,z,a);
+    seat.name=name;furniture.push(seat);
   }
   table.updateMatrixWorld(true);
   const ray=new T.Raycaster(),down=v(0,-1,0);
@@ -126,10 +130,12 @@ export function diningRoom(models,textures) {
       pt.applyMatrix4(inverse);pos.setXYZ(i,pt.x,pt.y,pt.z);
     }
     g.setAttribute('tableGrain',new T.BufferAttribute(grain,3));
-    obj.material=Array.isArray(obj.material)?obj.material.map(m=>finishTable(m,textures.elm,settings)):finishTable(obj.material,textures.elm,settings);
+    obj.material=Array.isArray(obj.material)?obj.material.map(m=>finishTable(m,textures.elm,settings,group,tableY)):finishTable(obj.material,textures.elm,settings,group,tableY);
     pos.needsUpdate=true;g.computeVertexNormals();g.computeBoundingBox();g.computeBoundingSphere();
   });
   const bowl=instance(models.bowl,[.157,.083,.153]);
+  makeCrockeryRack(group.getObjectByName('plate-rack-wall'),textures.elm,bowl);
+  floor.contacts.value=furniture.flatMap(feetOf);
   const place=(x,z)=>install(group,bowl.clone(true),x,surface(x,z)-.0007,z);
   for(const [x,z] of bowls)place(x,z);
   const plates=menu.map(([role,x,z,dims,yaw])=>{
@@ -165,6 +171,7 @@ export function diningRoom(models,textures) {
   return {group,table,stool,sticks,tableY,glass,plates,clock,update(sit,delivery,time){
     clock.value=time;
     stool.position.z=.40+.405*sit;
+    floor.stoolShift.value=stool.position.z-.40;
     sticks.visible=delivery>0;
     sticks.position.set(stickRestX+(1-delivery)*.55,stickRestY+(1-delivery)*.17,.368+(1-delivery)*.055);
     sticks.rotation.z=(1-delivery)*-.21;

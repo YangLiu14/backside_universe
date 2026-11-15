@@ -205,3 +205,47 @@ function filamentGlow(){
   ctx.fillStyle=g;ctx.fillRect(0,0,64,64);
   const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t;
 }
+
+// Keep the glazed exterior and rolled lip of this room's Hi3D rice bowl.
+// Store spare bowls mouth-down on their slotted draining board.
+export function makeCrockeryRack(wall,elm,servedBowl){
+  const rack=new T.Group();rack.name='crockery-rack';
+  rack.position.set(.018,1.085,.004);wall.add(rack);
+  const timber=new T.MeshStandardMaterial({map:elm,color:0xb49165,roughness:.65});
+  const iron=finish(0x5a564a,.55,.53);
+  for(const x of [-.191,.191]){
+    easedBlock(rack,.027,.144,.018,x,-.056,.014,timber);
+    const arm=easedBlock(rack,.021,.142,.026,x,-.051,.062,timber);
+    arm.rotation.x=.80;
+    for(const y of [.003,-.113]){
+      const head=piece(rack,new T.CylinderGeometry(.0044,.0044,.003,12),iron,x,y,.025);
+      head.rotation.x=Math.PI/2;
+    }
+  }
+  for(let i=0;i<5;i++)easedBlock(rack,.465,.016,.024,0,0,.019+i*.028,timber);
+  const empty=new T.Group(),point=new T.Vector3();
+  servedBowl.updateWorldMatrix(true,true);
+  servedBowl.traverse(o=>{
+    if(!o.isMesh)return;
+    const g=o.geometry,position=g.attributes.position,index=g.index,keep=[],matrix=o.matrixWorld;
+    const exterior=new Uint8Array(position.count);
+    for(let n=0;n<position.count;n++){
+      point.fromBufferAttribute(position,n).applyMatrix4(matrix);
+      const radius=Math.hypot(point.x/.157,point.z/.153);
+      exterior[n]=point.y<.042 || radius>.415+Math.max(0,point.y/.083-.50)*.16;
+    }
+    const count=index?.count??position.count;
+    for(let i=0;i<count;i+=3){
+      const a=index?index.getX(i):i,b=index?index.getX(i+1):i+1,c=index?index.getX(i+2):i+2;
+      if(exterior[a]&&exterior[b]&&exterior[c])keep.push(a,b,c);
+    }
+    const shell=g.clone();shell.setIndex(keep);shell.applyMatrix4(matrix);
+    shell.computeBoundingBox();shell.computeBoundingSphere();
+    const m=new T.Mesh(shell,o.material);m.castShadow=m.receiveShadow=true;empty.add(m);
+  });
+  const height=new T.Box3().setFromObject(empty,true).max.y;
+  for(const [x,k,angle] of [[-.105,.91,-.19],[.083,.99,.37]]){
+    const piece=empty.clone(true);piece.scale.setScalar(k);piece.rotation.set(0,angle,Math.PI);
+    piece.position.set(x,.008+height*k,.073);rack.add(piece);
+  }
+}

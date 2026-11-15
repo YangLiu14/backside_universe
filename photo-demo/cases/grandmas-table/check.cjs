@@ -195,6 +195,9 @@ async function check(page,device,viewport,out,url,coldOrbit){
     const [glassX,glassY]=(await state()).windowScreen;
     animation.rainPixels=await changedPixels(page,async()=>(await state()).matrix,glassX+35,glassY-14,112,82);
     assert(animation.rainPixels>40,'window rain should move in the rendered image');
+    await lookAt(-.863,1.097,-.644);await shot('clean-crockery');
+    await approach(-.685,-.02);
+    await lookAt(-.863,1.097,-.644);await shot('clean-crockery-side');
   }
   return {device,viewport,splats:seated.splats,stoolTravel:seated.stoolZ-open.stoolZ,
     freeWalk:true,eyeHeight:true,seatedLook:true,chopsticksAtSeat:seated.sticks,sourceHidesOpening:true,returnMatches:true,repeat:true,muted:seated.muted,
