@@ -10,6 +10,7 @@
 - [资产与依赖](ASSETS.md)：恢复本地资源、第三方来源、许可和提交边界。
 - [资产清单](local-assets.json)：路径、文件大小与 SHA256；不包含素材本身。
 - [实验与审阅入口](EXPERIMENTS.md)：逐件模型、独立书屋、旧版转场及重建实验的本地地址。
+- [相簿发布流程](../deploy/README.md)与[统一上线检查](../deploy/QUALITY.md)：版本登记、UI 与加载验收、发布及回滚。
 
 ## 作品与交互实现
 
@@ -31,6 +32,8 @@
 
 ## 研究与历史
 
+- [云渲染评估](CLOUD_RENDERING_EVALUATION.md)：大陆与海外的部署路线、并发成本和首玩时间假设；附[技术核验](CLOUD_RENDERING_TECHNICAL_NOTES.md)、[大陆价格](CLOUD_RENDERING_CHINA_PRICING_NOTES.md)与[海外价格](CLOUD_RENDERING_GLOBAL_PRICING_NOTES.md)笔记。
+- [工位独立站部署记录](DEPLOYMENT.md)：早期 Netlify 与 Sites 发布方式及限制。
 - [产品概要](../../PRODUCT.md)与[设计讨论](../../DESIGN.md)。
 - [照片转三维方案调研](../../research/photo-to-world-options.md)。
 - [重建方案实测](../experiments/flashworld/README.md)与[同条件对照](../experiments/flashworld/COMPARISON_MARBLE.md)。
