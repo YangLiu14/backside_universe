@@ -98,6 +98,19 @@ def validate(brief):
             raise ValueError('专属案例需要 viewer/index.html 和 check.cjs')
     if parts and not experience:
         raise ValueError('独立活动道具需要对应的案例播放器')
+    targets = brief.get('artTargets', [])
+    if not isinstance(targets, list):
+        raise ValueError('artTargets 须为数组')
+    ids = set()
+    for target in targets:
+        if not isinstance(target, dict) or not all(isinstance(target.get(key), str) and target[key].strip()
+                                                   for key in ('id', 'view', 'expect')):
+            raise ValueError('每项 artTargets 需要非空的 id、view、expect')
+        target_id = target['id'].strip()
+        if target_id in ids:
+            raise ValueError('artTargets 中的 id 须各不重复')
+        target['id'] = target_id
+        ids.add(target_id)
     return brief
 
 

@@ -31,5 +31,8 @@
     "check:desktop-bookroom": "node --test scripts/check-desktop-bookroom.mjs",
     "check:bookroom-loop": "node --test scripts/check-bookroom-loop.mjs",
     "check:language": "node scripts/check-language.cjs"
+  },
+  "devDependencies": {
+    "gltfpack": "1.3.0"
   }
 }

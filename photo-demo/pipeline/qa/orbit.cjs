@@ -3,17 +3,49 @@
 const assert=require('node:assert/strict');
 
 async function coldOrbit(page,options){
-  const result=await page.evaluate(async({range,turn,state,pose,handoff,canvas='mesh'})=>{
+  const result=await page.evaluate(async({range,turn,state,pose,handoff,streamedLOD,canvas='mesh'})=>{
     const gl=document.getElementById(canvas).getContext('webgl2');
     const names=['linkProgram','bufferData','texImage2D','texSubImage2D','texStorage2D'];
     const calls=Object.fromEntries(names.map(name=>[name,0])),originals={};
-    const slider=document.getElementById(range),read=()=>window[state](),raf=()=>new Promise(requestAnimationFrame);
+    const streamedCalls=Object.fromEntries(names.map(name=>[name,0]));
+    // Classify only the exact vertex/index arrays and bitmap objects introduced
+    // by a freshly attached near LOD. Unrelated GPU work during a download fails.
+    const arrays=new WeakSet(),images=new WeakSet(),uploadedTextures=new WeakSet(),storages=[];
+    let restoreLOD;
+    const read=()=>window[state]();
+    if(streamedLOD){
+      const {LOD}=await import('three'), add=LOD.prototype.addLevel;
+      LOD.prototype.addLevel=function(root,distance,...rest){
+        if(distance===0&&this.userData[streamedLOD]&&read().scenePhase>.74){
+          root.traverse(o=>{
+            if(!o.isMesh)return;
+            for(const a of [o.geometry.index,...Object.values(o.geometry.attributes)])
+              if(a)arrays.add((a.data||a).array);
+            for(const m of [].concat(o.material))
+              for(const value of Object.values(m))if(value?.isTexture&&value.source.data)images.add(value.source.data);
+          });
+        }
+        return add.call(this,root,distance,...rest);
+      };
+      restoreLOD=()=>{LOD.prototype.addLevel=add;};
+    }
+    const slider=document.getElementById(range),raf=()=>new Promise(requestAnimationFrame);
     if(read().progress!==0)throw new Error('cold orbit must start at the source photo');
     const deadline=performance.now()+30000;
     let peak=0,prevTime,prev=read(),roomsOpened=0,stationary=0,samples=0,step=0;
     try{
       for(const name of names){
-        originals[name]=gl[name];gl[name]=function(...args){calls[name]++;return originals[name].apply(this,args);};
+        originals[name]=gl[name];gl[name]=function(...args){
+          let stream=false;
+          if(streamedLOD){
+            if(name==='bufferData')stream=arrays.has(args[1]);
+            if((name==='texImage2D'||name==='texSubImage2D')&&images.has(args.at(-1))){
+              stream=true;uploadedTextures.add(gl.getParameter(gl.TEXTURE_BINDING_2D));
+            }
+            if(name==='texStorage2D')storages.push(gl.getParameter(gl.TEXTURE_BINDING_2D));
+          }
+          (stream?streamedCalls:calls)[name]++;return originals[name].apply(this,args);
+        };
       }
       if(turn)document.getElementById(turn).click();
       for(;;){
@@ -32,8 +64,14 @@ async function coldOrbit(page,options){
         prev=s;prevTime=t;
         if(s.progress===1){await raf();break;}
       }
-    }finally{for(const [name,fn] of Object.entries(originals))gl[name]=fn;}
-    return {calls,roomsOpened,samples,stationary,peakFrameMs:Math.round(peak*10)/10};
+    }finally{
+      for(const [name,fn] of Object.entries(originals))gl[name]=fn;
+      restoreLOD?.();
+    }
+    for(const handle of storages)if(uploadedTextures.has(handle)){
+      calls.texStorage2D--;streamedCalls.texStorage2D++;
+    }
+    return {calls,...(streamedLOD?{streamedCalls}:{}),roomsOpened,samples,stationary,peakFrameMs:Math.round(peak*10)/10};
   },options);
   assert(result.samples>0,'first traversal did not sample the handoff');
   assert.equal(result.stationary,0,'camera stopped while handoff progress advanced');

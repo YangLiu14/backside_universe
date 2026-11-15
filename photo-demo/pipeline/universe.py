@@ -13,12 +13,14 @@ from PIL import Image, ImageOps
 
 import hi3d_mcp
 import mcp_jobs
+import art_review
 from exports import import_web, reuse as reuse_model
 from drive import album_installer, drive, verify
 from production import advance, begin_click, check_account, release_web
 from project import APP, config, identifier, init, release_stale_reservations, roles, locked, normalized_image, read, save, set_story, validate
 from scene import package, room
 from release_files import check_version
+from preview import serve
 
 
 def parser():
@@ -30,7 +32,7 @@ def parser():
     new.add_argument('photo', type=Path)
     new.add_argument('--via', choices=('mcp','web','api'), default='mcp')
     new.add_argument('--budget', type=int, default=os.getenv('UNIVERSE_HI3D_BUDGET') or None)
-    commands.add_parser('story').add_argument('file', type=Path)
+    commands.add_parser('story', help='保存创作简报和可选的画质目标 artTargets').add_argument('file', type=Path)
     for name in ('concept', 'shell-image'):
         commands.add_parser(name).add_argument('image', type=Path)
     part = commands.add_parser('part-image')
@@ -83,6 +85,8 @@ def parser():
     commands.add_parser('status')
     commands.add_parser('build')
     commands.add_parser('qa')
+    art = commands.add_parser('art-review', help='查看当前版本的实机画面及已记录的美术复核')
+    art.add_argument('--record', type=Path, metavar='FILE', help='保存 agent 看过实机证据后的完整复核记录')
     preview = commands.add_parser('preview')
     preview.add_argument('--port', type=int, default=9989)
     return cli
@@ -97,11 +101,13 @@ def execute(args):
                     matches_local_pin=acct['fingerprint']==os.getenv('HI3D_MCP_USER_SHA256'))
     if args.cmd == 'init':
         init(folder, args.photo, args.budget, args.via)
-        return dict(project=str(folder), next='story')
+        return dict(project=str(folder), next='story', workflow=str(APP/'docs/SCENE_ART_WORKFLOW.md'))
     if not (folder/'run.json').is_file():
         raise ValueError('请先运行 init')
     if args.cmd == 'run':
         return drive(folder)
+    if args.cmd == 'art-review':
+        return art_review.record(folder, args.record) if args.record else art_review.packet(folder)
     if args.cmd == 'room':
         return room(folder, read(folder/'run.json'))
     if args.cmd in ('preview','qa'):
@@ -111,10 +117,11 @@ def execute(args):
             return dict(report=str(verify(folder,site)))
         check_version(site)
         installer = album_installer(folder)
-        if installer:
-            with locked(folder):
-                subprocess.run([sys.executable,installer,'--project',folder],check=True)
-            site = APP/'dist'
+        if not installer:
+            return serve(folder,args.port)
+        with locked(folder):
+            subprocess.run([sys.executable,installer,'--project',folder],check=True)
+        site = APP/'dist'
         os.execl(sys.executable,sys.executable,'-m','http.server',str(args.port),'--bind','127.0.0.1','--directory',str(site))
     with locked(folder):
         state = read(folder/'run.json')
@@ -123,7 +130,8 @@ def execute(args):
             return state
         if cmd == 'story':
             set_story(folder, state, validate(read(args.file)))
-            return dict(next='room + concept',shell=str(folder/'inputs'/(state['shell']+'.png')))
+            return dict(next='room + concept', shell=str(folder/'inputs'/(state['shell']+'.png')),
+                        art_targets=state['brief'].get('artTargets', []), workflow=str(APP/'docs/SCENE_ART_WORKFLOW.md'))
         if cmd == 'budget':
             credits = None if args.credits == 'unlimited' else int(args.credits)
             if credits is not None and credits < 0:

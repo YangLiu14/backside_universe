@@ -13,6 +13,8 @@
 
 ## 作品与交互实现
 
+- 写画质目标、制作代表性路段、扩建全场并逐版复核。[可探索场景制作流程](SCENE_ART_WORKFLOW.md) · [鞋底小镇实机复盘](SOLE_CITY_ENVIRONMENT_RESEARCH.md)
+
 - [工位作品状态与下一轮计划](../../PROJECT_STATUS.md)。
 - [小狗身体博物馆](CANINE_MUSEUM.md)：实景侧绕、六个器官展馆、食物视角与资产恢复。
 - [主桌面转场](MARBLE_TRANSITION.md)：共享机位、深度遮挡、海洋与日照。

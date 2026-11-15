@@ -18,6 +18,13 @@ from universe import parser
 
 
 class Jobs(unittest.TestCase):
+    def test_schema_two_assets_prefer_original_glb(self):
+        original = 'https://cdn.example/target/model/original/GLB0.glb'
+        assets = [{'format': 'WEBP', 'url': 'https://cdn.example/cover.webp'},
+                  {'format': 'GLB', 'url': 'https://cdn.example/target/preview/model/original/GLB0.glb'},
+                  {'format': 'GLB', 'url': original}]
+        self.assertEqual(mcp_jobs.glb_url({'assets': assets}), original)
+
     def setUp(self):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
@@ -88,6 +95,14 @@ class Jobs(unittest.TestCase):
             self.submit('older-quote')
         self.assertEqual(self.calls.count('quote_generation'),1)
         self.assertNotIn('create_generation',self.calls)
+
+    def test_zero_remaining_budget_still_allows_free_pricing(self):
+        self.state['budget'] = 0
+        self.assertEqual(self.tick()[0], ['shell', 'budget_exceeded', 45, 0])
+        self.assertEqual(self.calls.count('quote_generation'), 1)
+        with self.assertRaises(ValueError):
+            self.submit()
+        self.assertNotIn('create_generation', self.calls)
 
     def test_wrong_account_budget_balance_and_expiry(self):
         self.uid = 'different'

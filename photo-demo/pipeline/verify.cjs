@@ -63,7 +63,7 @@ async function main() {
         return new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
       },orbit);
       if(specific){
-        const details=await specific.check(page,name,viewport,out,url,firstOrbit);
+        const details=await specific.check(page,name,viewport,out,url,firstOrbit,manifest);
         report.push({...details,coldOrbit:firstOrbit});
         await page.close();continue;
       }

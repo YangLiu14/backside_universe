@@ -1,10 +1,12 @@
 """Run the independent photo and mesh work, then package and exercise the release."""
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+import shlex
 import subprocess
 import sys
 import time
 
+from art_review import packet
 from release_files import check_version
 from hi3d import Client
 from production import advance
@@ -64,13 +66,23 @@ def drive(folder):
                         return dict(next='run',reason='主体位置已修改，重新计算实景')
                     site = package(folder,latest)
                 report = verify(folder,site)
+                review = packet(folder)
                 with locked(folder):
                     if read(folder/'run.json') != latest or folder/read(folder/'release.json')['path'] != site:
                         return dict(next='run',reason='验收期间作品已更新')
+                    if review['version'] != site.name:
+                        continue
                     installer = album_installer(folder)
                     if installer:
                         subprocess.run([sys.executable,installer,'--project',folder],check=True)
-                return dict(site=str(site),qa=str(report),next='inspect_keyframes')
+                review_command = ['./photo-demo/universe']
+                if folder.parent != APP/'evidence/universes':
+                    review_command.extend(['--root', str(folder.parent)])
+                review_command.extend([folder.name, 'art-review'])
+                return dict(site=str(site), qa=str(report), next=review['next'],
+                            missing_targets=review['missing_targets'],
+                            art_review=shlex.join(review_command),
+                            workflow=str(APP/'docs/SCENE_ART_WORKFLOW.md'))
             if not pending <= {'submitted','review_window'}:
                 return dict(next=sorted(pending),tasks=steps)
             time.sleep(3 if 'review_window' in pending else 8)

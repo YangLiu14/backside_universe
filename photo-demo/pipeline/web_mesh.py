@@ -3,7 +3,9 @@ import sys
 from pathlib import Path
 import bpy
 
-source, output = map(Path,sys.argv[sys.argv.index('--')+1:])
+arguments = sys.argv[sys.argv.index('--')+1:]
+source, output = map(Path, arguments[:2])
+face_limit = int(arguments[2]) if len(arguments) > 2 else 150000
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(source))
 meshes = [obj for obj in bpy.context.scene.objects if obj.type=='MESH']
@@ -11,9 +13,9 @@ total = sum(len(obj.data.polygons) for obj in meshes)
 if total <= 0:
     raise ValueError('Hi3D model contains no faces')
 for obj in meshes:
-    if total > 150000 and len(obj.data.polygons)>100:
+    if total > face_limit and len(obj.data.polygons)>100:
         modifier = obj.modifiers.new('Web mesh', 'DECIMATE')
-        modifier.ratio = min(1, max(100/len(obj.data.polygons),150000/total))
+        modifier.ratio = min(1, max(100/len(obj.data.polygons),face_limit/total))
         bpy.context.view_layer.objects.active=obj
         bpy.ops.object.modifier_apply(modifier=modifier.name)
     obj.data.polygons.foreach_set('use_smooth',[True]*len(obj.data.polygons))

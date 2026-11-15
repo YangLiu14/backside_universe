@@ -24,9 +24,7 @@ def remaining_budget(state):
 
 
 def quote_step(folder,state,role,key,digest,call):
-    remaining = remaining_budget(state)
-    if remaining is not None and remaining <= 0:
-        return [role,'budget_exceeded',0,remaining]
+    # Quotes are free. The offer and submit paths both enforce the spending limit.
     acct = checked(call,state)
     q = mcp.quote(call,folder/'inputs'/(digest+'.png'),digest)
     cost = q.get('estimated_points')
@@ -96,6 +94,13 @@ def recover(folder,state,key,task,call):
 
 def glb_url(data):
     # Only consume the task's model/download fields, never thumbnails or viewer pages.
+    assets = data.get('assets')
+    if isinstance(assets, list):
+        models = [asset['url'] for asset in assets if isinstance(asset, dict)
+                  and str(asset.get('format', '')).lower() == 'glb'
+                  and isinstance(asset.get('url'), str) and urlsplit(asset['url']).scheme == 'https']
+        if models:
+            return next((url for url in models if '/preview/' not in urlsplit(url).path), models[0])
     queue = [data]
     while queue:
         container = queue.pop(0)
