@@ -66,11 +66,16 @@ export function createDesktopSea(photo,objects,shores){
       vec3 deep=vec3(.011,.108,.16),turquoise=vec3(.021,.245,.27),sandWater=vec3(.17,.40,.32);
       vec3 water=mix(deep,turquoise,.36+.42*current);
       water=mix(water,sandWater,shallows*.82);
-      float caustic=pow(1.-abs(sin(q.x*135.+sin(q.y*112.+seaTime*.2))*sin(q.y*147.-sin(q.x*96.-seaTime*.27))),18.);
+      // Bottom illumination attenuates across the shelf; let currents bend the light ridges.
+      vec2 causticUv=q*123.+vec2(1.55*current,1.17*seaNoise(q*13.-seaTime*.04));
+      vec2 warp=vec2(sin(causticUv.y*1.12+seaTime*.43),cos(causticUv.x*.89-seaTime*.31));
+      vec2 phase=causticUv+1.34*warp;
+      float ridges=abs(sin(phase.x)+.81*cos(phase.y+.62*sin(phase.x*.78)));
+      float caustic=1.-smoothstep(.012,.22+fwidth(ridges),ridges);
       water=mix(water,vec3(.026,.24,.22),.25*closeDetail);
       float filaments=sin(q.x*1480.+sin(q.y*830.-seaTime*.8))+cos(q.y*1740.+sin(q.x*1210.+seaTime));
-      water+=closeDetail*.024*pow(max(0.,1.-abs(filaments)),4.)*vec3(.75,1.,.8);
-      water+=vec3(.045,.10,.085)*caustic*(.2+shallows*.8);
+      water+=shallows*closeDetail*.012*pow(max(0.,1.-abs(filaments)),4.)*vec3(.75,1.,.8);
+      water+=vec3(.074,.145,.108)*caustic*shallows*shallows;
       float wash=exp(-shore*180.)*(.4+.6*pow(sin(shore*260.-seaTime*.65),2.));
       water=mix(water,vec3(.58,.73,.64),wash*.32);
       vec3 rippleNormal=normalize(vec3(-waveSlope.x,1.,-waveSlope.y));
@@ -109,7 +114,7 @@ export function createDesktopSea(photo,objects,shores){
       gl_FragColor.rgb=mix(gl_FragColor.rgb,texture2D(map,vMapUv).rgb,.88*(1.-wet));
       #include <colorspace_fragment>`);
   };
-  material.customProgramCacheKey=()=> 'photographed-desk-to-archipelago-v3';
+  material.customProgramCacheKey=()=> 'photographed-desk-to-archipelago-v4';
   const cup=Array.from({length:28},(_,i)=>{const a=i*Math.PI/14;return new THREE.Vector2(c.x+.5*s.x*Math.cos(a),c.z+.5*s.z*Math.sin(a));});
   return{material,setPortNotice(center,w,h,map,amount){
     uniforms.portCenter.value.copy(center);uniforms.portSize.value.set(w,h);

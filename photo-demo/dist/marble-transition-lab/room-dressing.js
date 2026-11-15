@@ -1,6 +1,7 @@
 // Measurements are in metres, with the entrance at z=0. Rotate each scanned
 // piece into the room, then fit its actual bounds without distorting the mesh.
 import * as T from 'three';
+import {loadSurface} from '../holiday-assets/measured-surfaces.js';
 
 const dir='../holiday-assets/assets/island-rooms/';
 const front=-Math.PI/2;
@@ -14,24 +15,6 @@ const placements={
   slip:[['boat-cradle',[-.67,0,-4.09],[2.27,1.56,4.14],.17]],
   beacon:[['keeper-table',[-.98,0,-3.59],[1.38,1.58,.70],.14]],
 };
-
-const surfaces=new Map();
-function loadSurface(name){
-  if(!surfaces.has(name)){
-    const loader=new T.TextureLoader();
-    const pending=Promise.allSettled(['color','normal','rough'].map(async (channel)=>{
-      const tex=await loader.loadAsync(dir+name+'-'+channel+'.jpg');
-      tex.colorSpace=channel==='color'?T.SRGBColorSpace:T.NoColorSpace;
-      tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.anisotropy=8;return tex;
-    })).then(results=>{
-      if(results.every(r=>r.status==='fulfilled'))return results.map(r=>r.value);
-      for(const r of results)if(r.status==='fulfilled')r.value.dispose();
-      surfaces.delete(name);return null;
-    });
-    surfaces.set(name,pending);
-  }
-  return surfaces.get(name);
-}
 
 function disposeProp(root){
   const maps=new Set(),materials=new Set();

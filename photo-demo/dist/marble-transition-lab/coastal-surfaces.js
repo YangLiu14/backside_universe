@@ -44,8 +44,11 @@ function stoneDetail(){
   return scannedStone;
 }
 
-export function dressCoast(model,profile){
+export function dressCoast(model,profile,seaSurface){
   const stone=['grotto','cup','orange-book','blue-book','phone'].includes(profile);
+  const tidal=stone && typeof seaSurface==='function';
+  const level=tidal?seaSurface(0,0):0;
+  const plane=tidal?new T.Vector3(seaSurface(1,0)-level,seaSurface(0,1)-level,level):null;
   model.traverse(mesh=>{
     if(!mesh.isMesh)return;
     for(const mat of [].concat(mesh.material)){
@@ -53,13 +56,14 @@ export function dressCoast(model,profile){
       if(!mat.map||!mat.isMeshStandardMaterial||dressed.has(mat)||/^(Inn_|Quay_|Canyon_|Harbor_)/.test(mesh.name))continue;
       dressed.add(mat);
       const previous=mat.onBeforeCompile,oldKey=mat.customProgramCacheKey();
-      mat.customProgramCacheKey=()=>oldKey+'-walking-surfaces-'+profile;
+      mat.customProgramCacheKey=()=>oldKey+'-tidal-strata-1-'+profile+tidal;
       mat.onBeforeCompile=function(shader,renderer){
         previous.call(this,shader,renderer);shader.uniforms.coastGrain=stone?stoneDetail():{value:surfaceTile()};
-        shader.vertexShader='varying vec3 grainPoint,grainFace;varying float grainScale;\n'+shader.vertexShader;
+        if(tidal)shader.uniforms.coastPlane={value:plane};
+        shader.vertexShader='varying vec3 coastWorld,grainPoint,grainFace;varying float grainScale;\n'+shader.vertexShader;
         shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
-          grainPoint=position;grainFace=normal;grainScale=length(modelMatrix[0].xyz);`);
-        shader.fragmentShader='varying vec3 grainPoint,grainFace;varying float grainScale;uniform sampler2D coastGrain;\n'+shader.fragmentShader;
+          coastWorld=(modelMatrix*vec4(transformed,1.)).xyz;grainPoint=position;grainFace=normal;grainScale=length(modelMatrix[0].xyz);`);
+        shader.fragmentShader='uniform vec3 coastPlane; varying vec3 coastWorld,grainPoint,grainFace;varying float grainScale;uniform sampler2D coastGrain;\n'+shader.fragmentShader;
         shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>',`#include <roughnessmap_fragment>
           // Some generated shells have UVs but no vertex normals. Three
           // lights these with face derivatives; use the same local face here.
@@ -74,7 +78,24 @@ export function dressCoast(model,profile){
           float finishMask=${profile==='lamp'?'0.24':profile==='chair'?'smoothstep(.42,.82,roughnessFactor)':'warm*smoothstep(.20,.72,roughnessFactor)'};
           float h=(${stone?'texel.g':profile==='chair'?'texel.a':'texel.b'}-.50)*finishMask;
           diffuseColor.rgb*=1.+${stone?'(texel.r-.5)*1.22*finishMask':'h*.24'};
-          roughnessFactor=clamp(roughnessFactor+${stone?'(texel.b-.5)*.46*finishMask':'h*.14'},.04,1.);`);
+          roughnessFactor=clamp(roughnessFactor+${stone?'(texel.b-.5)*.46*finishMask':'h*.14'},.04,1.);
+          ${tidal?`
+          float altitude=coastWorld.y-dot(coastPlane,vec3(coastWorld.xz,1.));
+          float capillary=altitude-(texel.r-.48)*.003;
+          float damp=(1.-smoothstep(.002,.014,capillary))*finishMask;
+          float tideMark=1.-smoothstep(.0008,.0035,abs(capillary-.013));
+          diffuseColor.rgb*=mix(vec3(1.),vec3(.48,.58,.58),damp);
+          diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(1.14,1.12,1.065),tideMark*finishMask);
+          roughnessFactor=mix(roughnessFactor,.32,damp*.82);
+          ${profile==='orange-book'||profile==='blue-book'?`
+          // Beds follow a shallow dip across each cliff, independent of its UV islands.
+          float bed=altitude*110.+coastWorld.x*11.+coastWorld.z*8.+.18*sin(coastWorld.x*64.)+.18*texel.r;
+          float side=1.-smoothstep(.55,.90,abs(normalize(cross(dFdx(coastWorld),dFdy(coastWorld))).y));
+          float resolved=1.-smoothstep(.12,.45,fwidth(bed));
+          float vein=(.5+.5*cos(6.28318*bed))*(.5+.5*cos(2.14*bed));
+          float layer=side*finishMask*resolved*(1.-damp)*vein*vein;
+          diffuseColor.rgb*=mix(vec3(1.),${profile==='orange-book'?'vec3(.71,.59,.53)':'vec3(.79,.83,.85)'},layer);
+          h-=.035*layer;`:''}`:''}`);
         shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
           vec3 px=dFdx(-vViewPosition),py=dFdy(-vViewPosition);
           vec3 sx=cross(py,normal),sy=cross(normal,px);float det=dot(px,sx);

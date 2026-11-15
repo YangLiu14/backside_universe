@@ -1,5 +1,7 @@
 import * as THREE from '../vendor/three.module.js';
 import {printBook} from './bookroom-book.js';
+import {loadSurface} from './measured-surfaces.js';
+import {roomSkyVolume} from './aperture-irradiance.js';
 export const P=(x,y,z)=>new THREE.Vector3(x,z,-y);
 export const room={minX:-.061,maxX:.230,minY:.522,maxY:.674,floor:.008,eye:.100,doorX:.043,doorY:.682,doorMin:.010,doorMax:.076};
 export const eyeHeight=y=>room.eye+.0275*THREE.MathUtils.smoothstep(y,.645,.690);
@@ -7,13 +9,28 @@ export async function buildInterior(scene,loader,{furnitureWidthScale=1,grotto=f
  const root=new THREE.Group();root.name='crafted-bookroom-interior';scene.add(root);
  const material=(color,roughness=.75,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
  const plaster=material('#d8c7a6'),wood=material('#725039'),darkWood=material('#463327'),brass=material('#a88342',.32,.72),green=material('#306c58',.52),paper=material('#eee0b7');
- function box(name,c,s,mat=plaster,parent=root){const o=new THREE.Mesh(new THREE.BoxGeometry(s[0],s[2],s[1]),mat);o.position.copy(P(...c));o.name=name;o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
- const canvas=document.createElement('canvas');canvas.width=256;canvas.height=512;const ctx=canvas.getContext('2d');ctx.fillStyle='#927552';ctx.fillRect(0,0,256,512);let seed=34;const rand=()=>((seed=seed*16807%2147483647)/2147483647);
- for(let i=0;i<240;i++){ctx.strokeStyle=`rgba(${rand()>.5?'49,30,15':'195,165,111'},${.03+rand()*.13})`;ctx.lineWidth=.3+rand()*1.2;ctx.beginPath();const x=rand()*256;ctx.moveTo(x,0);ctx.bezierCurveTo(x+rand()*8,180,x-rand()*7,350,x,512);ctx.stroke();}
- const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
- const oak=new THREE.MeshStandardMaterial({map:tex,roughness:.68,color:'#d0ae82'});
+ const oak=material('#9c7855',.80);
+ function box(name,c,s,mat=plaster,parent=root){
+  const geometry=new THREE.BoxGeometry(s[0],s[2],s[1]),center=P(...c);
+  if(mat===plaster||mat===oak||mat===green){
+   const {position,normal,uv}=geometry.attributes;
+   // Scan coordinates span adjoining pieces and stay on the surface when the room moves.
+   for(let i=0;i<position.count;i++){
+    const x=position.getX(i)+center.x,y=position.getY(i)+center.y,z=position.getZ(i)+center.z;
+    if(Math.abs(normal.getY(i))>.5)uv.setXY(i,z/.167,x/.136);
+    else uv.setXY(i,(Math.abs(normal.getX(i))>.5?z:x)/.14,y/.14);
+   }
+  }
+  const o=new THREE.Mesh(geometry,mat);o.position.copy(center);o.name=name;o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;
+ }
  box('floor-underlay',[.084,.597,.004],[.303,.164,.008],darkWood);
- for(let x=0;x<14;x++)for(let y=0;y<3;y++)box('oak-floorboard',[-.061+(x+.5)*.291/14,.522+(y+.5)*.152/3,.008],[.291/14-.0004,.152/3-.0005,.003],oak);
+ for(let row=0;row<14;row++){
+  const first=.024+.013*(row%4),ends=[0,first,first+.067,.152];
+  for(let j=1;j<ends.length;j++){
+   const start=ends[j-1],end=ends[j];
+   box('oak-floorboard',[-.061+(row+.5)*.291/14,.522+(start+end)/2,.008],[.291/14-.00024,end-start-.00025,.003],oak);
+  }
+ }
  box('ceiling',[.084,.597,.154],[.303,.164,.008],plaster);
  box('back-wall',[.084,.518,.081],[.303,.008,.154],plaster);
  // The domed bay keeps its open arches, with a glazed reading alcove set
@@ -61,9 +78,28 @@ export async function buildInterior(scene,loader,{furnitureWidthScale=1,grotto=f
  const doorW=.064,doorH=.104;
  const door=box('green-door-leaf',[doorW/2,0,doorH/2],[doorW,.005,doorH],green,pivot);door.userData.door=true;
  for(const side of [-1,1]){
-  for(const [fraction,height] of [[.19,.205],[.538,.265],[.826,.205]])box('door-raised-panel',[doorW/2,side*.003,doorH*fraction],[doorW-.012,.002,doorH*height],green,pivot);
+  for(const [fraction,height] of [[.19,.205],[.538,.265],[.826,.205]]){
+   const panelW=doorW-.012,panelH=doorH*height;
+   box('door-raised-panel',[doorW/2,side*.003,doorH*fraction],[panelW,.002,panelH],green,pivot);
+   // The bevel catches the sky on the terrace and the practical as the leaf turns.
+   const frame=new THREE.Shape(),opening=new THREE.Path();
+   const a=panelW*.5+.0006,b=panelH*.5+.0006,inset=.0022;
+   frame.moveTo(-a,-b);frame.lineTo(a,-b);frame.lineTo(a,b);frame.lineTo(-a,b);frame.closePath();
+   opening.moveTo(-a+inset,-b+inset);opening.lineTo(-a+inset,b-inset);opening.lineTo(a-inset,b-inset);opening.lineTo(a-inset,-b+inset);opening.closePath();frame.holes.push(opening);
+   const moulding=new THREE.Mesh(new THREE.ExtrudeGeometry(frame,{depth:.0006,bevelSize:.00052,bevelThickness:.00045,bevelSegments:2}),green);
+   moulding.name='ogee-panel-frame';moulding.position.copy(P(doorW/2,side*.0034,doorH*fraction));
+   if(side===1)moulding.rotation.y=Math.PI;
+   moulding.castShadow=true;pivot.add(moulding);
+  }
   for(const x of [.005,doorW-.005])box('door-stile',[x,side*.004,doorH/2],[.003,.0015,doorH-.006],green,pivot);
-  const knob=new THREE.Mesh(new THREE.SphereGeometry(.0018,12,8),brass);knob.position.copy(P(doorW-.009,side*.006,doorH*.5));pivot.add(knob);
+  const latchX=doorW-.009,latchZ=doorH*.5;
+  box('brass-lock-plate',[latchX,side*.00405,latchZ-.0015],[.0047,.0012,.013],brass,pivot);
+  box('key-slot',[latchX,side*.00468,latchZ-.0051],[.00052,.00014,.0016],darkWood,pivot);
+  for(const offset of [-.0068,.0037]){
+   const screw=new THREE.Mesh(new THREE.SphereGeometry(.00041,8,5),brass);
+   screw.position.copy(P(latchX,side*.00468,latchZ+offset));pivot.add(screw);
+  }
+  const knob=new THREE.Mesh(new THREE.SphereGeometry(.0022,16,10),brass);knob.position.copy(P(latchX,side*.0062,latchZ));pivot.add(knob);
  }
  // Millimetre-scale panel relief otherwise self-shadows into noisy stripes.
  // Keep its cast shadow on the floor while lighting the painted panels cleanly.
@@ -92,19 +128,42 @@ export async function buildInterior(scene,loader,{furnitureWidthScale=1,grotto=f
  // Tripo's canonical front is +X; rotations orient each item into the room.
  const specs=[['bookcase','y',.117,.133,.542,Math.PI/2],['desk','z',.084,-.017,.585,Math.PI],['chair','y',.055,.183,.616,Math.PI*.65]];
  const parts=new Map();
- let loading;
+ let loading,surfaceLoad;
+ function loadFinishes(){
+  // These maps are shared with the seven walk-in rooms and only fetched on a visit.
+  if(!surfaceLoad)surfaceLoad=Promise.all([[plaster,'plaster_grey_04','#f3e1c2',.35],[oak,'wood_floor_deck','#c3a384',.28]].map(async ([mat,scan,tint,strength])=>{
+   const maps=await loadSurface(scan);
+   if(maps){
+    [mat.map,mat.normalMap,mat.roughnessMap]=maps;mat.color.set(tint);mat.normalScale.setScalar(strength);
+    mat.needsUpdate=true;
+    if(mat===oak){
+     green.normalMap=maps[1];green.normalScale.setScalar(.18);green.roughnessMap=maps[2];green.roughness=.70;green.needsUpdate=true;
+    }
+   }
+  }));
+  return surfaceLoad;
+ }
  function loadFurniture(){
   if(!loading){
-   loading=Promise.all(specs.map(spec=>{
+   loading=Promise.all([loadFinishes(),Promise.all(specs.map(spec=>{
     const slug=spec[0];
     if(!parts.has(slug))parts.set(slug,asset(...spec).catch(error=>{parts.delete(slug);throw error;}));
     return parts.get(slug);
-   })).then(items=>{
+   }))]).then(([,items])=>{
     for(const item of items){
      contents.add(item.placement);furniture.push(item.obstacle);
      if(item.book)result.book=item.book;
     }
     root.add(contents);
+    // One model-space unit here is 20 room metres. These openings are the
+    // cut side window, return glazing and front bay in the modeled shell.
+    const localToMetres=new THREE.Matrix4().makeScale(20,20,20);
+    localToMetres.setPosition(-.0845*20,-.008*20,.522*20);
+    roomSkyVolume(root,{w:5.82,h:2.92,d:3.04},[
+     {x:-2.93,y:1.56,z:-1.26,dx:0,dz:-1,width:1.48,height:1.56},
+     {x:2.99,y:1.78,z:-1.50,dx:0,dz:-1,width:2.72,height:1.49},
+     {x:1.79,y:1.84,z:-3.02,dx:1,dz:0,width:2.4,height:1.67}
+    ],'bookroom',localToMetres);
    }).catch(error=>{loading=null;throw error;});
   }
   return loading;

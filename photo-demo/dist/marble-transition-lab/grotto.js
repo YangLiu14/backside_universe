@@ -16,7 +16,7 @@ export async function createGrotto(registered,surface,loader){
   if(!environment)throw Error('未找到新版洞窟外壳');
   environment.removeFromParent();
   seatHarborBase(environment,registration.matrix,surface,harborFits.grotto);
-  dressCoast(environment,'grotto');return environment;
+  dressCoast(environment,'grotto',surface);return environment;
  }
  const fullShell='bookroom/shell-grotto-v6.glb';
  let fallback=false,retry,walkGeometry;

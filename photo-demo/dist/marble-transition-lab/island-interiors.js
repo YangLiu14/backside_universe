@@ -1,5 +1,6 @@
 import * as T from 'three';
 import {lightRoom} from './room-lighting.js';
+import {roomSkyVolume} from '../holiday-assets/aperture-irradiance.js';
 import {workshop,printChart} from './room-fittings.js';
 
 // Local thresholds are z=0, with the interior on the negative side. The inn's
@@ -24,6 +25,11 @@ export function buildIslandInterior(id,environment,dayColor,dressing){
   const paint=wood(spec.trim),stone=finish('#bca98c','stone');
   const rounded=id==='watch'||id==='beacon',open=id==='slip';
   scene.add(model);scene.environment=environment;scene.environmentIntensity=.55;
+  const openings=[];
+  function aperture(a,b,at,width,low,high){
+    const len=Math.hypot(b[0]-a[0],b[1]-a[1]),dx=(b[0]-a[0])/len,dz=(b[1]-a[1])/len;
+    openings.push({x:a[0]+dx*at,y:(low+high)/2,z:a[1]+dz*at,dx,dz,width,height:high-low});
+  }
   function wall(a,b,holes=[],surface=plaster,top=h,baseY=0){
     const dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz),angle=Math.atan2(-dz,dx);
     function board(u,v,y,H,t,m){
@@ -31,6 +37,7 @@ export function buildIslandInterior(id,environment,dayColor,dressing){
     }
     let last=0;
     for(const o of holes.sort((i,j)=>i.at-j.at)){
+      aperture(a,b,o.at,o.w,baseY+o.base,baseY+o.cap);
       const lo=o.at-o.w/2,hi=o.at+o.w/2;
       if(lo>last)board(last,lo,0,top,.15,surface);
       if(o.base>0)board(lo,hi,0,o.base,.15,surface);
@@ -125,6 +132,7 @@ export function buildIslandInterior(id,environment,dayColor,dressing){
       const half=Math.hypot(b[0]-a[0],b[1]-a[1])/2;
       if(i===0){wall(a,b,[{at:half,w:half*1.96,base:0,cap:2.18,door:true}]);}
       else if(id==='beacon'){wall(a,b,i%4===0?[window(half,half*1.35,1.12,2.15)]:[],plaster,3.44);
+        aperture(a,b,half,half*1.91,3.44,5.82);
         box((a[0]+b[0])/2,3.88,(a[1]+b[1])/2,.090,.88,.090,brass);
         rod([a[0],5.82,a[1]],[a[0],3.44,a[1]],.045,paint);
         rod([a[0],4.12,a[1]],[b[0],4.12,b[1]],.023,brass);
@@ -139,6 +147,8 @@ export function buildIslandInterior(id,environment,dayColor,dressing){
     if(id==='baths')tileFloor(0,-d,0,w,0,['#8cb7ad','#81a9a2','#a5bdb1','#91b4ac']);
     else floorboards(0,-d,0,w);
     if(open){
+      aperture([-w/2,0],[w/2,0],w/2,w-.36,.10,h-.3);
+      for(const x of [-w/2,w/2])aperture([x,0],[x,-d],d/2,d-.54,.12,h-.3);
       for(const side of [-1,1])for(let i=0;i<4;i++){
         const x=side*(w/2-.1),z=-.09-i*(d-.18)/3;
         box(x,h/2,z,.18,h,.18,dark);
@@ -363,9 +373,10 @@ export function buildIslandInterior(id,environment,dayColor,dressing){
     for(const piece of dressing.pieces.values())model.add(piece);
     for(const shadow of dressing.shadows)scene.add(shadow);
   }
+  const skyVolume=roomSkyVolume(model,spec,openings,id);
   const lighting=lightRoom(scene,id,spec,dayColor);
   model.updateWorldMatrix(true,true);
   return {scene,model,furnishings:dressing?[...dressing.pieces.keys()].sort():[],dispose(){
-    dressing?.dispose();model.traverse(o=>o.geometry?.dispose());f.dispose();lighting.dispose();
+    dressing?.dispose();model.traverse(o=>o.geometry?.dispose());f.dispose();lighting.dispose();skyVolume.dispose();
   }};
 }

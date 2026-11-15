@@ -137,7 +137,7 @@ export function createDesktopIslands({scene, registered, details, fit, desk, sur
           }
         }
       });
-      if(level==='hd')dressCoast(model,entry.id);
+      if(level==='hd')dressCoast(model,entry.id,surface);
       addIslandPassages(model,entry.id);
       await prepareGPU(model);
       const first=!entry.models.hd&&!entry.models.near;

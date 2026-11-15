@@ -57,7 +57,7 @@ export async function createHiddenWorld(scene,registered,surface,loader){
   headland.updateWorldMatrix(true,true);
   const berth=headland.matrixWorld.clone();berth.elements[13]-=cupCottageDraft;
   for(const model of headland.children)seatHarborBase(model,berth,surface,harborFits.cup);
-  volume.apply(root);dressCoast(headland,'cup');
+  volume.apply(root);dressCoast(headland,'cup',surface);
   // The complete generated cavern is revealed with the modeled world. It
   // must not be cut into the old tiny silhouette-constrained shelf geometry.
   scene.add(grotto.root);
