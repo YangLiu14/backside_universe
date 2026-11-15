@@ -30,11 +30,12 @@ async function boot(){
  const contextPromise=classroom(tiny,room,a);
  const entries=await Promise.all(Object.entries(spec.models).map(async([role,g])=>[role,await loader.loadAsync(g.file)]));
  const textureLoader=new T.TextureLoader();
- const [sky,ground,surface,brick,calibration]=await Promise.all([textureLoader.loadAsync('school-sky.jpg'),textureLoader.loadAsync('school-ground.jpg'),textureLoader.loadAsync('playing-surface.jpg'),textureLoader.loadAsync('courtyard-brick.jpg'),load('./campus-assets.json')]);
- for(const tex of [sky,ground,surface,brick]){tex.colorSpace=T.SRGBColorSpace;tex.anisotropy=Math.min(8,mesh.capabilities.getMaxAnisotropy());}
+ const [sky,ground,surface,brick,aggregate,oak,calibration]=await Promise.all([textureLoader.loadAsync('school-sky.jpg'),textureLoader.loadAsync('school-ground.jpg'),textureLoader.loadAsync('playing-surface.jpg'),textureLoader.loadAsync('courtyard-brick.jpg'),textureLoader.loadAsync('court-aggregate.png'),textureLoader.loadAsync('bench-oak.jpg'),load('./campus-assets.json')]);
+ for(const tex of [sky,ground,surface,brick,oak]){tex.colorSpace=T.SRGBColorSpace;tex.anisotropy=Math.min(8,mesh.capabilities.getMaxAnisotropy());}
  brick.wrapS=brick.wrapT=T.MirroredRepeatWrapping;sky.mapping=T.EquirectangularReflectionMapping;ground.wrapS=ground.wrapT=T.MirroredRepeatWrapping;ground.repeat.set(70,60);
+ aggregate.wrapS=aggregate.wrapT=T.RepeatWrapping;aggregate.anisotropy=surface.anisotropy;
  const assembly=assemble({...spec,calibration},a,Object.fromEntries(entries),tiny);
- const campus=makeCampus(assembly.sources,{sky,ground,surface,brick},env.texture,calibration),tour=campusTour(mesh,assembly,campus,a.unit);
+ const campus=makeCampus(assembly.sources,{sky,ground,surface,brick,aggregate,oak},calibration),tour=campusTour(mesh,assembly,campus,a.unit);
  const [context]=await Promise.all([contextPromise,splats.initialized]);
  for(const role of ['shell','pencil','reel'])context.registerSource(assembly.sources[role]);
  const clock=memoryClock(),tape=sound(),pivot=V(...a.position),Y=V(0,1,0),end=.44,fx=room.intrinsics[0],fy=room.intrinsics[1],cx=room.intrinsics[2],cy=room.intrinsics[3];

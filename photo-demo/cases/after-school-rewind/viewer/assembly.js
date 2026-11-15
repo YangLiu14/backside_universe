@@ -43,7 +43,7 @@ export function assemble(spec,a,assets,scene){
  const opening={value:0},clearPlastic={value:0};
  // Real shell stays around all four edges. Discard only the rear-facing central wall during reveal.
  for(const mesh of shell.children){for(const mat of [].concat(mesh.material)){mat.side=T.DoubleSide;mat.transparent=true;mat.depthWrite=false;mat.forceSinglePass=true;mesh.renderOrder=3;
-   mat.roughness=.26;mat.metalness=.17;
+   mat.roughness=.24;mat.metalness=.035;
    mat.onBeforeCompile=s=>{s.uniforms.opening=opening;s.uniforms.clearPlastic=clearPlastic;s.vertexShader='varying vec3 shellPt;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nshellPt=position;');s.fragmentShader='varying vec3 shellPt;uniform float opening;uniform float clearPlastic;\n'+s.fragmentShader.replace('#include <alphatest_fragment>','#include <alphatest_fragment>\nif(opening>0. && shellPt.z<.43 && abs(shellPt.x-.005)<.415*opening && abs(shellPt.y-.035)<.40*opening)discard;\nfloat rim=max(smoothstep(.447,.49,abs(shellPt.x)),smoothstep(.423,.49,abs(shellPt.y)));float label=step(.260,shellPt.y)*step(shellPt.y,.427)*step(abs(shellPt.x),.432);float mould=1.-smoothstep(.075,.13,abs(abs(shellPt.x)-.217)+abs(shellPt.y-.035));float alpha=max(label,max(rim*.78,mould*.25));diffuseColor.a*=mix(1.,.115+.885*alpha,clearPlastic);');};
  }}
  // A smoked liner uses the uncut front wall of the same Hi3D shell as its mould.
@@ -55,7 +55,7 @@ export function assemble(spec,a,assets,scene){
  for(const group of [booth,drive,supply]){
    group.traverse(m=>{if(m.isMesh){m.castShadow=true;m.receiveShadow=true;}});
  }
- const lamp=new T.PointLight(0xffbd7b,1.4*a.unit*a.unit*100,60*a.unit,2);scene.add(lamp);
+ const lamp=new T.PointLight(0xffd393,240*a.unit*a.unit,32*a.unit,2);scene.add(lamp);
  function animate(t){
   const s=sample(t);drive.rotation.z=s.spin;supply.rotation.z=s.supplySpin;pencil.rotation.z=s.spin;phase.value=s.spin*5;
  }
@@ -66,5 +66,5 @@ export function assemble(spec,a,assets,scene){
   tipPoint:()=>toWorld(root,cone.clone().add(drive.position).sub(right)),
   footPoint:()=>toWorld(root,V(0,-a.height/2,0)),longAxis:()=>V(1,0,0).applyQuaternion(root.quaternion),
   target:()=>toWorld(rear,V(1.65,3,1)),
-  cut(p){lamp.position.copy(toWorld(rear,V(-10,5.2,7)));clearPlastic.value=T.MathUtils.smoothstep(p,.40,.59);opening.value=T.MathUtils.smoothstep(p,.47,.80);rear.visible=p>.735;backing.visible=rear.visible;},sources:pieces};
+  cut(p){lamp.position.copy(toWorld(rear,V(-5.9,2.4,6.0)));clearPlastic.value=T.MathUtils.smoothstep(p,.40,.59);opening.value=T.MathUtils.smoothstep(p,.47,.80);rear.visible=p>.735;backing.visible=rear.visible;},sources:pieces};
 }

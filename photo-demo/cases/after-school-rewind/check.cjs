@@ -133,6 +133,31 @@ exports.check = async function (page, device, viewport, out, url, coldOrbit) {
   assert.deepEqual((await state()).pose,boothPose);
   await page.locator('#yard').click();await page.waitForFunction(()=>rewindState().tour==='court');
   assert.deepEqual((await state()).eye,arrival.eye);
+  // Walk to the drain and rest area along the facing direction inherited from
+  // the studio window. The other route above stays at the original comparison poses.
+  async function approach(z){
+    if(cdp){
+      const area=await page.locator('#stick').boundingBox();
+      const x=area.x+area.width/2,y=area.y+area.height/2;
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y-32}]});
+    }else await page.keyboard.down('KeyW');
+    try { await page.waitForFunction(z=>rewindState().eye[2]<z,z,{timeout:15000}); }
+    finally {
+      if(cdp)await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+      else await page.keyboard.up('KeyW');
+    }
+  }
+  await approach(-7.65);
+  await page.keyboard.down('ArrowDown');
+  await page.waitForFunction(()=>rewindState().pose[9]>.48);
+  await page.keyboard.up('ArrowDown');
+  await shot('drain');
+  await page.keyboard.down('ArrowUp');
+  await page.waitForFunction(()=>rewindState().pose[9]<.04);
+  await page.keyboard.up('ArrowUp');
+  await approach(-11.7);
+  await shot('rest-area');
   await page.locator('#yard').click();await page.waitForFunction(()=>rewindState().tour==='booth');
   await page.locator('#enter').click();
   for (const [value, prev] of views.reverse()) {

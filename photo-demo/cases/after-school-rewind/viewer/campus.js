@@ -2,6 +2,8 @@
 import * as T from 'three';
 import {applyActor, palmLandmark, poseActor} from './props.js';
 import {sample} from './memory.js';
+import {dressCourt} from './court-edges.js';
+import {restoreGymWindows} from './gym-windows.js';
 import {createRoomWalk} from './room-walk.js';
 
 const V = (x=0,y=0,z=0) => new T.Vector3(x,y,z);
@@ -25,13 +27,13 @@ function treeFromCourt(court) {
   return tree;
 }
 
-export function makeCampus(pieces, textures, env, calibration) {
+export function makeCampus(pieces, textures, calibration) {
   const scene=new T.Scene();scene.name='放学后的校园';
-  scene.background=textures.sky;scene.environment=env;scene.environmentIntensity=.47;
-  scene.fog=new T.FogExp2(0xc9c8af,.007);
-  scene.add(new T.HemisphereLight(0xe1edff,0xbb9976,.92));
-  const sun=new T.DirectionalLight(0xffe2af,2.65);
-  sun.position.set(-28,35,21);sun.castShadow=true;sun.shadow.mapSize.setScalar(innerWidth<650?1024:2048);
+  scene.background=textures.sky;scene.environment=textures.sky;scene.environmentIntensity=.55;
+  scene.fog=new T.FogExp2(0xc7c5be,.0055);
+  scene.add(new T.HemisphereLight(0xe2eeff,0xb0a295,.68));
+  const sun=new T.DirectionalLight(0xffe4bd,3.25);
+  sun.position.set(-32,16,-15);sun.castShadow=true;sun.shadow.mapSize.setScalar(innerWidth<650?1024:2048);
   Object.assign(sun.shadow.camera,{left:-35,right:35,top:31,bottom:-31,near:.5,far:115});
   sun.shadow.camera.updateProjectionMatrix();sun.shadow.bias=-.00028;sun.shadow.normalBias=.021;
   scene.add(sun,sun.target);
@@ -51,8 +53,19 @@ export function makeCampus(pieces, textures, env, calibration) {
       mat.side=T.DoubleSide;mat.roughness=.94;
       mat.onBeforeCompile=shader=>{
         shader.uniforms.courtTop={value:textures.surface};
+        shader.uniforms.aggregate={value:textures.aggregate};
         shader.vertexShader='varying vec2 floorUV;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nfloorUV=vec2(.5+position.x,.5-position.z);');
-        shader.fragmentShader='uniform sampler2D courtTop; varying vec2 floorUV;\n'+shader.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\ndiffuseColor.rgb=texture2D(courtTop,clamp(floorUV,0.,1.)).rgb;');
+        shader.fragmentShader='uniform sampler2D courtTop; uniform sampler2D aggregate; varying vec2 floorUV;\n'+shader.fragmentShader
+          .replace('#include <map_fragment>', `#include <map_fragment>
+            vec2 metres=floorUV*vec2(31.9,18.1);
+            vec3 surface=texture2D(courtTop,clamp(floorUV,0.,1.)).rgb;
+            float grains=texture2D(aggregate,metres*.72).r;
+            float whiteLine=smoothstep(.34,.56,dot(surface,vec3(.30,.59,.11)));
+            float paintWear=smoothstep(.18,.74,texture2D(aggregate,metres*.054+vec2(.17,.34)).g);
+            diffuseColor.rgb=surface*mix(vec3(.78,.86,.92),vec3(1.),whiteLine)*(.92+.13*grains+.08*paintWear);`)
+          .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+            roughnessFactor=mix(.72+.22*grains,.64+.12*paintWear,whiteLine);`);
+
       };
     }
   });
@@ -61,6 +74,24 @@ export function makeCampus(pieces, textures, env, calibration) {
     const c=Math.abs(Math.cos(yaw)),s=Math.abs(Math.sin(yaw));
     obstacles.push([x,z,(c*w+s*d)/2+.32,(s*w+c*d)/2+.32]);
   }
+  // The painted plaster has a finer grain than the atlas of the whole building.
+  // Keep the original window, drainpipe and door finishes on their darker texels.
+  for(const part of pieces.classblock.children){
+    for(const material of [].concat(part.material)){
+      material.onBeforeCompile=shader=>{
+        shader.uniforms.wallGrain={value:textures.aggregate};
+        shader.vertexShader='varying vec3 wallPoint;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nwallPoint=position;');
+        shader.fragmentShader='varying vec3 wallPoint; uniform sampler2D wallGrain;\n'+shader.fragmentShader
+          .replace('#include <color_fragment>',`#include <color_fragment>
+            float plaster=smoothstep(.12,.42,dot(diffuseColor.rgb,vec3(.3,.59,.11)));
+            vec2 wallMetres=vec2(wallPoint.x*39.+wallPoint.z*8.6,wallPoint.y*11.1);
+            float grit=texture2D(wallGrain,wallMetres*.96).r;
+            float lime=texture2D(wallGrain,wallMetres*.14).g;
+            diffuseColor.rgb*=1.+plaster*(.22*(grit-.5)+.17*(lime-.5));`)
+          .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(max(.42,roughnessFactor),.89+.075*grit,plaster);');
+      };
+    }
+  }
   building(pieces.classblock,-1,-19.2,39,11.1,8.6,0);
   building(pieces.classblock.clone(true),-24.2,4.2,27.5,8.6,6.6,Math.PI/2);
   building(pieces.gymhall,25.8,-1.7,25,7.35,10.1,-Math.PI/2);
@@ -68,6 +99,8 @@ export function makeCampus(pieces, textures, env, calibration) {
   const booth=pieces.interior.clone(true);
   place(booth,threshold.x,2.2,12.83,7.4,4.55,3.1,0);
   const studioWing=pieces.gymhall.clone(true);
+  // The radio booth uses its own cropped copy of the original hall exterior.
+  restoreGymWindows(pieces.gymhall,textures);
   building(studioWing,threshold.x,15.62,21.4,6.3,8.0,Math.PI);
   for(const part of studioWing.children){
     const trim=source=>{
@@ -93,10 +126,11 @@ export function makeCampus(pieces, textures, env, calibration) {
   }
   wall(0,21.5,70,0);wall(0,-26.8,70,0);wall(33,0,53.8,Math.PI/2);wall(-31.5,0,53.8,Math.PI/2);
   const tree=treeFromCourt(pieces.court);
-  for(const [i,[x,z,h,angle]] of [[-17.4,-10.7,7.4,.42],[-6.5,-12.1,6.8,2.6],[17.4,-9.8,6.5,1.8],[-17,9.8,6.2,3.5],[-8,13.3,7.1,5.1],[19,11,6.7,4.2]].entries()){
+  const beds=[[-17.4,-10.7,7.4,.42],[-6.5,-12.1,6.8,2.6],[17.4,-9.8,6.5,1.8],[-17,9.8,6.2,3.5],[-8,13.3,7.1,5.1],[19,11,6.7,4.2]];
+  dressCourt(scene,beds,obstacles,textures);
+  for(const [i,[x,z,h,angle]] of beds.entries()){
     const plant=i?tree.clone(true):tree;
     place(plant,x,-.09,z,h*1.57,h,h*2.25,angle);
-    obstacles.push([x,z,.34,.34]);
   }
   const rimLocal=V(...calibration.basket.rim),size=calibration.basket.dimensions;
   const goals=[];

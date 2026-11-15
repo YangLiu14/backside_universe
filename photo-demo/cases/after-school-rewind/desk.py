@@ -73,3 +73,22 @@ def stage(folder,out,align):
     with Image.open(art/'campus/gymhall.png') as hall:
         w,h=hall.size
         hall.crop((.07*w,.356*h,.157*w,.573*h)).convert('RGB').save(out/'courtyard-brick.jpg',quality=95)
+
+    # Periodic mineral grain and slower binder wear, stored as linear scalar data.
+    rng=np.random.default_rng(621)
+    grains=np.clip(rng.normal(.50,.22,(512,512)),0,1)
+    waves=np.zeros_like(grains)
+    yy,xx=np.mgrid[:512,:512]*(2*np.pi/512)
+    for kx,ky,weight in [(1,3,.17),(3,1,.11),(4,-3,.075),(7,5,.042),(11,12,.022)]:
+        waves+=weight*np.cos(xx*kx+yy*ky+rng.uniform(0,2*np.pi))
+    aggregate=np.stack([grains,np.clip(.50+waves,0,1),grains],axis=-1)
+    Image.fromarray(np.uint8(255*aggregate)).save(out/'court-aggregate.png')
+
+    # Lengthwise grain stays in slat space across differently sized bench boards.
+    yy,xx=np.mgrid[:256,:1024]
+    whorl=yy/6+2*np.sin(xx/156+yy/145)+.52*np.sin(xx/46+yy/72)
+    annual=np.sin(whorl)+.46*np.cos(2.08*whorl)
+    pore=rng.uniform(size=whorl.shape)
+    shade=.86+.11*annual+.10*pore-.15*(pore>.974)
+    rgb=np.clip(shade[:,:,None]*[160,131,96],0,255)
+    Image.fromarray(np.uint8(rgb)).save(out/'bench-oak.jpg',quality=93)
