@@ -15,6 +15,20 @@ export function dressCourt(scene, beds, obstacles, textures) {
   }
   const bolts=material(0x7a7669,.47,.65), metalwork=new T.CylinderGeometry(.011,.013,.006,8);
   const boltPositions=[];
+  // The pedestrian strip has joints at human scale. Keep the existing court
+  // and channel lids exposed, and leave actual tree wells through the paving.
+  const concrete=material(0xa5a394,.89);
+  concrete.bumpMap=textures.aggregate;concrete.bumpScale=.005;
+  concrete.onBeforeCompile=shader=>{
+    shader.uniforms.mineral={value:textures.aggregate};
+    shader.vertexShader='varying vec3 pavingPoint;\n'+shader.vertexShader.replace('#include <project_vertex>',`#include <project_vertex>
+      pavingPoint=(instanceMatrix*vec4(transformed,1.)).xyz;`);
+    shader.fragmentShader='varying vec3 pavingPoint;uniform sampler2D mineral;\n'+shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+      float dust=texture2D(mineral,pavingPoint.xz*.47).g;
+      float sand=texture2D(mineral,pavingPoint.xz*2.8).r;
+      float tile=fract(sin(dot(floor(pavingPoint.xz/1.2),vec2(12.9898,78.233)))*43758.5453);
+      diffuseColor.rgb*=.91+.07*tile+.10*dust+.04*sand;`);
+  };
   const stamp=document.createElement('canvas');stamp.width=stamp.height=64;
   const ctx=stamp.getContext('2d'), falloff=ctx.createRadialGradient(32,32,4,32,32,31);
   falloff.addColorStop(0,'rgba(29,22,17,.53)');falloff.addColorStop(.48,'rgba(32,26,20,.28)');
@@ -25,6 +39,11 @@ export function dressCourt(scene, beds, obstacles, textures) {
     pose.position.set(x,y,z);pose.scale.set(w,h,d);pose.rotation.set(0,yaw,0);pose.updateMatrix();
     if(!groups.has(mat))groups.set(mat,[]);
     groups.get(mat).push(pose.matrix.clone());
+  }
+  for(let row=0;row<4;row++)for(let col=0;col<34;col++){
+    const x=-20.4+col*1.2,z=-10.08-row*1.2;
+    if(beds.some(([tx,tz])=>Math.abs(x-tx)<1.65&&Math.abs(z-tz)<1.65))continue;
+    block(concrete,x,-.078,z,1.187,.045,1.187);
   }
   // Cast-iron channel lids sit between the paving and the outer white boundary.
   // The ribs sit inside stone kerbs and a recessed bed, without overlaying the court.

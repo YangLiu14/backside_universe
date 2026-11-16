@@ -16,7 +16,7 @@ const openings=[...windows,...doorLights];
 // Clip triangles against each aperture (including triangles crossing a jamb),
 // preserving UVs, vertex normals, material groups and the original outer brick.
 // The real openings then work in the colour, depth and sun-shadow passes alike.
-function cutOpenings(source){
+export function cutOpenings(source,apertures=openings,front=.27){
   const attrs=Object.entries(source.attributes);
   const added=Object.fromEntries(attrs.map(([name])=>[name,[]]));
   const pos=source.attributes.position,count=pos.count,indices=[],groups=[];
@@ -47,7 +47,8 @@ function cutOpenings(source){
     }
     return kept;
   }
-  const cuts=openings.map(o=>({...o,planes:[[0,o.left,1],[0,o.right,-1],[1,o.bottom,1],[1,o.top,-1],[2,.27,1]]}));
+  const cuts=apertures.map(o=>({...o,planes:[[0,o.left,1],[0,o.right,-1],[1,o.bottom,1],[1,o.top,-1],[2,front,1]]}));
+  const minY=Math.min(...apertures.map(o=>o.bottom)),maxY=Math.max(...apertures.map(o=>o.top));
   const index=source.index;
   const batches=source.groups.length?source.groups:[{start:0,count:index?.count??count,materialIndex:0}];
   for(const batch of batches){
@@ -58,7 +59,7 @@ function cutOpenings(source){
       const y0=Math.min(pos.getY(a),pos.getY(b),pos.getY(c)),y1=Math.max(pos.getY(a),pos.getY(b),pos.getY(c));
       const z1=Math.max(pos.getZ(a),pos.getZ(b),pos.getZ(c));
       let patches;
-      if(z1>.27 && y1>sill && y0<head)for(const o of cuts){
+      if(z1>front && y1>minY && y0<maxY)for(const o of cuts){
         if(x1<=o.left||x0>=o.right||y1<=o.bottom||y0>=o.top)continue;
         patches=(patches||[[a,b,c]]).flatMap(p=>outside(p,o.planes));
       }
@@ -97,14 +98,14 @@ export function restoreGymWindows(hall,{sky,aggregate}){
     shader.uniforms.gymSky={value:sky};
     shader.vertexShader='varying vec3 gymGlassWorld;\n'+shader.vertexShader.replace('#include <project_vertex>',`#include <project_vertex>
       gymGlassWorld=(modelMatrix*instanceMatrix*vec4(transformed,1.)).xyz;`);
-    shader.fragmentShader='varying vec3 gymGlassWorld;uniform sampler2D gymSky;\n'+shader.fragmentShader
+    shader.fragmentShader='varying vec3 gymGlassWorld;uniform samplerCube gymSky;\n'+shader.fragmentShader
       .replace('#include <opaque_fragment>',`
         vec3 eye=normalize(cameraPosition-gymGlassWorld);
         vec3 faceNormal=inverseTransformDirection(normal,viewMatrix);
         vec3 ray=reflect(-eye,faceNormal);
         float fresnel=.038+.944*pow(1.-abs(dot(eye,faceNormal)),5.);
         vec2 skyUV=vec2(atan(ray.z,ray.x)*.15915494+.5,asin(clamp(ray.y,-1.,1.))*.31830989+.5);
-        vec3 skyColor=texture2D(gymSky,skyUV).rgb;
+        vec3 skyColor=textureCube(gymSky,ray).rgb;
         outgoingLight=mix(vec3(.086,.114,.105),skyColor,.47+.49*fresnel);
         diffuseColor.a=.13+.76*fresnel;
         #include <opaque_fragment>`);

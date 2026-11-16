@@ -1,6 +1,6 @@
 // Normalize real Hi3D meshes once. Keep their source UVs, normals, PBR materials and textures.
 import * as T from 'three';
-const V=(x=0,y=0,z=0)=>new T.Vector3(x,y,z),clamp=T.MathUtils.clamp;
+const V=(x=0,y=0,z=0)=>new T.Vector3(x,y,z);
 function bounds(root){return new T.Box3().setFromObject(root,true);}
 function baked(gltf){
  const out=new T.Group();gltf.scene.updateMatrixWorld(true);
@@ -27,6 +27,8 @@ export function prepare(role,gltf,calibration){
  const root=baked(gltf),size=bounds(root).getSize(V()),axes=dimensionSort(size),orient=new T.Quaternion();
  if(calibration)orient.setFromRotationMatrix(new T.Matrix4().set(...calibration.axes[0],0,...calibration.axes[1],0,...calibration.axes[2],0,0,0,0,1));
  if(role==='pencil')orient.setFromUnitVectors(originalPencilAxis(root),V(0,0,1));
+ if(role==='microphone')orient.setFromAxisAngle(V(0,1,0),-Math.PI/2);
+ if(role==='announcer'||role==='announcer-head')orient.setFromAxisAngle(V(0,1,0),Math.PI/2);
  // Measured normal of the oblique hub in the approved Hi3D reel (least-variance axis).
  if(role==='reel')orient.setFromUnitVectors(V(.84193635,-.05731017,-.53652468).normalize(),V(0,0,1));
  if(role==='shell'){const thin=axes[2],a=V();a[thin]=1;orient.setFromUnitVectors(a,V(0,0,1));}
@@ -36,30 +38,4 @@ export function prepare(role,gltf,calibration){
  // Center every asset at its own physical pivot. Normalized bounds now span exactly one per axis.
  for(const o of root.children){const g=o.geometry;g.translate(-center.x,-center.y,-center.z);g.scale(1/Math.max(s.x,1e-8),1/Math.max(s.y,1e-8),1/Math.max(s.z,1e-8));g.computeBoundingSphere();}
  root.name=role;root.userData.native=s.toArray();return root;
-}
-// Soft pose weights preserve sleeves and fingers of the source photo-mesh. No frame-to-frame integration.
-export function poseActor(root,kind){
- for(const mesh of root.children){const g=mesh.geometry,a=g.attributes.position,delta=new Float32Array(a.count*3);
-  for(let i=0;i<a.count;i++){const x=a.getX(i),y=a.getY(i),z=a.getZ(i);
-   if(kind==='shooter'){
-    // On this scan the forearms project forward of the jersey and below the chin.
-    // Rotate about the elbows in physical proportions; the chest and head stay on the torso.
-    const arm=T.MathUtils.smoothstep(z,.012,.255)*T.MathUtils.smoothstep(y,.085,.18)*(1-T.MathUtils.smoothstep(y,.335,.385));
-    const dy=(y-.17)*1.70,dz=(z-.08)*.46,angle=.54;
-    delta[i*3]=0;
-    delta[i*3+1]=arm*((Math.cos(angle)-1)*dy+Math.sin(angle)*dz+.095)/1.70;
-    delta[i*3+2]=arm*(-Math.sin(angle)*dy+(Math.cos(angle)-1)*dz+.12)/.46;
-   }else{
-    const leg=1-T.MathUtils.smoothstep(y,-.46,-.02),sign=Math.sign(x||1);
-    delta[i*3]=leg*sign*.20;delta[i*3+1]=leg*.035;delta[i*3+2]=leg*sign*.20;
-   }
-  }
-  g.morphTargetsRelative=true;g.morphAttributes.position=[new T.BufferAttribute(delta,3)];mesh.updateMorphTargets();
- }
-}
-export function applyActor(root,v){for(const m of root.children)if(m.morphTargetInfluences)m.morphTargetInfluences[0]=v;}
-export function palmLandmark(root){
- const wanted=V(.14,.288,.44);let best=Infinity,hit;
- eachVertex(root,(p,o,i)=>{const score=p.distanceToSquared(wanted);if(score<best){best=score;hit={rest:p.clone(),delta:V().fromBufferAttribute(o.geometry.morphAttributes.position[0],i)};}});
- if(!hit)throw Error('投篮者模型缺少手部表面');return hit;
 }

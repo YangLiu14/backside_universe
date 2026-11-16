@@ -1,8 +1,11 @@
 import * as T from 'three';
 import {prepare} from './props.js';
+import {prepareCampusActor} from './rigged-actors.js';
 import {sample} from './memory.js';
+import {finishBroadcastRoom,finishInteriorMaterials,replaceBroadcastEquipment} from './broadcast-room.js';
+import {installAnnouncer} from './broadcast-character.js';
 const V=(...x)=>new T.Vector3(...x);
-export function assemble(spec,a,assets,scene){
+export function assemble(spec,a,assets,scene,textures){
  const root=new T.Group(),M=a.matrix,rotation=new T.Matrix4().set(...M[0],0,...M[1],0,...M[2],0,0,0,0,1);
  root.quaternion.setFromRotationMatrix(rotation);root.position.fromArray(a.position);root.scale.setScalar(a.unit);scene.add(root);
  const baseRotation=root.quaternion.clone(),basePosition=root.position.clone();
@@ -25,7 +28,8 @@ export function assemble(spec,a,assets,scene){
    drive.position.x=right.x+travel;supply.position.x=left.x-travel;pen.position.x=drive.position.x;
    root.updateMatrixWorld(true);
  }
- const pieces=Object.fromEntries(Object.entries(assets).map(([k,m])=>[k,prepare(k,m,spec.calibration?.[k])]));
+ const pieces=Object.fromEntries(Object.entries(assets).map(([k,m])=>[k,
+   k==='shooter'||k==='walker'?prepareCampusActor(k,m,spec.actorMotion[k]):prepare(k,m,spec.calibration?.[k])]));
  const place=(parent,obj,pos,scale)=>{parent.add(obj);obj.position.fromArray(pos);obj.scale.fromArray(scale);return obj;};
  const shell=place(root,pieces.shell,[0,0,0],[100,a.height,10.4]);
  const left=V(...a.empty),right=V(...a.drive),cone=V(...a.tip),cap=V(...a.cap),axis=cap.clone().sub(cone).normalize();
@@ -34,7 +38,16 @@ export function assemble(spec,a,assets,scene){
  const drive=place(root,pieces.reel,right.toArray(),[38,38,3.8]);
  const supply=place(root,pieces.reel.clone(true),left.toArray(),[25,25,3.8]);
  const rear=new T.Group();root.add(rear);rear.rotation.y=Math.PI;rear.position.set(-.8,2,-13.8);rear.scale.set(.88,1,.82);
- const booth=place(rear,pieces.interior,[0,0,0],[60,36,11]);
+ // Preserve the Hi3D room's proportions. Its rear wall remains on the portal plane.
+ const native=pieces.interior.userData.native,boothWidth=60;
+ const boothHeight=boothWidth*.88*native[1]/native[0];
+ const boothDepth=boothWidth*.88/.82*native[2]/native[0];
+ const booth=place(rear,pieces.interior,[0,0,boothDepth/2-5.5],[boothWidth,boothHeight,boothDepth]);
+ finishInteriorMaterials(booth);
+ replaceBroadcastEquipment(booth,pieces,rear);
+ const floorY=installAnnouncer(booth,pieces.announcer,rear,pieces['announcer-head']);
+ const roomFinish=finishBroadcastRoom(rear,textures.oak,floorY);
+ root.updateMatrixWorld(true);booth.attach(roomFinish);
  const ribbonGeo=new T.BufferGeometry(),route=[[-21,1,0],[-33,-13,0],[-42,-22,0],[-41,-25,0],[41,-25,0],[42,-22,0],[38,-8,0],[22,1,0]];
  const pts=[],tex=[],idx=[];route.forEach(([x,y,z],i)=>{pts.push(x,y,z-1.5,x,y,z+1.5);tex.push(i,0,i,1);if(i)idx.push(2*i-2,2*i-1,2*i,2*i,2*i-1,2*i+1);});
  ribbonGeo.setAttribute('position',new T.Float32BufferAttribute(pts,3));ribbonGeo.setAttribute('uv',new T.Float32BufferAttribute(tex,2));ribbonGeo.setIndex(idx);ribbonGeo.computeVertexNormals();
@@ -43,19 +56,18 @@ export function assemble(spec,a,assets,scene){
  const opening={value:0},clearPlastic={value:0};
  // Real shell stays around all four edges. Discard only the rear-facing central wall during reveal.
  for(const mesh of shell.children){for(const mat of [].concat(mesh.material)){mat.side=T.DoubleSide;mat.transparent=true;mat.depthWrite=false;mat.forceSinglePass=true;mesh.renderOrder=3;
-   mat.roughness=.24;mat.metalness=.035;
-   mat.onBeforeCompile=s=>{s.uniforms.opening=opening;s.uniforms.clearPlastic=clearPlastic;s.vertexShader='varying vec3 shellPt;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nshellPt=position;');s.fragmentShader='varying vec3 shellPt;uniform float opening;uniform float clearPlastic;\n'+s.fragmentShader.replace('#include <alphatest_fragment>','#include <alphatest_fragment>\nif(opening>0. && shellPt.z<.43 && abs(shellPt.x-.005)<.415*opening && abs(shellPt.y-.035)<.40*opening)discard;\nfloat rim=max(smoothstep(.447,.49,abs(shellPt.x)),smoothstep(.423,.49,abs(shellPt.y)));float label=step(.260,shellPt.y)*step(shellPt.y,.427)*step(abs(shellPt.x),.432);float mould=1.-smoothstep(.075,.13,abs(abs(shellPt.x)-.217)+abs(shellPt.y-.035));float alpha=max(label,max(rim*.78,mould*.25));diffuseColor.a*=mix(1.,.115+.885*alpha,clearPlastic);');};
+   mat.roughness=.34;mat.metalness=0;mat.envMapIntensity=.65;
+   mat.onBeforeCompile=s=>{s.uniforms.opening=opening;s.uniforms.clearPlastic=clearPlastic;s.vertexShader='varying vec3 shellPt;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nshellPt=position;');s.fragmentShader='varying vec3 shellPt;uniform float opening;uniform float clearPlastic;\n'+s.fragmentShader.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=max(.28,roughnessFactor);').replace('#include <alphatest_fragment>','#include <alphatest_fragment>\nif(opening>0. && shellPt.z<.43 && abs(shellPt.x-.005)<.415*opening && abs(shellPt.y-.035)<.40*opening)discard;\nfloat rim=max(smoothstep(.447,.49,abs(shellPt.x)),smoothstep(.423,.49,abs(shellPt.y)));float label=step(.260,shellPt.y)*step(shellPt.y,.427)*step(abs(shellPt.x),.432);float mould=1.-smoothstep(.075,.13,abs(abs(shellPt.x)-.217)+abs(shellPt.y-.035));float alpha=max(label,max(rim*.78,mould*.25));diffuseColor.a*=mix(1.,.115+.885*alpha,clearPlastic);');};
  }}
- // A smoked liner uses the uncut front wall of the same Hi3D shell as its mould.
- const backing=shell.clone(true);root.add(backing);backing.scale.z=2.4;backing.scale.x*=.958;backing.scale.y*=.938;backing.position.z=4.0;
- for(const m of backing.children){
-   const tint=mat=>{const liner=mat.clone();liner.color.set(0x9d8766);liner.roughness=.43;liner.metalness=.12;liner.transparent=true;liner.opacity=.68;liner.depthWrite=false;return liner;};
-   m.material=Array.isArray(m.material)?m.material.map(tint):tint(m.material);m.renderOrder=-2;
- }
+ // The source already has both physical faces. A second full shell used to
+ // duplicate the screws and moulding, producing a wrinkled plastic appearance.
  for(const group of [booth,drive,supply]){
    group.traverse(m=>{if(m.isMesh){m.castShadow=true;m.receiveShadow=true;}});
  }
- const lamp=new T.PointLight(0xffd393,240*a.unit*a.unit,32*a.unit,2);scene.add(lamp);
+ const lamp=new T.SpotLight(0xffcd8d,1350*a.unit*a.unit,65*a.unit,.90,.58,2);scene.add(lamp,lamp.target);
+ lamp.castShadow=true;lamp.shadow.mapSize.setScalar(512);lamp.shadow.bias=-.00002;lamp.shadow.normalBias=.00008;lamp.shadow.camera.near=.001;
+ const bulb=new T.Mesh(new T.SphereGeometry(.42,12,8),new T.MeshStandardMaterial({color:0xffe7ac,emissive:0xffc56d,emissiveIntensity:2.5,roughness:.35}));rear.add(bulb);bulb.position.set(-6.46,1.16,4.25);
+ root.updateMatrixWorld(true);booth.attach(bulb);
  function animate(t){
   const s=sample(t);drive.rotation.z=s.spin;supply.rotation.z=s.supplySpin;pencil.rotation.z=s.spin;phase.value=s.spin*5;
  }
@@ -66,5 +78,5 @@ export function assemble(spec,a,assets,scene){
   tipPoint:()=>toWorld(root,cone.clone().add(drive.position).sub(right)),
   footPoint:()=>toWorld(root,V(0,-a.height/2,0)),longAxis:()=>V(1,0,0).applyQuaternion(root.quaternion),
   target:()=>toWorld(rear,V(1.65,3,1)),
-  cut(p){lamp.position.copy(toWorld(rear,V(-5.9,2.4,6.0)));clearPlastic.value=T.MathUtils.smoothstep(p,.40,.59);opening.value=T.MathUtils.smoothstep(p,.47,.80);rear.visible=p>.735;backing.visible=rear.visible;},sources:pieces};
+  cut(p){lamp.position.copy(toWorld(rear,V(-6.46,1.1,4.5)));lamp.target.position.copy(toWorld(rear,V(-9.0,-9.0,25)));lamp.intensity=1350*a.unit*a.unit*T.MathUtils.smoothstep(p,.74,.93);clearPlastic.value=T.MathUtils.smoothstep(p,.40,.59);opening.value=T.MathUtils.smoothstep(p,.47,.80);rear.visible=p>.735;},sources:pieces};
 }

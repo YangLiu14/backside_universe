@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 
 async function coldOrbit(page,options){
-  const result=await page.evaluate(async({range,turn,state,pose,handoff,streamedLOD,canvas='mesh'})=>{
+  const result=await page.evaluate(async({range,turn,state,pose,handoff,streamedLOD,skinnedMotion=false,canvas='mesh'})=>{
     const gl=document.getElementById(canvas).getContext('webgl2');
     const names=['linkProgram','bufferData','texImage2D','texSubImage2D','texStorage2D'];
     const calls=Object.fromEntries(names.map(name=>[name,0])),originals={};
@@ -11,6 +11,7 @@ async function coldOrbit(page,options){
     // Classify only the exact vertex/index arrays and bitmap objects introduced
     // by a freshly attached near LOD. Unrelated GPU work during a download fails.
     const arrays=new WeakSet(),images=new WeakSet(),uploadedTextures=new WeakSet(),storages=[];
+    const boneArrays=new WeakMap();let boneTextureUpdates=0,restoreSkinning;
     let restoreLOD;
     const read=()=>window[state]();
     if(streamedLOD){
@@ -34,8 +35,25 @@ async function coldOrbit(page,options){
     const deadline=performance.now()+30000;
     let peak=0,prevTime,prev=read(),roomsOpened=0,stationary=0,samples=0,step=0;
     try{
+      if(skinnedMotion){
+        const {Skeleton}=await import('three'),update=Skeleton.prototype.update;
+        Skeleton.prototype.update=function(...args){
+          const result=update.apply(this,args),image=this.boneTexture?.image;
+          if(image?.data instanceof Float32Array)boneArrays.set(image.data,[image.width,image.height]);
+          return result;
+        };
+        restoreSkinning=()=>{Skeleton.prototype.update=update;};
+      }
       for(const name of names){
         originals[name]=gl[name];gl[name]=function(...args){
+          // Skeletal transforms are dynamic data, uploaded every rendered frame.
+          // Exempt only the exact arrays observed on actual Three skeletons;
+          // initial allocation and every unrelated texture upload still fail.
+          const boneSize=name==='texSubImage2D'&&boneArrays.get(args.at(-1));
+          if(boneSize&&args[0]===gl.TEXTURE_2D&&args[6]===gl.RGBA&&args[7]===gl.FLOAT
+              &&args[4]===boneSize[0]&&args[5]===boneSize[1]){
+            boneTextureUpdates++;return originals[name].apply(this,args);
+          }
           let stream=false;
           if(streamedLOD){
             if(name==='bufferData')stream=arrays.has(args[1]);
@@ -67,11 +85,12 @@ async function coldOrbit(page,options){
     }finally{
       for(const [name,fn] of Object.entries(originals))gl[name]=fn;
       restoreLOD?.();
+      restoreSkinning?.();
     }
     for(const handle of storages)if(uploadedTextures.has(handle)){
       calls.texStorage2D--;streamedCalls.texStorage2D++;
     }
-    return {calls,...(streamedLOD?{streamedCalls}:{}),roomsOpened,samples,stationary,peakFrameMs:Math.round(peak*10)/10};
+    return {calls,...(streamedLOD?{streamedCalls}:{}),...(skinnedMotion?{boneTextureUpdates}:{}),roomsOpened,samples,stationary,peakFrameMs:Math.round(peak*10)/10};
   },options);
   assert(result.samples>0,'first traversal did not sample the handoff');
   assert.equal(result.stationary,0,'camera stopped while handoff progress advanced');
