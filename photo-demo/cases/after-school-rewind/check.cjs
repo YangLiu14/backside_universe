@@ -7,6 +7,7 @@ exports.orbit = { range: 'progress', state: 'rewindState', pose: 'pose', handoff
 
 exports.check = async function (page, device, viewport, out, url, coldOrbit) {
   const state = () => page.evaluate(() => window.rewindState());
+  const captionAt = t => t < 1.94 ? '今天的校园广播就到这里。' : t < 3.2 ? '操场上的同学，' : t < 4 ? '明天见。' : '';
   const shot = label => page.screenshot({path: path.join(out, device + '-' + label + '.jpg'), type: 'jpeg', quality: 94});
   const still = name => page.locator('#frame').screenshot({
     path: path.join(out, 'album-' + name + '.png'),
@@ -119,20 +120,22 @@ exports.check = async function (page, device, viewport, out, url, coldOrbit) {
 
   await page.locator('#sound').click();
   const releases = [];
-  for (const [target, label] of [[releaseTime, 'release'], [apexTime, 'apex']]) {
+  for (const [target, label] of [[releaseTime, 'release'], [apexTime, 'apex'], [2.4, 'caption-middle'], [3.5, 'caption-ending']]) {
     const before = await dragTo(target);
-    assert(before.voicePaused);
+    assert(before.rewindSound);
+    assert.equal(before.subtitle,captionAt(before.time),'Subtitles remain visible while rewinding');
     await shot(label);
     if(device==='desktop' && label==='apex')await still('studio');
     await lift();
     await page.waitForFunction(t => {
       const s = window.rewindState();
-      return !s.held && s.time > t + .05 && !s.voicePaused && Math.abs(s.time - s.voiceTime) < .19;
+      return !s.held && s.time > t + .05 && !s.rewindSound;
     }, target, {timeout: 6000});
     const after = await state();
     assert(after.time < target + .8);
+    assert.equal(after.subtitle,captionAt(after.time),'Subtitles follow playback without a voice track');
     assert.deepEqual(after.pose, before.pose);
-    releases.push({requested: target, grabbed: before.time, resumed: after.time, broadcastTime: after.voiceTime});
+    releases.push({requested: target, grabbed: before.time, resumed: after.time, subtitle: after.subtitle});
     await end();
   }
   await page.locator('#sound').click();
@@ -140,6 +143,8 @@ exports.check = async function (page, device, viewport, out, url, coldOrbit) {
   await page.keyboard.down('r');
   await page.waitForFunction(() => window.rewindState().time === 0);
   assert.equal((await state()).held, 'button');
+  assert.equal((await state()).rewindSound,false);
+  assert.equal((await state()).subtitle,captionAt(0),'Muting sound effects does not hide subtitles');
   await page.keyboard.up('r');
   await page.waitForFunction(() => window.rewindState().time > .06);
 
@@ -288,5 +293,6 @@ exports.check = async function (page, device, viewport, out, url, coldOrbit) {
   await page.locator('#home').click();
   assert.deepEqual((await state()).pose, first.pose);
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  assert.deepEqual(await page.evaluate(() => performance.getEntriesByType('resource').filter(r=>/broadcast\.mp3/.test(r.name)).map(r=>r.name)),[], 'No broadcast recording is fetched');
   return {device, viewport, coldOrbit, triangles: first.triangles, splats: first.splats, roles: first.roles, releases, handReturns: 3, actorViews, motion:motion.report, campusWalk:{arrival:arrival.eye,west,east,spanMetres:east[0]-west[0]}};
 };

@@ -1,23 +1,10 @@
-// Seek the decoded four-second recording against the same clock used for the ball.
+// Only the tape motor is audible; broadcast dialogue stays in the subtitles.
 export function sound() {
-  const recording = fetch('./broadcast.mp3').then(response => {
-    if (!response.ok) throw Error('广播录音未能加载');
-    return response.arrayBuffer();
-  });
-  let enabled = false, context, buffer, voice, motorGain, offset = 0, started = 0;
-  const voiceTime = () => voice ? offset + context.currentTime - started : offset;
-  function silence() {
-    if (!voice) return;
-    offset = voiceTime();
-    voice.stop();
-    voice.disconnect();
-    voice = null;
-  }
+  let enabled = false, context, motorGain, rewinding = false;
   function enable() {
     enabled = !enabled;
     if (enabled && !context) {
       context = new AudioContext();
-      recording.then(data => context.decodeAudioData(data)).then(decoded => { buffer = decoded; });
       const strip = context.createBuffer(1, context.sampleRate, context.sampleRate);
       const data = strip.getChannelData(0);
       let seed = 32177;
@@ -32,22 +19,13 @@ export function sound() {
       motor.start();
     }
     if (enabled) context.resume().catch(() => {});
-    else { silence(); motorGain.gain.setTargetAtTime(0, context.currentTime, .025); }
+    else { rewinding = false; motorGain.gain.setTargetAtTime(0, context.currentTime, .025); }
     return enabled;
   }
-  function update(t, playing, held) {
+  function update(held) {
     if (!context) return;
-    motorGain.gain.setTargetAtTime(enabled && held ? .055 : 0, context.currentTime, .035);
-    if (!enabled || !playing || !buffer || context.state !== 'running' || t >= buffer.duration - .005) {
-      silence(); return;
-    }
-    if (voice && Math.abs(voiceTime() - t) < .14) return;
-    silence();
-    voice = context.createBufferSource();
-    voice.buffer = buffer;
-    voice.connect(context.destination);
-    offset = t; started = context.currentTime;
-    voice.start(started, offset);
+    rewinding = enabled && !!held;
+    motorGain.gain.setTargetAtTime(rewinding ? .055 : 0, context.currentTime, .035);
   }
-  return { enable, update, get enabled() { return enabled; }, get voiceTime() { return voiceTime(); }, get paused() { return !voice; } };
+  return { enable, update, get enabled() { return enabled; }, get rewinding() { return rewinding; } };
 }

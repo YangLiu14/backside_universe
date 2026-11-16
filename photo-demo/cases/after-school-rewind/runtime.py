@@ -5,6 +5,8 @@ import json
 from register import register
 from desk import stage
 folder,out=map(Path,sys.argv[1:])
+# The historical recording stays in the local source archive, outside delivery.
+(out/'broadcast.mp3').unlink(missing_ok=True)
 alignment=register(folder)
 (out/'alignment.json').write_text(json.dumps(alignment,indent=2))
 stage(folder,out,alignment)

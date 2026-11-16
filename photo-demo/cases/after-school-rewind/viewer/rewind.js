@@ -105,11 +105,11 @@ async function boot(){
   $('enter').hidden=out;$('progress').hidden=out;$('grip').hidden=!close||out||portrait;
   $('portrait').hidden=!close||out||!assembly.sources.announcer;
   $('portrait').textContent=portrait?'返回广播室全景':'细看播音员';
-  if(portrait&&!out)$('caption').textContent='左右拖动画面，细看人物；按住倒带可重播广播。';
+  if(portrait&&!out)$('caption').textContent='左右拖动画面，细看人物；按住倒带可回看字幕。';
   if(out)$('caption').textContent=mode==='court'?(navigator.maxTouchPoints?'左侧摇杆行走，拖动画面环顾。':'WASD 行走，拖动画面或用方向键环顾。'):(mode==='outbound'?'穿过广播室窗户…':'沿来路回到窗前…');
  }
  function update(){const s=sample(clock.time);assembly.animate(clock.time);campus.animate(clock.time);$('counter').textContent='A　00:'+String(Math.floor(clock.time)).padStart(2,'0')+'·'+Math.floor(clock.time*10)%10;
-  $('sub').textContent=close?s.caption:'';$('action').setAttribute('aria-pressed',String(!!clock.held));$('grip').dataset.held=String(clock.held==='pencil');tape.update(clock.time,roomVisible()&&close&&clock.playing,roomVisible()&&close&&!!clock.held);}
+  $('sub').textContent=close?s.caption:'';$('action').setAttribute('aria-pressed',String(!!clock.held));$('grip').dataset.held=String(clock.held==='pencil');tape.update(roomVisible()&&close&&!!clock.held);}
  function release(){clock.release();drag=null;update();}
  function seek(n){tour.reset();if(close)clock.leave();close=portrait=false;drag=null;inspectX=inspectY=0;progress=clamp(n);if(n===0)clock.restart();draw();update();}
  function visit(){if(tour.active()){tour.back();tourUI();return;}if(progress<.8)return;if(close){clock.leave();close=false;}else{close=true;clock.enter();}portrait=false;drag=null;inspectX=inspectY=0;draw();update();}
@@ -156,7 +156,7 @@ async function boot(){
  stick.onpointerdown=e=>{e.stopPropagation();if(stickId!==null)return;e.preventDefault();stickId=e.pointerId;stick.setPointerCapture(e.pointerId);steer(e);};
  stick.onpointermove=e=>{if(e.pointerId===stickId){e.stopPropagation();steer(e);}};
  stick.onpointerup=stick.onpointercancel=stick.onlostpointercapture=e=>{if(e.pointerId===stickId){e.stopPropagation();stickId=null;tour.stick(0,0);nub.style.transform='';}};
- $('home').onclick=()=>seek(0);$('enter').onclick=visit;$('progress').oninput=e=>seek(+e.target.value/1000);$('sound').onclick=()=>{const on=tape.enable();$('sound').textContent=on?'关闭广播':'开启广播';$('sound').setAttribute('aria-pressed',String(on));update();};
+ $('home').onclick=()=>seek(0);$('enter').onclick=visit;$('progress').oninput=e=>seek(+e.target.value/1000);$('sound').onclick=()=>{const on=tape.enable();$('sound').textContent=on?'关闭音效':'开启音效';$('sound').setAttribute('aria-pressed',String(on));update();};
  new ResizeObserver(()=>draw()).observe(stage);ready=true;$('home').disabled=false;seek(0);let triangles=0;for(const scene of [tiny,campus.scene])scene.traverse(o=>{if(o.geometry)triangles+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);});
  stage.dataset.ready='true';
  mesh.setAnimationLoop(now=>{
@@ -169,7 +169,7 @@ async function boot(){
   if(progress>=.24)tour.render(cam,tiny,assembly.rear.visible,frameWidth/frameHeight);
  });
  const yardPixel=p=>pointPx(p,tour.camera);
- window.rewindState=()=>({duration,releaseTime:actorMotion.shooter.releaseTime,ballPhysics:campus.ballPhysics(),progress,close,portrait,headMounted:assembly.sources['announcer-head']?.parent===assembly.sources.interior,oldHeadRemovedTriangles:assembly.sources.announcer?.userData.removedHeadTriangles||0,held:clock.held,time:clock.time,palmGap:campus.palmGap,handContacts:campus.handContacts(),ballCount:1,pose:(tour.active()?tour.camera:cam).matrixWorld.toArray(),projection:(tour.active()?tour.camera:cam).projectionMatrix.toArray(),splats:splats.numSplats,triangles,foliage:campus.foliageDetails(),actors:campus.actorDetails(),roles:Object.keys(spec.models),sound:tape.enabled,voiceTime:tape.voiceTime,voicePaused:tape.paused,ball:yardPixel(campus.ball.position),hand:yardPixel(campus.hand),rim:yardPixel(campus.rim),walkers:campus.walkerPositions().map(yardPixel),tour:tour.mode(),eye:tour.camera.position.toArray()});
+ window.rewindState=()=>({duration,releaseTime:actorMotion.shooter.releaseTime,ballPhysics:campus.ballPhysics(),progress,close,portrait,headMounted:assembly.sources['announcer-head']?.parent===assembly.sources.interior,oldHeadRemovedTriangles:assembly.sources.announcer?.userData.removedHeadTriangles||0,held:clock.held,time:clock.time,palmGap:campus.palmGap,handContacts:campus.handContacts(),ballCount:1,pose:(tour.active()?tour.camera:cam).matrixWorld.toArray(),projection:(tour.active()?tour.camera:cam).projectionMatrix.toArray(),splats:splats.numSplats,triangles,foliage:campus.foliageDetails(),actors:campus.actorDetails(),roles:Object.keys(spec.models),sound:tape.enabled,rewindSound:tape.rewinding,subtitle:$('sub').textContent,ball:yardPixel(campus.ball.position),hand:yardPixel(campus.hand),rim:yardPixel(campus.rim),walkers:campus.walkerPositions().map(yardPixel),tour:tour.mode(),eye:tour.camera.position.toArray()});
  window.rewindMotionSample=t=>{try{campus.animate(t);return campus.motionSample(t);}finally{campus.animate(clock.time);}};
 
 }
