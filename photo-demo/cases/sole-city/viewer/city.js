@@ -1,3 +1,4 @@
+import {loadModel} from './delivery.js';
 import {loadPavement,roadDetails,surfaceDip} from './pavement.js';
 import {footbridgePlan,makeFootbridge} from './footbridge.js';
 import {makeOutsole,reaches} from './outsole.js';
@@ -117,9 +118,9 @@ async function library(models,registration,worldScale,preparation){
   const loader=new GLTFLoader().setDRACOLoader(draco);
   const nearSources=new Map();
   async function loadRole([role,desc]){
-    if(role==='shell')return [role,(await loader.loadAsync(registration.shoeFit.model)).scene];
+    if(role==='shell')return [role,(await loadModel(loader,registration.shoeFit.model)).scene];
     const stream=Boolean(desc.detail && (/^(shop|flat)-/.test(role)||role==='courtyard-osmanthus'));
-    const [base,near]=await Promise.all([loader.loadAsync(desc.file),desc.detail&&!stream?loader.loadAsync(desc.detail.file):null]);
+    const [base,near]=await Promise.all([loadModel(loader,desc.file),desc.detail&&!stream?loadModel(loader,desc.detail.file):null]);
     const scene=base.scene;
     // Awnings and window reveals on the shop scans include thin, open sheets.
     if(role==='shops'||role==='tower')scene.traverse(o=>{if(o.isMesh)for(const m of [].concat(o.material))m.side=T.DoubleSide;});
@@ -149,7 +150,7 @@ async function library(models,registration,worldScale,preparation){
       const lod=new T.LOD();lod.autoUpdate=false;lod.userData.nearBuildingRole=role;
       lod.addLevel(centered,.32*worldScale);normalized.add(lod);
       nearSources.set(role,async()=>{
-        const {scene:scan}=await loader.loadAsync(desc.detail.file);
+        const {scene:scan}=await loadModel(loader,desc.detail.file);
         const posed=new T.Group();posed.quaternion.copy(aligned.quaternion);
         posed.position.copy(aligned.position);posed.add(scan);
         const result=new T.Group();result.scale.copy(centered.scale);result.add(posed);

@@ -80,3 +80,5 @@ if __name__=='__main__':
     (out/'cinema').mkdir(exist_ok=True)
     for name in ('room.js', 'premiere.css', 'loading.js'):
         shutil.copyfile(dist/'cinema'/name,out/'cinema'/name)
+    from mobile_delivery import build_mobile_delivery
+    build_mobile_delivery(folder, out)

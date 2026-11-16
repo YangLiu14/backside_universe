@@ -2,12 +2,13 @@
 // transforms are uniform-scale: folding the intrinsics into object scale would
 // shrink the splat pass relative to the photograph during the handoff.
 import * as T from 'three';
+import {roomSource} from './delivery.js';
 export async function frontPhoto(room,source,canvas){
   const {SparkRenderer,SplatMesh}=await import('./vendor/spark.module.js');
   const renderer=new T.WebGLRenderer({canvas,alpha:true,antialias:false});
   renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setClearColor(0,0);
   const world=new T.Scene(),spark=new SparkRenderer({renderer,enableLod:false,sortRadial:false,blurAmount:.3});
-  const cloud=new SplatMesh({url:room.file,lod:false,extSplats:true});
+  const cloud=new SplatMesh({...await roomSource(room.file),lod:false,extSplats:true});
   const native=new T.Group();native.rotation.x=Math.PI;native.add(cloud);world.add(native,spark);
   const [fx,fy]=room.intrinsics,dist=source.position.length()/.96;
   const h=2*Math.tan(T.MathUtils.degToRad(source.fov/2)),sx=h*source.aspect*fx/room.width,sy=h*fy/room.height;
